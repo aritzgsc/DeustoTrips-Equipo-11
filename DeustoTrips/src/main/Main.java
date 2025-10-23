@@ -11,6 +11,22 @@ public class Main {
 	
 	public static final String nombreApp = "Deusto Trips";
 	public static final Font fuente = new Font("Comic Sans MS", Font.PLAIN, 18);
+	public static final KeyAdapter antiCaracteresRaros = new KeyAdapter() {
+
+		@Override
+		public void keyTyped(KeyEvent e) {
+			
+			char c = e.getKeyChar();
+			
+			if (!Character.isDigit(c) && !Character.isAlphabetic(c) && !"@.".contains(Character.toString(c))) {			// Solo permite números, letras, y los caracteres '.' y '@'
+				
+				e.consume();
+				
+			}
+				
+		}
+	
+	};
 	
 	public static void main(String[] args) {
 		
