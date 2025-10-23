@@ -92,7 +92,7 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		// FIN Creamos el compontente personalizado
 		// FIN Panel Viaje + Alojamiento
 		
-		setSelectedIndex(0);		// Seleccionamos el primer elemento como "Inicio" (Alojamientos)
+//		setSelectedIndex(0);		// Seleccionamos el primer elemento como "Inicio" (Alojamientos)
 		
 	}
 	
