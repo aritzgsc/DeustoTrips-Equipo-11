@@ -15,7 +15,7 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 
 	private static PanelPestanasBusqueda panelPestanasBusqueda;			// Usados en PanelVolverRegistrarseIniciarSesion (para resetear todos los valores de los tabs y seleccionar el inicial (Alojamientos))
 	
-//	private static PanelAlojamientos panelAlojamientos;
+	private static PanelAlojamientos panelAlojamientos;
 //	private static PanelViajes panelViajes;
 //	private static PanelViajeAlojamiento panelViajeAlojamiento;
 	
@@ -92,7 +92,7 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		// FIN Creamos el compontente personalizado
 		// FIN Panel Viaje + Alojamiento
 		
-//		setSelectedIndex(0);		// Seleccionamos el primer elemento como "Inicio" (Alojamientos)
+		setSelectedIndex(0);		// Seleccionamos el primer elemento como "Inicio" (Alojamientos)
 		
 	}
 	
