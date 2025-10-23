@@ -35,13 +35,13 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 		registrarse.setFocusable(false);
 		registrarse.setBackground(Color.WHITE);
 		registrarse.setFont(Main.fuente);
-//		registrarse.addActionListener(e -> new VentanaRegistrarse());			// TODO Crear nueva clase VentanaRegistrarse
+		registrarse.addActionListener(e -> new VentanaRegistrarse());			// Abrimos ventana emergente configurada en su propia clase
 		
 		JButton iniciarSesion = new JButton("Iniciar sesión");
 		iniciarSesion.setFocusable(false);
 		iniciarSesion.setBackground(Color.WHITE);
 		iniciarSesion.setFont(Main.fuente);
-//		iniciarSesion.addActionListener(e -> new VentanaIniciarSesion());		// TODO Crear nueva clase VentanaIniciarSesion
+		iniciarSesion.addActionListener(e -> new VentanaIniciarSesion());		// Abrimos ventana emergente configurada en su propia clase
 		
 		// FIN Creación de los botones de registrarse e iniciar sesión
 		////

@@ -33,19 +33,19 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 
 		// Creación del panel y lo añadimos como panel de una nueva ventana
 		
-		panelAlojamientos = new PanelAlojamientos();					// TODO Clase PanelAlojamientos
+//		panelAlojamientos = new PanelAlojamientos();					// TODO Clase PanelAlojamientos
 		
-		addTab("", panelAlojamientos);
+//		addTab("", panelAlojamientos);
 		
 		// FIN Creación del panel y lo añadimos como panel de una nueva ventana
 		////
 		// Creamos el componente personalizado
 		
-		JLabel alojamientosTab = new JLabel("Alojamientos");
-		alojamientosTab.setPreferredSize(new Dimension(128, 50));
-		alojamientosTab.setFont(Main.fuente.deriveFont(15.f));
-		alojamientosTab.setHorizontalAlignment(SwingUtilities.CENTER);
-		setTabComponentAt(0, alojamientosTab);
+//		JLabel alojamientosTab = new JLabel("Alojamientos");
+//		alojamientosTab.setPreferredSize(new Dimension(128, 50));
+//		alojamientosTab.setFont(Main.fuente.deriveFont(15.f));
+//		alojamientosTab.setHorizontalAlignment(SwingUtilities.CENTER);
+//		setTabComponentAt(0, alojamientosTab);
 		
 		// FIN Creamos el compontente personalizado
 		// FIN Panel Alojamientos
