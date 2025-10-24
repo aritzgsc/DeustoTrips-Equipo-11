@@ -42,7 +42,7 @@ public class PanelAlojamientos extends JPanel {
 		////
 		// Separamos esto en 2 para que quede bien
 		
-		JPanel panelSpinnerBuscar= new JPanel(new GridLayout(1, 2, 5, 0));
+//		JPanel panelSpinnerBuscar= new JPanel(new GridLayout(1, 2, 5, 0));
 		
 //		panelSpinnerBuscar.add(spinnerCantidadPersonas);
 //		panelSpinnerBuscar.add(botonBuscar);
@@ -68,6 +68,7 @@ public class PanelAlojamientos extends JPanel {
 		JLabel filtrosLabel = new JLabel("Filtros: ");
 		filtrosLabel.setFont(Main.fuente.deriveFont(16.f));
 		
+		// TODO Filtro precio
 //		FiltroPrecio filtroPrecio = new FiltroPrecio();
 		
 		// TODO Filtro reseñas
@@ -75,6 +76,7 @@ public class PanelAlojamientos extends JPanel {
 		
 		panelFiltros.add(filtrosLabel);
 //		panelFiltros.add(filtroPrecio);
+//		panelFiltros.add(filtroResenas);
 		
 		add(panelFiltros/*, BorderLayout.CENTRE*/);
 		

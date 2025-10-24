@@ -112,7 +112,17 @@ public class VentanaIniciarSesion extends JDialog {
 		iniciarSesion.setBackground(Color.WHITE);
 		iniciarSesion.setFont(Main.fuente);
 		iniciarSesion.setPreferredSize(new Dimension(300, 50));
-		// TODO actionListener iniciarSesion
+		iniciarSesion.addActionListener(e -> {
+			if (Consulta.iniciarSesion(correoElectronicoTF.getText(), contrasenaPF.getPassword())) {
+				
+				dispose();
+				
+			} else {
+				
+				error.setText("Correo electrónico o Contraseña erróneos");
+				
+			}
+		});
 		
 		// FIN Creación del boton que comprueba si los datos introducidos son correctos e inicia sesión en caso de ser válidos 
 		////
@@ -123,7 +133,23 @@ public class VentanaIniciarSesion extends JDialog {
 		contrasenaOlvidada.setBackground(Color.WHITE);
 		contrasenaOlvidada.setFont(Main.fuente);
 		contrasenaOlvidada.setPreferredSize(new Dimension(485, 50));
-		// TODO actionListener contrasenaOlvidada
+		contrasenaOlvidada.addActionListener(e -> {
+			if (Consulta.isCorreoInDB(correoElectronicoTF.getText())) {
+				
+				VentanaContrasenaOlvidada ventanaContrasenaOlvidada = new VentanaContrasenaOlvidada(correoElectronicoTF.getText());		// Para probar poner db.Consulta.isCorreoInDB a true de momento
+				
+				if (ventanaContrasenaOlvidada.getConfirmado()) {
+					
+					dispose();		// Se cierra la ventana de registrarse solo si el usuario ha decidido registrarse (Si ha decidido salir no se cierra esta ventana)
+					
+				}
+				
+			} else {
+				
+				error.setText("Correo electrónico no registrado");
+				
+			}
+		});
 		
 		// FIN Creación del boton que comprueba si el correo está registradoy envía un mail real (a través de la nueva ventana emergente) en caso de serlo 
 		// Añadimos los botones al panel botones
