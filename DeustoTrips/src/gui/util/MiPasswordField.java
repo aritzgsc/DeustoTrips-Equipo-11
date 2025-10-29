@@ -1,11 +1,11 @@
-package gui;
+package gui.util;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.*;
 
+import gui.main.VentanaPrincipal;
 import main.Main;
 
 // Clase para normalizar el tipo de JPasswordField utilizado, añade la funcionalidad de poder visualizar lo que tienes escrito mientras estés clicando en el botón
@@ -30,9 +30,9 @@ public class MiPasswordField extends JSplitPane {
 		
 		JPanel panelIzquierda = new JPanel(new BorderLayout());
 		
-		contrasenaPF.setBorder(new LineBorder(new Color(0x7A8A99)));
-		contrasenaPF.setFont(Main.fuente);
-		contrasenaPF.addKeyListener(Main.antiCaracteresRaros);
+		contrasenaPF.setBorder(Main.DEFAULT_LINE_BORDER);
+		contrasenaPF.setFont(Main.FUENTE);
+		contrasenaPF.addKeyListener(Main.ANTI_CARACTERES_RAROS);
 		contrasenaPF.addFocusListener(new FocusAdapter() {
 
 			@Override
@@ -49,23 +49,24 @@ public class MiPasswordField extends JSplitPane {
 		
 		JPanel panelDerecha = new JPanel(new BorderLayout());
 		
-		// TODO Cambiar los caracteres de mostrar por imagenes (en /resources/images hay que cambiarles el tamaño (mejor cambiarselo a mano ya que el tamaño del botón va a ser siempre el mismo, ya que las ventanas emergentes que lo usan no son resizable))
+		ImageIcon ojoCerrado = new ImageIcon(new ImageIcon("resources/images/ojo-cerrado.png").getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+		ImageIcon ojoAbierto = new ImageIcon(new ImageIcon("resources/images/ojo.png").getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
 		
-		JButton mostrar = new JButton("○");
+		JButton mostrar = new JButton(ojoCerrado);
 		mostrar.setFocusable(false);
-		mostrar.setBackground(Color.WHITE);
+		mostrar.setBackground(new Color(0xEEEEEE));
 		mostrar.addMouseListener(new MouseAdapter() {
 			
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				contrasenaPF.setEchoChar('•');
-				mostrar.setText("○");
+				mostrar.setIcon(ojoCerrado);
 			}
 			
 			@Override
 			public void mousePressed(MouseEvent e) {
 				contrasenaPF.setEchoChar((char) 0);
-				mostrar.setText("◉");
+				mostrar.setIcon(ojoAbierto);
 			}
 			
 		});

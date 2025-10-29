@@ -10,6 +10,11 @@ public class Pais extends Destino {
 		
 	}
 	
+	public Pais(String nombre, boolean defaultAns) {
+		setNombre(nombre);
+		setDefaultAns(defaultAns);
+	}
+	
 	@Override
 	public String toString() {
 		return getNombre();

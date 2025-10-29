@@ -1,4 +1,4 @@
-package gui;
+package gui.main;
 
 import java.awt.*;
 
@@ -34,24 +34,24 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 		JButton registrarse = new JButton("Registrarse");
 		registrarse.setFocusable(false);
 		registrarse.setBackground(Color.WHITE);
-		registrarse.setFont(Main.fuente);
+		registrarse.setFont(Main.FUENTE);
 		registrarse.addActionListener(e -> new VentanaRegistrarse());			// Abrimos ventana emergente configurada en su propia clase
 		
 		JButton iniciarSesion = new JButton("Iniciar sesión");
 		iniciarSesion.setFocusable(false);
 		iniciarSesion.setBackground(Color.WHITE);
-		iniciarSesion.setFont(Main.fuente);
+		iniciarSesion.setFont(Main.FUENTE);
 		iniciarSesion.addActionListener(e -> new VentanaIniciarSesion());		// Abrimos ventana emergente configurada en su propia clase
 		
 		// FIN Creación de los botones de registrarse e iniciar sesión
 		////
 		// Creación del botón volver
 		
-		JButton volver = new JButton(Main.nombreApp);
+		JButton volver = new JButton(Main.NOMBRE_APP);
 		volver.setPreferredSize(new Dimension(350, 50));
 		volver.setFocusable(false);
 		volver.setBackground(Color.WHITE);
-		volver.setFont(Main.fuente);
+		volver.setFont(Main.FUENTE);
 		volver.addActionListener(e -> PanelPestanasBusqueda.resetAll());		// Cuando hagamos click en volver se resetearán todas las selecciones y datos escritos
 		
 		// FIN Creación del botón volver

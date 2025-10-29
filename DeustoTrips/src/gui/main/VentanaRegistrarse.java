@@ -1,4 +1,4 @@
-package gui;
+package gui.main;
 
 import java.awt.*;
 
@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import db.Consulta;
+import gui.util.MiPasswordField;
+import gui.util.MiTextField;
 import main.Main;
 
 // Ventana emergente (JDialog) que permitirá a un usuario registrarse con un nombre, apellido(s), correo electrónico y contraseña 
@@ -35,7 +37,7 @@ public class VentanaRegistrarse extends JDialog {
 		// Panel Texto Error
 		
 		JLabel error = new JLabel("", SwingConstants.CENTER);
-		error.setFont(Main.fuente.deriveFont(Font.ITALIC).deriveFont(14.f));
+		error.setFont(Main.FUENTE.deriveFont(Font.ITALIC).deriveFont(14.f));
 		error.setForeground(new Color(0xDC143C));
 		error.setBorder(new EmptyBorder(20, 20, 0, 20));
 		
@@ -51,11 +53,11 @@ public class VentanaRegistrarse extends JDialog {
 		JPanel nombreYApellidos = new JPanel(new GridLayout(2, 2, 10, 0));
 		
 		JLabel nombreL = new JLabel("Nombre:");
-		nombreL.setFont(Main.fuente);
+		nombreL.setFont(Main.FUENTE);
 		nombreYApellidos.add(nombreL);
 		
 		JLabel apellidosL = new JLabel("Apellidos:");
-		apellidosL.setFont(Main.fuente);
+		apellidosL.setFont(Main.FUENTE);
 		nombreYApellidos.add(apellidosL);
 		
 		MiTextField nombreTF = new MiTextField();
@@ -71,7 +73,7 @@ public class VentanaRegistrarse extends JDialog {
 		JPanel correoElectronico = new JPanel(new GridLayout(2, 1, 10, 0));
 		
 		JLabel correoElectronicoL = new JLabel("Correo electrónico:");
-		correoElectronicoL.setFont(Main.fuente);
+		correoElectronicoL.setFont(Main.FUENTE);
 		correoElectronico.add(correoElectronicoL);
 		
 		MiTextField correoElectronicoTF = new MiTextField();
@@ -84,7 +86,7 @@ public class VentanaRegistrarse extends JDialog {
 		JPanel contrasena = new JPanel(new GridLayout(2, 1, 10, 0));
 		
 		JLabel contrasenaL = new JLabel("Contraseña: (Mínimo 8 carácteres)");
-		contrasenaL.setFont(Main.fuente);
+		contrasenaL.setFont(Main.FUENTE);
 		contrasena.add(contrasenaL);
 		
 		MiPasswordField contrasenaPF = new MiPasswordField();
@@ -110,7 +112,7 @@ public class VentanaRegistrarse extends JDialog {
 		JButton cancelar = new JButton("Cancelar");
 		cancelar.setFocusable(false);
 		cancelar.setBackground(Color.WHITE);
-		cancelar.setFont(Main.fuente);
+		cancelar.setFont(Main.FUENTE);
 		cancelar.setPreferredSize(new Dimension(165, 50));
 		cancelar.addActionListener(e -> dispose());
 		
@@ -122,7 +124,7 @@ public class VentanaRegistrarse extends JDialog {
 		JButton confirmarReg = new JButton("Confirmar registro");
 		confirmarReg.setFocusable(false);
 		confirmarReg.setBackground(Color.WHITE);
-		confirmarReg.setFont(Main.fuente);
+		confirmarReg.setFont(Main.FUENTE);
 		confirmarReg.setPreferredSize(new Dimension(300, 50));
 		confirmarReg.addActionListener(e -> {
 			if (!nombreTF.getText().isBlank() && !apellidosTF.getText().isBlank() && !Consulta.isCorreoInDB(correoElectronicoTF.getText()) && contrasenaPF.isContrasenaValida()) {

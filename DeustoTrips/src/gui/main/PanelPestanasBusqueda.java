@@ -1,4 +1,4 @@
-package gui;
+package gui.main;
 
 import java.awt.*;
 
@@ -43,7 +43,7 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		
 		JLabel alojamientosTab = new JLabel("Alojamientos");
 		alojamientosTab.setPreferredSize(new Dimension(128, 50));
-		alojamientosTab.setFont(Main.fuente.deriveFont(15.f));
+		alojamientosTab.setFont(Main.FUENTE.deriveFont(15.f));
 		alojamientosTab.setHorizontalAlignment(SwingUtilities.CENTER);
 		setTabComponentAt(0, alojamientosTab);
 		
@@ -100,7 +100,7 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		
 		panelPestanasBusqueda.setSelectedIndex(0);
 		
-//		panelAlojamientos.resetAll();
+		panelAlojamientos.resetAll();
 //		panelViajes.resetAll();
 //		panelViajeAlojamiento.resetAll();
 		

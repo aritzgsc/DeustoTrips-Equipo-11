@@ -7,6 +7,7 @@ import java.util.Objects;
 public abstract class Destino implements Comparable<Destino> {
 
 	private String nombre;
+	private boolean defaultAns;
 	
 	public String getNombre() {
 		return nombre;
@@ -16,6 +17,14 @@ public abstract class Destino implements Comparable<Destino> {
 		this.nombre = nombre;
 	}
 
+	public boolean isDefaultAns() {
+		return defaultAns;
+	}
+
+	public void setDefaultAns(boolean defaultAns) {
+		this.defaultAns = defaultAns;
+	}
+	
 	public abstract String getNombrePais();
 	
 	@Override
@@ -43,7 +52,11 @@ public abstract class Destino implements Comparable<Destino> {
 		int thisTipo = this instanceof Pais? 0 : this instanceof Ciudad? 1 : 2;		// Asignamos la "prioridad" que queremos darle a cada tipo de Destino
 		int otherTipo = other instanceof Pais? 0 : other instanceof Ciudad? 1 : 2;	// Asignamos la "prioridad" que queremos darle a cada tipo de Destino
 		
-		if (!this.getNombrePais().equals(other.getNombrePais())) {
+		if (other.isDefaultAns()) {
+			
+			return 1;																// El default va primero
+			
+		} else if (!this.getNombrePais().equals(other.getNombrePais())) {
 			
 			return this.getNombrePais().compareTo(other.getNombrePais());			// Si son de países distintos ordenamos por orden alfabético de país
 			

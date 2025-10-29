@@ -1,11 +1,11 @@
-package gui;
+package gui.util;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.*;
 
+import gui.main.VentanaPrincipal;
 import main.Main;
 
 // Clase para normalizar el tipo de JTextField utilizado en todo el proyecto
@@ -18,9 +18,9 @@ public class MiTextField extends JTextField {
 		
 		// Configuración del JTextField
 		
-		setBorder(new LineBorder(new Color(0x7A8A99)));
-		setFont(Main.fuente);
-		addKeyListener(Main.antiCaracteresRaros);
+		setBorder(Main.DEFAULT_LINE_BORDER);
+		setFont(Main.FUENTE);
+		addKeyListener(Main.ANTI_CARACTERES_RAROS);
 		setMargin(new Insets(5, 10, 5, 10));
 		
 		// FIN Configuración del JTextField

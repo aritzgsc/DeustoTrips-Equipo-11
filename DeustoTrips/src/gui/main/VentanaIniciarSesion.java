@@ -1,4 +1,4 @@
-package gui;
+package gui.main;
 
 import java.awt.*;
 
@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import db.Consulta;
+import gui.util.MiPasswordField;
+import gui.util.MiTextField;
 import main.Main;
 
 // Ventana emergente (JDialog) que permitirá a un usuario iniciar sesión con su correo electrónico y contraseña 
@@ -32,7 +34,7 @@ public class VentanaIniciarSesion extends JDialog {
 		// Panel Texto Error
 		
 		JLabel error = new JLabel("", SwingConstants.CENTER);
-		error.setFont(Main.fuente.deriveFont(Font.ITALIC).deriveFont(14.f));
+		error.setFont(Main.FUENTE.deriveFont(Font.ITALIC).deriveFont(14.f));
 		error.setForeground(new Color(0xDC143C));
 		error.setBorder(new EmptyBorder(20, 20, 0, 20));
 		
@@ -50,7 +52,7 @@ public class VentanaIniciarSesion extends JDialog {
 		// Creación del contenido del panel correo
 		
 		JLabel correoElectronicoL = new JLabel("Correo electrónico:");
-		correoElectronicoL.setFont(Main.fuente);
+		correoElectronicoL.setFont(Main.FUENTE);
 		
 		MiTextField correoElectronicoTF = new MiTextField();
 		
@@ -69,7 +71,7 @@ public class VentanaIniciarSesion extends JDialog {
 		// Creación del contenido del panel contraseña
 		
 		JLabel contrasenaL = new JLabel("Contraseña:");
-		contrasenaL.setFont(Main.fuente);
+		contrasenaL.setFont(Main.FUENTE);
 		
 		MiPasswordField contrasenaPF = new MiPasswordField();
 		
@@ -99,7 +101,7 @@ public class VentanaIniciarSesion extends JDialog {
 		JButton cancelar = new JButton("Cancelar");
 		cancelar.setFocusable(false);
 		cancelar.setBackground(Color.WHITE);
-		cancelar.setFont(Main.fuente);
+		cancelar.setFont(Main.FUENTE);
 		cancelar.setPreferredSize(new Dimension(165, 50));
 		cancelar.addActionListener(e -> dispose());
 
@@ -110,7 +112,7 @@ public class VentanaIniciarSesion extends JDialog {
 		JButton iniciarSesion = new JButton("Iniciar sesión");
 		iniciarSesion.setFocusable(false);
 		iniciarSesion.setBackground(Color.WHITE);
-		iniciarSesion.setFont(Main.fuente);
+		iniciarSesion.setFont(Main.FUENTE);
 		iniciarSesion.setPreferredSize(new Dimension(300, 50));
 		iniciarSesion.addActionListener(e -> {
 			if (Consulta.iniciarSesion(correoElectronicoTF.getText(), contrasenaPF.getPassword())) {
@@ -131,7 +133,7 @@ public class VentanaIniciarSesion extends JDialog {
 		JButton contrasenaOlvidada = new JButton("He olvidado mi contraseña");
 		contrasenaOlvidada.setFocusable(false);
 		contrasenaOlvidada.setBackground(Color.WHITE);
-		contrasenaOlvidada.setFont(Main.fuente);
+		contrasenaOlvidada.setFont(Main.FUENTE);
 		contrasenaOlvidada.setPreferredSize(new Dimension(485, 50));
 		contrasenaOlvidada.addActionListener(e -> {
 			if (Consulta.isCorreoInDB(correoElectronicoTF.getText())) {

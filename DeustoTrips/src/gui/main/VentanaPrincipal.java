@@ -1,4 +1,4 @@
-package gui;
+package gui.main;
 
 import java.awt.*;
 
@@ -24,7 +24,7 @@ public final class VentanaPrincipal extends JFrame {
 		setMinimumSize(new Dimension(1440, 880));								// Para que si se minimiza se quede con ese tamaño
 		setLocationRelativeTo(null);
 		setExtendedState(MAXIMIZED_BOTH);
-		setTitle(Main.nombreApp);
+		setTitle(Main.NOMBRE_APP);
 		
 		// FIN Configuración de la ventana
 		////

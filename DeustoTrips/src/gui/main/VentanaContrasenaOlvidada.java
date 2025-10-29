@@ -1,4 +1,4 @@
-package gui;
+package gui.main;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -6,7 +6,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import main.Funcion;
+import gui.util.MiPasswordField;
+import gui.util.MiTextField;
+import main.util.Funcion;
 import main.Main;
 
 // Ventana emergente que te envía un correo nada más crear la instancia y si el código es correcto se crea un nuevo usuario en la BD e inicia sesión
@@ -35,7 +37,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 		// Panel Texto Error
 		
 		JLabel error = new JLabel("", SwingConstants.CENTER);
-		error.setFont(Main.fuente.deriveFont(Font.ITALIC).deriveFont(14.f));
+		error.setFont(Main.FUENTE.deriveFont(Font.ITALIC).deriveFont(14.f));
 		error.setForeground(new Color(0xDC143C));
 		error.setBorder(new EmptyBorder(20, 20, 0, 20));
 		
@@ -49,7 +51,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 		// Creación del contenido del panel 
 		
 		JLabel introducirL = new JLabel("Introduzca el código que ha sido enviado al correo " + correoElectronico + ":");
-		introducirL.setFont(Main.fuente);
+		introducirL.setFont(Main.FUENTE);
 		
 		MiTextField introducirCodigoTF = new MiTextField();
 		
@@ -71,7 +73,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 		JButton cancelar = new JButton("Cancelar");
 		cancelar.setFocusable(false);
 		cancelar.setBackground(Color.WHITE);
-		cancelar.setFont(Main.fuente);
+		cancelar.setFont(Main.FUENTE);
 		cancelar.setPreferredSize(new Dimension(165, 50));
 		cancelar.addActionListener(e -> dispose());
 
@@ -82,7 +84,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 		JButton confirmar = new JButton("Confirmar");
 		confirmar.setFocusable(false);
 		confirmar.setBackground(Color.WHITE);
-		confirmar.setFont(Main.fuente);
+		confirmar.setFont(Main.FUENTE);
 		confirmar.setPreferredSize(new Dimension(300, 50));
 		confirmar.addActionListener(e -> {
 			
@@ -100,8 +102,8 @@ public class VentanaContrasenaOlvidada extends JDialog {
 				panelIntroducir.remove(introducirCodigoTF);
 				
 				MiPasswordField introducirContrasenaPF = new MiPasswordField();
-				introducirContrasenaPF.setFont(Main.fuente);
-				introducirContrasenaPF.addKeyListener(Main.antiCaracteresRaros);
+				introducirContrasenaPF.setFont(Main.FUENTE);
+				introducirContrasenaPF.addKeyListener(Main.ANTI_CARACTERES_RAROS);
 				panelIntroducir.add(introducirContrasenaPF);
 				
 				// FIN Cambiar panel introducir
@@ -113,7 +115,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 				JButton establecer = new JButton("Establecer nueva contraseña");
 				establecer.setFocusable(false);
 				establecer.setBackground(Color.WHITE);
-				establecer.setFont(Main.fuente);
+				establecer.setFont(Main.FUENTE);
 				establecer.setPreferredSize(new Dimension(300, 50));
 				establecer.addActionListener(new ActionListener() {
 					

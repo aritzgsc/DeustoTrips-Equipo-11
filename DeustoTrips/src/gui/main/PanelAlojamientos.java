@@ -1,10 +1,11 @@
-package gui;
+package gui.main;
 
 import java.awt.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
 
+import gui.main.busqueda.*;
 import main.Main;
 
 // Panel que contendrá componentes que permitan al usuario introducir información para la búsqueda de Alojamientos
@@ -13,8 +14,8 @@ public class PanelAlojamientos extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	
-//	private MiSelectorDestino selectorDestino;
-//	private MiSelectorMultiplesFechas selectorFechas;
+	private MiSelectorDestino selectorDestino;
+	private MiSelectorMultiplesFechas selectorFechas;
 //	private MiSpinnerPersonas spinnerCantidadPersonas;
 	
 	public PanelAlojamientos() {
@@ -33,8 +34,8 @@ public class PanelAlojamientos extends JPanel {
 		
 		// Creación de todos los componentes necesarios para la búsqueda
 		
-//		selectorDestino = new MiSelectorDestino();													// TODO MiSelectorDestino
-//		selectorFechas = new MiSelectorMultiplesFechas("Fecha de entrada", "Fecha de salida", 1);	// TODO MiSelectorFecha y MiSelectorMultiplesFechas (Manejará las fechas seleccionadas)
+		selectorDestino = new MiSelectorDestino("¿A dónde vas");
+		selectorFechas = new MiSelectorMultiplesFechas("Fecha de entrada", "Fecha de salida", 1);
 //		spinnerCantidadPersonas = new MiSpinnerPersonas();											// TODO Clase MiSpinnerPersonas
 //		BotonBuscar botonBuscar = new BotonBuscar(0);												// TODO Clase BotonBuscar (maneja tipos)
 		
@@ -49,8 +50,8 @@ public class PanelAlojamientos extends JPanel {
 		
 		// Añadimos todos los componentes a sus correspondientes paneles
 		
-//		panelBusqueda.add(selectorDestino);
-//		panelBusqueda.add(selectorFechas);
+		panelBusqueda.add(selectorDestino);
+		panelBusqueda.add(selectorFechas);
 //		panelBusqueda.add(panelSpinnerBuscar);
 		
 		// Añadimos el panel de búsqueda al panel principal
@@ -66,7 +67,7 @@ public class PanelAlojamientos extends JPanel {
 		panelFiltros.setLayout(new BoxLayout(panelFiltros, BoxLayout.Y_AXIS));
 		
 		JLabel filtrosLabel = new JLabel("Filtros: ");
-		filtrosLabel.setFont(Main.fuente.deriveFont(16.f));
+		filtrosLabel.setFont(Main.FUENTE.deriveFont(16.f));
 		
 		// TODO Filtro precio
 //		FiltroPrecio filtroPrecio = new FiltroPrecio();
@@ -93,8 +94,8 @@ public class PanelAlojamientos extends JPanel {
 	// Función para borrar todos los datos de los componentes que puede tocar el usuario (para PanelVolverRegistrarseIniciarSesion)
 	
 	public void resetAll() {
-//		selectorDestino.resetAll();
-//		selectorFechas.resetAll();
+		selectorDestino.resetAll();
+		selectorFechas.resetAll();
 //		spinnerCantidadPersonas.resetAll();
 		// TODO función resetAll de los filtros
 	}
