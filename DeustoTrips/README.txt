@@ -1,3 +1,5 @@
+COMANDO PARA QUE FUNCIONE EL FILTRO DE PRECIOS
+
 Para ejecutar correctamente el archivo, debido a la dependencia de librerías de FiltroPrecio y que trabajamos en una versión superior a Java 11, se debe hacer lo siguiente:
 
 Run -> Run Configurations -> Arguments : Donde pone VM Arguments pondremos el siguiente comando:
