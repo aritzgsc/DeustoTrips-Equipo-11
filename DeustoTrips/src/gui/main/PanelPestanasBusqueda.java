@@ -96,6 +96,19 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		
 	}
 	
+	public static String setError() {
+		Component componenteSeleccionado = panelPestanasBusqueda.getSelectedComponent();
+		if (componenteSeleccionado instanceof PanelAlojamientos) {
+			return ((PanelAlojamientos) componenteSeleccionado).setError();
+//		} else if (componenteSeleccionado instanceof PanelViajes) {
+//			return ((PanelViajes) componenteSeleccionado).setError();
+//		} else if (componenteSeleccionado instanceof PanelViajeAlojamiento) {
+//			return ((PanelViajeAlojamiento) componenteSeleccionado).setError();
+		} else {
+			return null;
+		}
+	}
+	
 	public static void resetAll() {
 		
 		panelPestanasBusqueda.setSelectedIndex(0);
