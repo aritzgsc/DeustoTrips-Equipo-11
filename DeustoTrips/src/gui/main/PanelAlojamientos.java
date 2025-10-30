@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import gui.main.busqueda.*;
+import gui.main.filtros.*;
 import main.Main;
 
 // Panel que contendrá componentes que permitan al usuario introducir información para la búsqueda de Alojamientos
@@ -18,7 +19,7 @@ public class PanelAlojamientos extends JPanel {
 	private MiSelectorMultiplesFechas selectorFechas;
 	private MiSpinnerPersonas spinnerCantidadPersonas;
 	
-//	private FiltroPrecio filtroPrecio;
+	private FiltroPrecio filtroPrecio;
 //	private FiltroResenas filtroResenas;
 	
 	private JLabel error;
@@ -77,12 +78,12 @@ public class PanelAlojamientos extends JPanel {
 		JLabel filtrosLabel = new JLabel("Filtros: ");
 		filtrosLabel.setFont(Main.FUENTE.deriveFont(16.f));
 		
-//		filtroPrecio = new FiltroPrecio();
+		filtroPrecio = new FiltroPrecio();
 		
 //		filtroResenas = new FiltroResenas();
 		
 		panelFiltros.add(filtrosLabel);
-//		panelFiltros.add(filtroPrecio);
+		panelFiltros.add(filtroPrecio);
 //		panelFiltros.add(filtroResenas);
 		
 		add(panelFiltros/*, BorderLayout.CENTRE*/);
@@ -112,7 +113,7 @@ public class PanelAlojamientos extends JPanel {
 		selectorFechas.resetAll();
 		spinnerCantidadPersonas.resetAll();
 
-//		filtroPrecio.resetAll();
+		filtroPrecio.resetAll();
 //		filtroResenas.resetAll();
 		
 		error.setText("");
