@@ -20,7 +20,7 @@ public class PanelAlojamientos extends JPanel {
 	private MiSpinnerPersonas spinnerCantidadPersonas;
 	
 	private FiltroPrecio filtroPrecio;
-//	private FiltroResenas filtroResenas;
+	private FiltroResenas filtroResenas;
 	
 	private JLabel error;
 	
@@ -80,11 +80,11 @@ public class PanelAlojamientos extends JPanel {
 		
 		filtroPrecio = new FiltroPrecio();
 		
-//		filtroResenas = new FiltroResenas();
+		filtroResenas = new FiltroResenas();
 		
 		panelFiltros.add(filtrosLabel);
 		panelFiltros.add(filtroPrecio);
-//		panelFiltros.add(filtroResenas);
+		panelFiltros.add(filtroResenas);
 		
 		add(panelFiltros/*, BorderLayout.CENTRE*/);
 		
@@ -114,7 +114,7 @@ public class PanelAlojamientos extends JPanel {
 		spinnerCantidadPersonas.resetAll();
 
 		filtroPrecio.resetAll();
-//		filtroResenas.resetAll();
+		filtroResenas.resetAll();
 		
 		error.setText("");
 	}
