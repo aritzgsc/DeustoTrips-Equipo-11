@@ -253,6 +253,7 @@ public class MiSelectorFecha extends JDateChooser {
 	
 	public void resetAll() {
 		selectorFechaTextField.setText(placeholder);
+		selectorFechaTextField.setToolTipText(placeholder);
 		selectorFechaTextField.setForeground(Color.BLACK);
 	}
 	

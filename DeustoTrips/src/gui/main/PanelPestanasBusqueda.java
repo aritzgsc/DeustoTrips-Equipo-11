@@ -16,7 +16,7 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 	private static PanelPestanasBusqueda panelPestanasBusqueda;			// Usados en PanelVolverRegistrarseIniciarSesion (para resetear todos los valores de los tabs y seleccionar el inicial (Alojamientos))
 	
 	private static PanelAlojamientos panelAlojamientos;
-//	private static PanelViajes panelViajes;
+	private static PanelViajes panelViajes;
 //	private static PanelViajeAlojamiento panelViajeAlojamiento;
 	
 	public PanelPestanasBusqueda() {
@@ -54,19 +54,19 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		
 		// Creación del panel y lo añadimos como panel de una nueva ventana
 		
-//		panelViajes = new PanelViajes();								// TODO Clase PanelViajes
+		panelViajes = new PanelViajes();								
 //		
-//		addTab("Viajes", panelViajes);
+		addTab("Viajes", panelViajes);
 //		
 		// FIN Creación del panel y lo añadimos como panel de una nueva ventana
 		////
 		// Creamos el componente personalizado
 //		
-//		JLabel viajesTab = new JLabel("Viajes");
-//		viajesTab.setPreferredSize(new Dimension(85, 50));
-//		viajesTab.setFont(VentanaPrincipal.fuente.deriveFont(15.f));
-//		viajesTab.setHorizontalAlignment(SwingUtilities.CENTER);
-//		setTabComponentAt(1, viajesTab);
+		JLabel viajesTab = new JLabel("Viajes");
+		viajesTab.setPreferredSize(new Dimension(85, 50));
+		viajesTab.setFont(Main.FUENTE.deriveFont(15.f));
+		viajesTab.setHorizontalAlignment(SwingUtilities.CENTER);
+		setTabComponentAt(1, viajesTab);
 		
 		// FIN Creamos el compontente personalizado
 		// FIN Panel Viajes
@@ -100,8 +100,8 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		Component componenteSeleccionado = panelPestanasBusqueda.getSelectedComponent();
 		if (componenteSeleccionado instanceof PanelAlojamientos) {
 			return ((PanelAlojamientos) componenteSeleccionado).setError();
-//		} else if (componenteSeleccionado instanceof PanelViajes) {
-//			return ((PanelViajes) componenteSeleccionado).setError();
+		} else if (componenteSeleccionado instanceof PanelViajes) {
+			return ((PanelViajes) componenteSeleccionado).setError();
 //		} else if (componenteSeleccionado instanceof PanelViajeAlojamiento) {
 //			return ((PanelViajeAlojamiento) componenteSeleccionado).setError();
 		} else {
