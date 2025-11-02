@@ -8,10 +8,11 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.plaf.basic.BasicComboBoxUI;
 
 import com.toedter.calendar.*;		// Añadimos esta librería para crear calendarios y selectores de fechas más fácilmente
 
+import gui.util.editores.MiComboBoxEditor;
+import gui.util.uis.MiComboBoxUI;
 import main.Main;
 
 // Clase que crea un selector de fechas personalizado con un calendario incorporado A PARTIR DE UNA LIBRERÍA DESCARGADA que utiliza componentes de Swing para crearlo
@@ -54,7 +55,7 @@ public class MiSelectorFecha extends JDateChooser {
 		selectorFechaTextField = ((JTextField) getDateEditor().getUiComponent());		// Conseguimos el JTextField para normalizar su estilo al establecido en el resto de la aplicación
 		
 		selectorFechaTextField.setText(placeholder);
-		selectorFechaTextField.setToolTipText(selectorFechaTextField.getText());
+		selectorFechaTextField.setToolTipText(null);
 		selectorFechaTextField.setFont(Main.FUENTE.deriveFont(16.f));
 		selectorFechaTextField.setHorizontalAlignment(JTextField.CENTER);
 		selectorFechaTextField.setBorder(null);
@@ -82,7 +83,7 @@ public class MiSelectorFecha extends JDateChooser {
 		});
 		
 		addPropertyChangeListener("date", (e) -> {
-			selectorFechaTextField.setToolTipText(getDate() != null? DateFormat.getDateInstance(DateFormat.MEDIUM).format(getDate()) : placeholder);
+			selectorFechaTextField.setToolTipText(getDate() != null? DateFormat.getDateInstance(DateFormat.MEDIUM).format(getDate()) : null);
 		});
 		
 		// FIN Personalización del JTextField del JDateChooser
@@ -95,6 +96,7 @@ public class MiSelectorFecha extends JDateChooser {
 		botonCalendario.setFocusable(false);
 		botonCalendario.setBackground(new Color(0xEEEEEE));
 		botonCalendario.setPreferredSize(new Dimension(50, 50));
+		botonCalendario.setToolTipText(placeholder);
 		
 		botonCalendario.addMouseListener(new MouseAdapter() {
 
@@ -141,49 +143,20 @@ public class MiSelectorFecha extends JDateChooser {
 				
 				JComboBox<?> comboBoxCalendario = (JComboBox<?>) calendario.getMonthChooser().getComboBox();		// Se pone así para que no lanze warnings aunque sabemos que va a ser de Strings
 				comboBoxCalendario.setBorder(Main.DEFAULT_LINE_BORDER);
-
+				
+				MiComboBoxEditor editorComboBoxCalendario = new MiComboBoxEditor();
+				
+				comboBoxCalendario.setUI(new MiComboBoxUI());
+				
 				comboBoxCalendario.setEditable(true);			// Hacemos esto para que se vea el Componente de Editor bien
-				
-				comboBoxCalendario.setUI(new BasicComboBoxUI() {
-
-					@Override
-					protected JButton createArrowButton() {		// Con esto personalizamos el botón del comboBox (lo creamos desde el principio como queramos)
-						
-						JButton botonFlecha = new JButton("▼");
-						botonFlecha.setFocusable(false);
-						botonFlecha.setBackground(new Color(0xEEEEEE));
-						botonFlecha.setBorder(new MatteBorder(0, 1, 0, 0, new Color(0x7A8A99)));
-						botonFlecha.setForeground(new Color(0x7A8A99));
-					
-						botonFlecha.addMouseListener(new MouseAdapter() {
-					
-							@Override
-							public void mouseEntered(MouseEvent e) {
-								botonFlecha.setBorder(new CompoundBorder(new LineBorder(new Color(0xB8CFE5)), new CompoundBorder(Main.DEFAULT_LINE_BORDER, new LineBorder(new Color(0xB8CFE5)))));
-							}
-
-							@Override
-							public void mouseExited(MouseEvent e) {
-								botonFlecha.setBorder(new MatteBorder(0, 1, 0, 0, new Color(0x7A8A99)));
-							}
-					
-						});
-						
-						return botonFlecha;
-					
-					}
-				
-				});
+				comboBoxCalendario.setEditor(editorComboBoxCalendario);
 		
-				JTextField editorComboBoxCalendario = (JTextField) comboBoxCalendario.getEditor().getEditorComponent();
-				editorComboBoxCalendario.setBackground(Color.WHITE);
-				editorComboBoxCalendario.setHorizontalAlignment(JTextField.CENTER);
-				editorComboBoxCalendario.setEditable(false);			// Establecemos el Componente de editor como no editable para que los usuarios no puedan modificarlo
-				editorComboBoxCalendario.setCaretColor(editorComboBoxCalendario.getBackground());
+				JTextField componenteEditorComboBoxCalendario = (JTextField) editorComboBoxCalendario.getEditorComponent();
+				componenteEditorComboBoxCalendario.setFont(componenteEditorComboBoxCalendario.getFont().deriveFont(13f));
 				
 				// Le establecemos un MouseListener para que se despliegue el popUp aunque hagamos click en el texto
 				
-				editorComboBoxCalendario.addMouseListener(new MouseAdapter() {
+				componenteEditorComboBoxCalendario.addMouseListener(new MouseAdapter() {
 
 					@Override
 					public void mouseClicked(MouseEvent e) {

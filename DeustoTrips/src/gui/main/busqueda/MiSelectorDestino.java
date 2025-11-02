@@ -1,20 +1,16 @@
 package gui.main.busqueda;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.border.MatteBorder;
 import javax.swing.event.*;
-import javax.swing.plaf.basic.BasicComboBoxUI;
 
 import java.util.*;
 
 import domain.*;
-import gui.util.MiTextField;
-import main.Main;
+import gui.util.*;
+import gui.util.models.MiComboBoxDestinosModel;
 
 public class MiSelectorDestino extends JLayeredPane {
 
@@ -41,9 +37,12 @@ public class MiSelectorDestino extends JLayeredPane {
 	Aeropuerto aeropuerto4 = new Aeropuerto(ciudad10, "Aeropuerto de Heathrow");
 	Aeropuerto aeropuerto5 = new Aeropuerto(ciudad10, "Aeropuerto de Luton");
 	
-	private ArrayList<Destino> todosDestinos = new ArrayList<Destino>();
+	private List<Destino> todosDestinos = new ArrayList<Destino>();
+	private List<Destino> destinosFiltrados = todosDestinos;
 	
-	private JComboBox<Destino> comboBoxDestinos;			// Sacamos el comboBox afuera para poder resetearlo con un método (también nos ayuda a tener menos problemas al crear los listeners - para tenerlo todo más ordenado)
+	private Destino destinoSeleccionado = null;
+	
+	private MiComboBoxDestinos comboBoxDestinos;			// Sacamos el comboBox afuera para poder resetearlo con un método (también nos ayuda a tener menos problemas al crear los listeners - para tenerlo todo más ordenado)
 	private MiTextField filtro;								// Sacamos el filtro afuera para poder resetearlo con un método (también nos ayuda a tener menos problemas al crear los listeners - para tenerlo todo más ordenado)
 	
 	public MiSelectorDestino(String defaultAns) {
@@ -78,85 +77,21 @@ public class MiSelectorDestino extends JLayeredPane {
 		
 		Collections.sort(todosDestinos);
 		
-		// Creamos el JComboBox con la lista de destinos ya metida y lo personalizamos
+		MiComboBoxDestinosModel comboBoxDestinosModel = new MiComboBoxDestinosModel(todosDestinos);
 		
-		comboBoxDestinos = new JComboBox<Destino>(todosDestinos.toArray(new Destino[0]));	
-		comboBoxDestinos.setBorder(Main.DEFAULT_LINE_BORDER);
-		comboBoxDestinos.setPreferredSize(new Dimension(comboBoxDestinos.getWidth(), 50));
-		comboBoxDestinos.setToolTipText(comboBoxDestinos.getSelectedItem().toString());
-		comboBoxDestinos.setSelectedIndex(0);
+		// Creación del ComboBox ya personalizado con el modelo de datos incorporado
 		
-		// Personalización del botón del JComboBox
+		comboBoxDestinos = new MiComboBoxDestinos(comboBoxDestinosModel);
 		
-		comboBoxDestinos.setUI(new BasicComboBoxUI() {
-
-			@Override
-			protected JButton createArrowButton() {
-				
-				JButton botonFlecha = new JButton("▼");
-				botonFlecha.setFocusable(false);
-				botonFlecha.setBackground(new Color(0xEEEEEE));
-				botonFlecha.setBorder(new MatteBorder(0, 1, 0, 0, new Color(0x7A8A99)));
-				botonFlecha.setForeground(new Color(0x7A8A99));
-				
-				botonFlecha.addMouseListener(new MouseAdapter() {
-
-					@Override
-					public void mouseEntered(MouseEvent e) {
-						botonFlecha.setBorder(new CompoundBorder(new LineBorder(new Color(0xB8CFE5)), new CompoundBorder(Main.DEFAULT_LINE_BORDER, new LineBorder(new Color(0xB8CFE5)))));
-					}
-
-					@Override
-					public void mouseExited(MouseEvent e) {
-						botonFlecha.setBorder(new MatteBorder(0, 1, 0, 0, new Color(0x7A8A99)));
-					}
-					
-				});
-				
-				return botonFlecha;
-				
-			}
-			
-		});
-		// FIN Personalización del botón del JComboBox
+		// FIN Creación del comboBox
 		////
-		// Personalización de texto seleccionado del comboBox
+		// Conseguimos el componente del editor del comboBox para poder jugar con el más adelante
 		
-		comboBoxDestinos.setEditable(true);																			// Hay que hacer que el comboBox sea editable para que nos permita conseguir el textField incorporado
+		JTextField componenteEditorComboBox = (JTextField) comboBoxDestinos.getEditor().getEditorComponent();
 		
-		JTextField comboBoxDestinosTextField = (JTextField) comboBoxDestinos.getEditor().getEditorComponent();		// Conseguimos el TextField que lleva incorporado el JComboBox para personalizarlo y normalizar su estilo
-		comboBoxDestinosTextField.setVisible(true);																// En principio lo ponemos invisible para que no se solape con nuestro filtro (creado más tarde)
+		// No ponemos tooltiptext porque empieza con el por defecto (que sería null (mirar abajo en el actionListener))
 		
-		comboBoxDestinosTextField.setBorder(null);
-		comboBoxDestinosTextField.setFont(Main.FUENTE);
-		comboBoxDestinosTextField.setBackground(Color.WHITE);
-		comboBoxDestinosTextField.setCaretColor(comboBoxDestinosTextField.getBackground());
-		comboBoxDestinosTextField.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		// FIN Personalización de texto seleccionado del comboBox
-		////
-		// Personalización del popup de nuestro comboBox
-		
-		comboBoxDestinos.setRenderer(new DefaultListCellRenderer() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				
-				JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);		// Hacemos esto para conseguir el label default que obtendríamos sin editar el método y poder trabajar sobre ella
-				
-				label.setFont(Main.FUENTE.deriveFont(16.f));
-				
-				label.setOpaque(true);
-				
-				return label;
-				
-			}
-			
-		});
-		
-		// FIN Personalización del popup de nuestro comboBox
+		// FIN Conseguir el componente del editor
 		////
 		// Ahora hay que gestionar que queremos que ocurra en cada caso para cada uno de estos dos componentes
 		
@@ -165,6 +100,10 @@ public class MiSelectorDestino extends JLayeredPane {
 			@Override
 			public void actionPerformed(ActionEvent e) {			// Al seleccionar un elemento, no quiero ver más mi filtro (creado más abajo) quiero ver lo seleccionado (sale en el JTextField personalizado que hemos puesto arriba)
 				filtro.setVisible(false);
+				destinoSeleccionado = (Destino) comboBoxDestinos.getSelectedItem();
+				
+				componenteEditorComboBox.setToolTipText(destinoSeleccionado != null || !destinoSeleccionado.equals(new Pais(defaultAns, true))? destinoSeleccionado.toString() : null);
+				filtro.setToolTipText(destinoSeleccionado != null || !destinoSeleccionado.equals(new Pais(defaultAns, true))? destinoSeleccionado.toString() : null);
 			}
 			
 		});
@@ -195,7 +134,7 @@ public class MiSelectorDestino extends JLayeredPane {
 		};
 		
 		comboBoxDestinos.addMouseListener(comboBoxDestinosMA);				// Añadimos el MouseAdapter
-		comboBoxDestinosTextField.addMouseListener(comboBoxDestinosMA);		// Añadimos el MouseAdapter
+		componenteEditorComboBox.addMouseListener(comboBoxDestinosMA);		// Añadimos el MouseAdapter
 		
 		// FIN Con esto acaba la gestión de lo que ocurrirá cuando se haga click en ellos
 		////
@@ -204,28 +143,35 @@ public class MiSelectorDestino extends JLayeredPane {
 		filtro = new MiTextField();
 		filtro.setHorizontalAlignment(JTextField.CENTER);
 		filtro.setPreferredSize(new Dimension(filtro.getWidth(), 50));
-		filtro.setVisible(false);
+		filtro.setVisible(false);											// Lo ponemos invisible al principio
 		
 		// FIN Creación del filtro principal
 		////
 		// Como antes, tenemos que gestionar que ocurrirá con cada acción que hagamos con el filtro
 		
-		filtro.addFocusListener(new FocusListener() {				// Cuando esté escribiendo quiero que el textField del comboBox no sea visible, y cuando deje de escribir quiero hacerlo visible para que aparezca cual ha sido seleccionada (además hago invisible el filtro (luego podré hacerlo visible dando click al comboBox otra vez (mirar arriba)))
+		filtro.addFocusListener(new FocusListener() {						// Cuando esté escribiendo quiero que el textField del comboBox no sea visible, y cuando deje de escribir quiero hacerlo visible para que aparezca cual ha sido seleccionada (además hago invisible el filtro (luego podré hacerlo visible dando click al comboBox otra vez (mirar arriba)))
 			
 			@Override
 			public void focusGained(FocusEvent e) {
-				comboBoxDestinosTextField.setVisible(false);
+				componenteEditorComboBox.setVisible(false);
 			}
 			
 			@Override
 			public void focusLost(FocusEvent e) {
 				filtro.setVisible(false);
-				comboBoxDestinosTextField.setVisible(true);
+				componenteEditorComboBox.setVisible(true);
+				
+				if (destinoSeleccionado != null && destinosFiltrados.contains(destinoSeleccionado)) {
+					comboBoxDestinos.setSelectedItem(destinoSeleccionado);
+				} else {
+					comboBoxDestinos.setSelectedIndex(0);
+				}
+				
 			}
 			
 		});
 		
-		filtro.addMouseListener(new MouseAdapter() {				// Cuando haga click sobre el filtro quiero que se vea el popUp
+		filtro.addMouseListener(new MouseAdapter() {						// Cuando haga click sobre el filtro quiero que se vea el popUp
 
 			@Override
 			public void mousePressed(MouseEvent e) {
@@ -277,13 +223,17 @@ public class MiSelectorDestino extends JLayeredPane {
 	
 	// Método que filtra los destinos entre todos los destinos de la lista cada vez que se escribe o borra algo en el filtro
 	
-	private void filtrarDestinos(JComboBox<Destino> comboBoxDestinos, String filtro) {
+	private void filtrarDestinos(MiComboBoxDestinos comboBoxDestinos, String filtroText) {
 		
-		ArrayList<Destino> destinosFiltrados = new ArrayList<Destino>();
+		if (comboBoxDestinos.getSelectedItem() != null) {
+			destinoSeleccionado = (Destino) comboBoxDestinos.getSelectedItem();
+		}
+		
+		destinosFiltrados = new ArrayList<Destino>();
 		
 		for (Destino destino : todosDestinos) {
 			
-			if (destino.toString().toUpperCase().contains(filtro.toUpperCase())) {
+			if (destino.toString().toUpperCase().contains(filtroText.toUpperCase()) || destino.isDefaultAns()) {
 				
 				destinosFiltrados.add(destino);
 				
@@ -293,9 +243,10 @@ public class MiSelectorDestino extends JLayeredPane {
 		
 		Collections.sort(destinosFiltrados);
 		
-		comboBoxDestinos.setModel(new DefaultComboBoxModel<Destino>(destinosFiltrados.toArray(new Destino[0])));		// Actualizamos el modelo (los datos) cada vez (El renderer no se ve afectado)
+		comboBoxDestinos.setModel(new MiComboBoxDestinosModel(destinosFiltrados));;				// Actualizamos el modelo (los datos) cada vez (El renderer no se ve afectado)
 		
-		comboBoxDestinos.setPopupVisible(true);																			// Hacemos visible el popup cada vez porque si no se haría invisible
+		comboBoxDestinos.setPopupVisible(true);
+		filtro.grabFocus();
 		
 	}
 	

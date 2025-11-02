@@ -2,19 +2,17 @@ package gui.main.busqueda;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.plaf.basic.*;
 
+import gui.util.MiComboBoxTipos;
 import main.Main;
 
 public class MiSelectorTipo extends JPanel {
 	
 	private static final long serialVersionUID = 1L;
 
-	private static String[] arrayTipos = (new ArrayList<String>(Arrays.asList("Ida", "Ida y Vuelta"))).toArray(new String[0]); 
 	private JComboBox<String> comboBoxTipos;
 	
 	public MiSelectorTipo() {
@@ -38,57 +36,25 @@ public class MiSelectorTipo extends JPanel {
 		////
 		// Creamos el JComboBox con la lista de destinos ya metida y lo personalizamos
 		
-		comboBoxTipos = new JComboBox<String>(arrayTipos);
-		comboBoxTipos.setBorder(new MatteBorder(1, 1, 1, 1, new Color(0x7A8A99)));
-				
-		// Personalización del botón del JComboBox
-				
-		comboBoxTipos.setUI(new BasicComboBoxUI() {
+		comboBoxTipos = new MiComboBoxTipos();
 
-			@Override
-			protected JButton createArrowButton() {
-						
-				JButton botonFlecha = new JButton("▼");
-				botonFlecha.setFocusable(false);
-				botonFlecha.setBackground(new Color(0xEEEEEE));
-				botonFlecha.setBorder(new MatteBorder(0, 1, 0, 0, new Color(0x7A8A99)));
-				botonFlecha.setForeground(new Color(0x7A8A99));
-						
-				botonFlecha.addMouseListener(new MouseAdapter() {
-
-					@Override
-					public void mouseEntered(MouseEvent e) {
-						botonFlecha.setBorder(new CompoundBorder(new LineBorder(new Color(0xB8CFE5)), new CompoundBorder(Main.DEFAULT_LINE_BORDER, new LineBorder(new Color(0xB8CFE5)))));
-					}
-
-					@Override
-					public void mouseExited(MouseEvent e) {
-						botonFlecha.setBorder(new MatteBorder(0, 1, 0, 0, new Color(0x7A8A99)));
-					}
-							
-				});
-				
-				return botonFlecha;
-					
-			}
-			
-		});
-		// FIN Personalización del botón del JComboBox
+		// FIN Creamos el JComboBox personalizado
 		////
-		// Personalización de texto seleccionado del comboBox
-			
-		comboBoxTipos.setEditable(true);																			// Hay que hacer que el comboBox sea editable para que nos permita conseguir el textField incorporado
+		// Obtenemos el editor del comboBox para jugar con el
 		
-		JTextField comboBoxTextField = (JTextField) comboBoxTipos.getEditor().getEditorComponent();		// Conseguimos el TextField que lleva incorporado el JComboBox para personalizarlo y normalizar su estilo
-		comboBoxTextField.setVisible(true);																// En principio lo ponemos invisible para que no se solape con nuestro filtro (creado más tarde)
+		JTextField componenteEditorComboBoxTipos = (JTextField) comboBoxTipos.getEditor().getEditorComponent();
+		componenteEditorComboBoxTipos.setToolTipText(comboBoxTipos.getSelectedItem().toString());
+		componenteEditorComboBoxTipos.setVisible(true);
 		
-		comboBoxTextField.setBorder(null);
-		comboBoxTextField.setFont(Main.FUENTE);
-		comboBoxTextField.setBackground(Color.WHITE);
-		comboBoxTextField.setCaretColor(comboBoxTextField.getBackground());
-		comboBoxTextField.setHorizontalAlignment(SwingConstants.CENTER);
+		// Obtenemos el editor del comboBox para jugar con el
+		////
+		// Actualizamos el toolTipText del editor cuando seleccionemos algo
 		
-		// FIN Personalización de texto seleccionado del comboBox
+		comboBoxTipos.addActionListener((e) -> {
+			componenteEditorComboBoxTipos.setToolTipText(comboBoxTipos.getSelectedItem().toString());
+		});
+		
+		// FIN Actualizamos el toolTipText del editor cuando seleccionemos algo		
 		////
 		// Implementación del listener que nos permite hacer que al clicar el textfield también aparezca el popup del combobox
 		
@@ -111,7 +77,7 @@ public class MiSelectorTipo extends JPanel {
 		
 		};
 		
-		comboBoxTextField.addMouseListener(popUpMA);
+		componenteEditorComboBoxTipos.addMouseListener(popUpMA);
 		tipoL.addMouseListener(popUpMA);
 		
 		// FIN Implementación del listener que nos permite hacer que al clicar el textfield también aparezca el popup del combobox
