@@ -136,9 +136,9 @@ public class VentanaIniciarSesion extends JDialog {
 		contrasenaOlvidada.setFont(Main.FUENTE);
 		contrasenaOlvidada.setPreferredSize(new Dimension(485, 50));
 		contrasenaOlvidada.addActionListener(e -> {
-			if (Consulta.isCorreoInDB(correoElectronicoTF.getText())) {
+			if (isCorreoValido(correoElectronicoTF.getText())) {
 				
-				VentanaContrasenaOlvidada ventanaContrasenaOlvidada = new VentanaContrasenaOlvidada(correoElectronicoTF.getText());		// Para probar poner db.Consulta.isCorreoInDB a true de momento
+				VentanaContrasenaOlvidada ventanaContrasenaOlvidada = new VentanaContrasenaOlvidada(correoElectronicoTF.getText());
 				
 				if (ventanaContrasenaOlvidada.getConfirmado()) {
 					
@@ -171,6 +171,10 @@ public class VentanaIniciarSesion extends JDialog {
 		
 		setVisible(true);
 		
+	}
+	
+	private static boolean isCorreoValido(String correoElectronico) {
+		return Consulta.isCorreoInDB(correoElectronico); // TODO Comprobación del formato del correo y que el gmail esté registrado ya en BD (db.Consulta)
 	}
 	
 	// Hacemos un getter estático para obtener la instancia de la ventana emergente (para poder centrar la siguiente ventana emergente sobre esta)

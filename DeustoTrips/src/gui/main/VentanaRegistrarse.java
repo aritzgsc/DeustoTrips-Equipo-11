@@ -127,9 +127,9 @@ public class VentanaRegistrarse extends JDialog {
 		confirmarReg.setFont(Main.FUENTE);
 		confirmarReg.setPreferredSize(new Dimension(300, 50));
 		confirmarReg.addActionListener(e -> {
-			if (!nombreTF.getText().isBlank() && !apellidosTF.getText().isBlank() && !Consulta.isCorreoInDB(correoElectronicoTF.getText()) && contrasenaPF.isContrasenaValida()) {
+			if (!nombreTF.getText().isBlank() && !apellidosTF.getText().isBlank() && isCorreoValido(correoElectronicoTF.getText()) && contrasenaPF.isContrasenaValida()) {
 				
-				VentanaConfirmarRegistro ventanaConfirmarRegistro = new VentanaConfirmarRegistro(nombreTF.getText(), apellidosTF.getText(), correoElectronicoTF.getText(), contrasenaPF.getPassword());		// Para probar poner db.Consulta.isCorreoInDB a false de momento
+				VentanaConfirmarRegistro ventanaConfirmarRegistro = new VentanaConfirmarRegistro(nombreTF.getText(), apellidosTF.getText(), correoElectronicoTF.getText(), contrasenaPF.getPassword());
 
 				if (ventanaConfirmarRegistro.getConfirmado()) {
 					
@@ -164,6 +164,10 @@ public class VentanaRegistrarse extends JDialog {
 		
 	}
 	
+	private static boolean isCorreoValido(String correoElectronico) {
+		return !Consulta.isCorreoInDB(correoElectronico); // TODO Comprobación del formato del correo y que el gmail no esté registrado ya en BD (db.Consulta)
+	}
+	
 	// Función que devuelve los errores cometidos en formato String (Primero separa todo por , y luego remplaza la ultima , por un string vacio "" y la penúltima (si la hay) por " y"
 	
 	private String getError(String nombre, String apellidos, String correoElectronico, MiPasswordField contrasenaPF) {
@@ -172,10 +176,15 @@ public class VentanaRegistrarse extends JDialog {
 		
 		if (nombre.isBlank()) n++;
 		if (apellidos.isBlank()) n++;
-		if (Consulta.isCorreoInDB(correoElectronico)) n++;
+		if (!isCorreoValido(correoElectronico)) n++;
 		if (!contrasenaPF.isContrasenaValida()) n++;
 		
-		return ((nombre.isBlank()?"Nombre, ":"") + (apellidos.isBlank()?"Apellidos, ":"") + (Consulta.isCorreoInDB(correoElectronico)?"Correo, ":"") + (!contrasenaPF.isContrasenaValida()?"Contraseña, ":"") + (n > 1?"son erróneos":"es erróneo")).replaceAll(",(?=([^,]*$))", "").replaceAll(",(?=([^,]*$))", " y");
+		return ((nombre.isBlank()?"Nombre, ":"") + 
+				(apellidos.isBlank()?"Apellidos, ":"") + 
+				(!isCorreoValido(correoElectronico)?"Correo, ":"") + 
+				(!contrasenaPF.isContrasenaValida()?"Contraseña, ":"") + 
+				(n > 1?"son erróneos":"es erróneo")
+				).replaceAll(",(?=([^,]*$))", "").replaceAll(",(?=([^,]*$))", " y");
 	}
 	
 	// Hacemos un getter estático para obtener la instancia de la ventana emergente (para poder centrar la siguiente ventana emergente sobre esta)

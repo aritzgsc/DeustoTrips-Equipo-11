@@ -6,9 +6,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import main.util.Funcion;
 import gui.util.MiPasswordField;
 import gui.util.MiTextField;
-import main.util.Funcion;
 import main.Main;
 
 // Ventana emergente que te envía un correo nada más crear la instancia y si el código es correcto se crea un nuevo usuario en la BD e inicia sesión

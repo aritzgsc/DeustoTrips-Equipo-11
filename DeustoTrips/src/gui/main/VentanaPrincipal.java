@@ -21,8 +21,9 @@ public final class VentanaPrincipal extends JFrame {
 		// Configuración de la ventana
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setMinimumSize(new Dimension(1440, 880));								// Para que si se minimiza se quede con ese tamaño
+		setMinimumSize(new Dimension(1440, 600));								// Para que si se minimiza se quede con ese tamaño
 		setLocationRelativeTo(null);
+		setIconImage(new ImageIcon("resources/images/icono_imagen.jpg").getImage());
 		setExtendedState(MAXIMIZED_BOTH);
 		setTitle(Main.NOMBRE_APP);
 		

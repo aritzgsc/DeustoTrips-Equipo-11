@@ -17,7 +17,7 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 	
 	private static PanelAlojamientos panelAlojamientos;
 	private static PanelViajes panelViajes;
-//	private static PanelViajeAlojamiento panelViajeAlojamiento;
+	private static PanelViajeAlojamiento panelViajeAlojamiento;
 	
 	public PanelPestanasBusqueda() {
 		
@@ -27,15 +27,16 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		
 		setBorder(new EmptyBorder(5, 20, 5, 20));
 		setFocusable(false);
+		
 		// FIN Configuración del panel
 		////
 		// Panel Alojamientos
 
 		// Creación del panel y lo añadimos como panel de una nueva ventana
 		
-		panelAlojamientos = new PanelAlojamientos();					// TODO Clase PanelAlojamientos
+		panelAlojamientos = new PanelAlojamientos();
 		
-		addTab("", panelAlojamientos);
+		addTab("Alojamientos", panelAlojamientos);
 		
 		// FIN Creación del panel y lo añadimos como panel de una nueva ventana
 		////
@@ -54,14 +55,14 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		
 		// Creación del panel y lo añadimos como panel de una nueva ventana
 		
-		panelViajes = new PanelViajes();								
-//		
+		panelViajes = new PanelViajes();
+		
 		addTab("Viajes", panelViajes);
-//		
+		
 		// FIN Creación del panel y lo añadimos como panel de una nueva ventana
 		////
 		// Creamos el componente personalizado
-//		
+		
 		JLabel viajesTab = new JLabel("Viajes");
 		viajesTab.setPreferredSize(new Dimension(85, 50));
 		viajesTab.setFont(Main.FUENTE.deriveFont(15.f));
@@ -75,19 +76,19 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		
 		// Creación del panel y lo añadimos como panel de una nueva ventana
 		
-//		panelViajeAlojamiento = new PanelViajeAlojamiento();			// TODO Clase PanelViajeAlojamiento
-//		
-//		addTab("Viaje + Alojamiento", panelViajeAlojamiento);
-//		
+		panelViajeAlojamiento = new PanelViajeAlojamiento();
+		
+		addTab("Viaje + Alojamiento", panelViajeAlojamiento);
+		
 		// FIN Creación del panel y lo añadimos como panel de una nueva ventana
 		////
 		// Creamos el componente personalizado
-//		
-//		JLabel viajeAlojamientoTab = new JLabel("Viaje + Alojamiento");
-//		viajeAlojamientoTab.setPreferredSize(new Dimension(180, 50));
-//		viajeAlojamientoTab.setFont(VentanaPrincipal.fuente.deriveFont(15.f));
-//		viajeAlojamientoTab.setHorizontalAlignment(SwingUtilities.CENTER);
-//		setTabComponentAt(2, viajeAlojamientoTab);
+		
+		JLabel viajeAlojamientoTab = new JLabel("Viaje + Alojamiento");
+		viajeAlojamientoTab.setPreferredSize(new Dimension(180, 50));
+		viajeAlojamientoTab.setFont(Main.FUENTE.deriveFont(15.f));
+		viajeAlojamientoTab.setHorizontalAlignment(SwingUtilities.CENTER);
+		setTabComponentAt(2, viajeAlojamientoTab);
 		
 		// FIN Creamos el compontente personalizado
 		// FIN Panel Viaje + Alojamiento
@@ -102,8 +103,8 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 			return ((PanelAlojamientos) componenteSeleccionado).setError();
 		} else if (componenteSeleccionado instanceof PanelViajes) {
 			return ((PanelViajes) componenteSeleccionado).setError();
-//		} else if (componenteSeleccionado instanceof PanelViajeAlojamiento) {
-//			return ((PanelViajeAlojamiento) componenteSeleccionado).setError();
+		} else if (componenteSeleccionado instanceof PanelViajeAlojamiento) {
+			return ((PanelViajeAlojamiento) componenteSeleccionado).setError();
 		} else {
 			return null;
 		}
@@ -114,8 +115,8 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		panelPestanasBusqueda.setSelectedIndex(0);
 		
 		panelAlojamientos.resetAll();
-//		panelViajes.resetAll();
-//		panelViajeAlojamiento.resetAll();
+		panelViajes.resetAll();
+		panelViajeAlojamiento.resetAll();
 		
 	}
 	

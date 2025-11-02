@@ -50,7 +50,7 @@ public class FiltroPrecio extends JPanel {
 		// Creación y personalización de los componentes que irán dentro del panel
 		
 		sliderRangoPrecios = new RangeSlider(0, precioMaximo, 0, precioMaximo);
-		sliderRangoPrecios.setPreferredSize(new Dimension(420, 25));
+		sliderRangoPrecios.setPreferredSize(new Dimension(380, 25));
 		sliderRangoPrecios.setUI(new BasicRangeSliderUI(sliderRangoPrecios));		// Le ponemos esta UI preestablecida para que el Slider sea más bonito
 		sliderRangoPrecios.setFocusable(false);
 		sliderRangoPrecios.setRangeDraggable(false);

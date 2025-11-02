@@ -6,8 +6,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import db.Consulta;
-import gui.util.MiTextField;
 import main.util.Funcion;
+import gui.util.MiTextField;
 import main.Main;
 
 // Ventana emergente que te envía un correo nada más crear la instancia y si el código es correcto se crea un nuevo usuario en la BD e inicia sesión
