@@ -147,7 +147,7 @@ public class PanelViajes extends JPanel {
 	public String setError() {
 		
 		String errorStr = ((selectorMultiplesDestinos.getSelectorDestino1().getDestinoSeleccionado() == null || selectorMultiplesDestinos.getSelectorDestino2().getDestinoSeleccionado() == null ||
-						   selectorMultiplesDestinos.getSelectorDestino1().getDestinoSeleccionado().isDefaultAns() || selectorMultiplesDestinos.getSelectorDestino1().getDestinoSeleccionado().isDefaultAns() ||
+						   selectorMultiplesDestinos.getSelectorDestino1().getDestinoSeleccionado().isDefaultAns() || selectorMultiplesDestinos.getSelectorDestino2().getDestinoSeleccionado().isDefaultAns() ||
 						   selectorMultiplesDestinos.getSelectorDestino1().getDestinoSeleccionado().equals(selectorMultiplesDestinos.getSelectorDestino2().getDestinoSeleccionado())? "Seleccione unos destinos válidos, " : "") +
 						  ((selectorTipo.getComboBox().getSelectedItem().equals("Ida")) && selectorFecha.getDate() == null? "Seleccione una fecha válida, " : "") +
 						  ((selectorTipo.getComboBox().getSelectedItem().equals("Ida y Vuelta")) && (selectorFechas.getSelectorFecha1().getDate() == null || selectorFechas.getSelectorFecha2().getDate() == null)? "Seleccione un rango de fechas correcto, " : "")
