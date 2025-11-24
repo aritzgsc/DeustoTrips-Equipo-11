@@ -2,7 +2,9 @@ package gui.util.renderers;
 
 import java.awt.Component;
 
-import javax.swing.*;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JLabel;
+import javax.swing.JList;
 
 import main.Main;
 

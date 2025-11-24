@@ -4,7 +4,7 @@ import java.awt.GridLayout;
 import java.time.ZoneId;
 import java.util.Date;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 
 public class MiSelectorMultiplesFechas extends JPanel {
 

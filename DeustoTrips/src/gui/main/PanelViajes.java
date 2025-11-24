@@ -1,12 +1,24 @@
 package gui.main;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
-import gui.main.busqueda.*;
-import gui.main.filtros.*;
+import gui.main.busqueda.BotonBuscar;
+import gui.main.busqueda.MiSelectorFecha;
+import gui.main.busqueda.MiSelectorMultiplesDestinos;
+import gui.main.busqueda.MiSelectorMultiplesFechas;
+import gui.main.busqueda.MiSelectorTipo;
+import gui.main.busqueda.MiSpinnerPersonas;
+import gui.main.filtros.FiltroPrecio;
+import gui.main.filtros.FiltroTipoViaje;
 import main.Main;
 
 // Panel que contendrá componentes que permitan al usuario introducir información para la búsqueda de Viajes

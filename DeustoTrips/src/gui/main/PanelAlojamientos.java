@@ -1,12 +1,21 @@
 package gui.main;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
-import gui.main.busqueda.*;
-import gui.main.filtros.*;
+import gui.main.busqueda.BotonBuscar;
+import gui.main.busqueda.MiSelectorDestino;
+import gui.main.busqueda.MiSelectorMultiplesFechas;
+import gui.main.busqueda.MiSpinnerPersonas;
+import gui.main.filtros.FiltroPrecio;
+import gui.main.filtros.FiltroResenas;
 import main.Main;
 
 // Panel que contendrá componentes que permitan al usuario introducir información para la búsqueda de Alojamientos

@@ -1,9 +1,11 @@
 package main;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
-import javax.swing.border.*;
+import javax.swing.border.LineBorder;
 
 import gui.main.VentanaPrincipal;
 
@@ -21,7 +23,7 @@ public class Main {
 			
 			char c = e.getKeyChar();
 			
-			if (!Character.isDigit(c) && !Character.isAlphabetic(c) && !"@.".contains(Character.toString(c))) {			// Solo permite números, letras, y los caracteres '.' y '@'
+			if (!Character.isDigit(c) && !Character.isAlphabetic(c) && !"@. ".contains(Character.toString(c))) {			// Solo permite números, letras, y los caracteres '.' y '@'
 				
 				e.consume();
 				

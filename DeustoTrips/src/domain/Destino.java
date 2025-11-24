@@ -1,20 +1,58 @@
 package domain;
 
-import java.util.Objects;
+import javax.swing.ImageIcon;
 
 // Clase madre del resto de tipos de destinos
 
 public abstract class Destino implements Comparable<Destino> {
 
+	private int id;
 	private String nombre;
+	private double latitud;
+	private double longitud;
+	private ImageIcon bandera;
 	private boolean defaultAns;
 	
+	private String nombreBusqueda;		// Para mayor eficiencia
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public String getNombre() {
 		return nombre;
 	}
 
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
+	}
+
+	public double getLongitud() {
+		return longitud;
+	}
+
+	public void setLongitud(double longitud) {
+		this.longitud = longitud;
+	}
+
+	public double getLatitud() {
+		return latitud;
+	}
+
+	public void setLatitud(double latitud) {
+		this.latitud = latitud;
+	}
+
+	public ImageIcon getBandera() {
+		return bandera;
+	}
+
+	public void setBandera(ImageIcon bandera) {
+		this.bandera = bandera;
 	}
 
 	public boolean isDefaultAns() {
@@ -25,50 +63,53 @@ public abstract class Destino implements Comparable<Destino> {
 		this.defaultAns = defaultAns;
 	}
 	
-	public abstract String getNombrePais();
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(nombre);
+	public String getNombreBusqueda() {
+		return nombreBusqueda;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Destino other = (Destino) obj;
-		return Objects.equals(nombre, other.nombre);
+	public void setNombreBusqueda(String nombreBusqueda) {
+		this.nombreBusqueda = nombreBusqueda;
 	}
+
+	public abstract Pais getPais();
+	
+	public abstract String getNombrePais();
 	
 	// Comprobado con datos de prueba en MiSelectorDestinos
 	
 	@Override
-	public int compareTo(Destino other) {											// Objetivo: País, Ciudades del país, Aeropuertos del país (todo en orden alfabético - países entre ellos también)
+	public int compareTo(Destino other) {											// Objetivo: DefaultAns, País, Ciudades del país, Aeropuertos del país (todo en orden alfabético - países entre ellos también)
 		
-		int thisTipo = this instanceof Pais? 0 : this instanceof Ciudad? 1 : 2;		// Asignamos la "prioridad" que queremos darle a cada tipo de Destino
-		int otherTipo = other instanceof Pais? 0 : other instanceof Ciudad? 1 : 2;	// Asignamos la "prioridad" que queremos darle a cada tipo de Destino
+		if (other == null) return 1;
+
+	    // Prioridad del default
 		
-		if (other.isDefaultAns()) {
-			
-			return 1;																// El default va primero
-			
-		} else if (!this.getNombrePais().equals(other.getNombrePais())) {
-			
-			return this.getNombrePais().compareTo(other.getNombrePais());			// Si son de países distintos ordenamos por orden alfabético de país
-			
-		} else if (thisTipo != otherTipo) {
-			
-			return thisTipo - otherTipo;											// Si son del mismo país pero de diferente tipo, ordenamos por tipo
-			
-		} else {
-			
-			return this.getNombre().compareTo(other.getNombre());					// Si son del mismo país y tipo ordenamos alfabéticamente
-			
-		}
+	    if (this.isDefaultAns() && !other.isDefaultAns()) return -1;
+	    if (!this.isDefaultAns() && other.isDefaultAns()) return 1;
+	    
+	    // Prioridad por tipo
+	    
+	    int thisTipo = this instanceof Pais ? 0 : this instanceof Ciudad ? 1 : 2;
+	    int otherTipo = other instanceof Pais ? 0 : other instanceof Ciudad ? 1 : 2;
+
+	    // Comparar país seguro
+	    
+	    String thisPais = this.getNombrePais() != null ? this.getNombrePais() : "";
+	    String otherPais = other.getNombrePais() != null ? other.getNombrePais() : "";
+	    int paisCompare = thisPais.compareTo(otherPais);
+	    
+	    if (paisCompare != 0) return paisCompare;
+
+	    // Comparar tipo
+	    
+	    if (thisTipo != otherTipo) return thisTipo - otherTipo;
+
+	    // Comparar nombre seguro
+	    
+	    String thisNombre = this.getNombre() != null ? this.getNombre() : "";
+	    String otherNombre = other.getNombre() != null ? other.getNombre() : "";
+	    
+	    return thisNombre.compareTo(otherNombre);
 		
 	}
 	

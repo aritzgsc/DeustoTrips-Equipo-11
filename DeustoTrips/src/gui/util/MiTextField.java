@@ -1,9 +1,11 @@
 package gui.util;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Insets;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
-import javax.swing.*;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import gui.main.VentanaPrincipal;
 import main.Main;

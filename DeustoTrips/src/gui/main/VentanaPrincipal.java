@@ -1,8 +1,11 @@
 package gui.main;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import main.Main;
 
@@ -23,7 +26,7 @@ public final class VentanaPrincipal extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setMinimumSize(new Dimension(1440, 600));								// Para que si se minimiza se quede con ese tamaño
 		setLocationRelativeTo(null);
-		setIconImage(new ImageIcon("resources/images/icono_imagen.jpg").getImage());
+		setIconImage(new ImageIcon("resources/images/logo.jpg").getImage());
 		setExtendedState(MAXIMIZED_BOTH);
 		setTitle(Main.NOMBRE_APP);
 		

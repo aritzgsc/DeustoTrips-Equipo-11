@@ -1,9 +1,12 @@
 package gui.main;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.JLabel;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
 import main.Main;
 

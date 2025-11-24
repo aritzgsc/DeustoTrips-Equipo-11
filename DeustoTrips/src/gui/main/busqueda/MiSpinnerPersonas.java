@@ -1,8 +1,10 @@
 package gui.main.busqueda;
 
-import java.awt.*;
+import java.awt.Color;
 
-import javax.swing.*;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerListModel;
 
 import main.Main;
 

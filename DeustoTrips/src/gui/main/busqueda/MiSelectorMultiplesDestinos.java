@@ -2,7 +2,7 @@ package gui.main.busqueda;
 
 import java.awt.GridLayout;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 
 public class MiSelectorMultiplesDestinos extends JPanel {
 

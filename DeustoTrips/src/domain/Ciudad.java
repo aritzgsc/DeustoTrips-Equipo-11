@@ -1,15 +1,24 @@
 package domain;
 
+import main.util.Utilidades;
+
 // Ciudad es un tipo de destino que está en un país
 
 public class Ciudad extends Destino {
 
 	private Pais pais;
 
-	public Ciudad(Pais pais, String nombre) {
+	public Ciudad(int id, Pais pais, String nombre, double latitud, double longitud) {
 		
+		setId(id);
 		setPais(pais);
 		setNombre(nombre);
+		setLatitud(latitud);
+		setLongitud(longitud);
+		setBandera(pais.getBandera());
+		setDefaultAns(false);
+		
+		setNombreBusqueda(Utilidades.normalizar(toString()));
 		
 	}
 	

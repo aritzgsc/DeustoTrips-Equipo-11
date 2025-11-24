@@ -3,7 +3,8 @@ package gui.util.editores;
 import java.awt.Color;
 import java.awt.Component;
 
-import javax.swing.*;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.plaf.basic.BasicComboBoxEditor;
 
 import main.Main;

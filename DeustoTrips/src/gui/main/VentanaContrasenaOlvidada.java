@@ -1,15 +1,25 @@
 package gui.main;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
-import main.util.Funcion;
 import gui.util.MiPasswordField;
 import gui.util.MiTextField;
 import main.Main;
+import main.util.MailSender;
 
 // Ventana emergente que te envía un correo nada más crear la instancia y si el código es correcto se crea un nuevo usuario en la BD e inicia sesión
 
@@ -195,7 +205,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 				  			 </div>
 				  			 """;
 		
-		Funcion.enviarCorreo(correoElectronico, asunto, cuerpoHTML);
+		MailSender.enviarCorreo(correoElectronico, asunto, cuerpoHTML);
 		
 		// Correo enviado
 		////

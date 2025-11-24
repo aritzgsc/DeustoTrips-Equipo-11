@@ -2,7 +2,8 @@ package gui.util;
 
 import java.awt.Dimension;
 
-import javax.swing.*;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 
 import domain.Destino;
 import gui.util.editores.MiComboBoxEditor;

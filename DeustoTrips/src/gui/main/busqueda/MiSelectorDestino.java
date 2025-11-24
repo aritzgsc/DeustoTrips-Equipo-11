@@ -1,15 +1,26 @@
 package gui.main.busqueda;
 
 import java.awt.Dimension;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.JLayeredPane;
+import javax.swing.JTextField;
+import javax.swing.OverlayLayout;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
-import java.util.*;
-
-import domain.*;
-import gui.util.*;
+import domain.Destino;
+import domain.Pais;
+import gui.util.MiComboBoxDestinos;
+import gui.util.MiTextField;
 import gui.util.models.MiComboBoxDestinosModel;
 
 public class MiSelectorDestino extends JLayeredPane {
@@ -18,26 +29,7 @@ public class MiSelectorDestino extends JLayeredPane {
 	
 	// Datos de prueba - cuando tengamos la BD lo rellenaremos con eso
 	
-	Pais pais1 = new Pais("España");
-	Pais pais2 = new Pais("Francia");
-	Pais pais3 = new Pais("Alemania");
-	Pais pais4 = new Pais("UK");
-	Pais pais5 = new Pais("Portugal");
-	
-	Ciudad ciudad1 = new Ciudad(pais1, "Madrid");
-	Ciudad ciudad2 = new Ciudad(pais1, "Barcelona");
-	Ciudad ciudad3 = new Ciudad(pais1, "Bilbao");
-	Ciudad ciudad4 = new Ciudad(pais2, "Paris");
-	Ciudad ciudad5 = new Ciudad(pais2, "Lyon");
-	Ciudad ciudad10 = new Ciudad(pais4, "Londres");
-	
-	Aeropuerto aeropuerto1 = new Aeropuerto(ciudad1, "Aeropuerto de Barajas");
-	Aeropuerto aeropuerto2 = new Aeropuerto(ciudad2, "Aeropuerto del Prat");
-	Aeropuerto aeropuerto3 = new Aeropuerto(ciudad10, "Aeropuerto de Gatwick");
-	Aeropuerto aeropuerto4 = new Aeropuerto(ciudad10, "Aeropuerto de Heathrow");
-	Aeropuerto aeropuerto5 = new Aeropuerto(ciudad10, "Aeropuerto de Luton");
-	
-	private List<Destino> todosDestinos = new ArrayList<Destino>();
+	private List<Destino> todosDestinos = new ArrayList<Destino>();		// TODO Cargar de la BD
 	private List<Destino> destinosFiltrados = todosDestinos;
 	
 	private Destino destinoSeleccionado = null;
@@ -55,22 +47,6 @@ public class MiSelectorDestino extends JLayeredPane {
 		// Datos de prueba - cuando tengamos la BD lo rellenaremos con eso
 		
 		todosDestinos.add(new Pais(defaultAns, true));
-		todosDestinos.add(pais1);
-		todosDestinos.add(pais2);
-		todosDestinos.add(pais3);
-		todosDestinos.add(pais4);
-		todosDestinos.add(pais5);
-		todosDestinos.add(ciudad1);
-		todosDestinos.add(ciudad2);
-		todosDestinos.add(ciudad3);
-		todosDestinos.add(ciudad4);
-		todosDestinos.add(ciudad5);
-		todosDestinos.add(ciudad10);
-		todosDestinos.add(aeropuerto1);
-		todosDestinos.add(aeropuerto2);
-		todosDestinos.add(aeropuerto3);
-		todosDestinos.add(aeropuerto4);
-		todosDestinos.add(aeropuerto5);
 		
 		// FIN Datos de prueba - cuando tengamos la BD lo rellenaremos con eso
 		// Ordenamos la lista por su compareTo (En domain.Destino)

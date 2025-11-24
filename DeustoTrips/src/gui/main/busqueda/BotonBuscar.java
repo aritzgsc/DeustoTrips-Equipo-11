@@ -2,7 +2,7 @@ package gui.main.busqueda;
 
 import java.awt.Color;
 
-import javax.swing.*;
+import javax.swing.JButton;
 
 import gui.main.PanelPestanasBusqueda;
 import main.Main;

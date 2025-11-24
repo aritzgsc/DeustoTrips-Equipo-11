@@ -1,15 +1,30 @@
 package gui.main.busqueda;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.DateFormat;
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
 
-import com.toedter.calendar.*;		// Añadimos esta librería para crear calendarios y selectores de fechas más fácilmente
+// Añadimos esta librería para crear calendarios y selectores de fechas más fácilmente
+import com.toedter.calendar.JCalendar;
+import com.toedter.calendar.JDateChooser;
 
 import gui.util.editores.MiComboBoxEditor;
 import gui.util.uis.MiComboBoxUI;
