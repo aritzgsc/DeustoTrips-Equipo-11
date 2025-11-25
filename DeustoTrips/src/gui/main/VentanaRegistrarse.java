@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import db.Consulta;
+import db.GestorDB;
 import gui.util.MiPasswordField;
 import gui.util.MiTextField;
 import main.Main;
@@ -174,7 +174,7 @@ public class VentanaRegistrarse extends JDialog {
 	}
 	
 	private static boolean isCorreoValido(String correoElectronico) {
-		return !Consulta.isCorreoInDB(correoElectronico); // TODO Comprobación del formato del correo y que el gmail no esté registrado ya en BD (db.Consulta)
+		return !GestorDB.isCorreoInDB(correoElectronico); // TODO Comprobación del formato del correo y que el gmail no esté registrado ya en BD (db.Consulta)
 	}
 	
 	// Función que devuelve los errores cometidos en formato String (Primero separa todo por , y luego remplaza la ultima , por un string vacio "" y la penúltima (si la hay) por " y"

@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import db.Consulta;
+import db.GestorDB;
 import gui.util.MiPasswordField;
 import gui.util.MiTextField;
 import main.Main;
@@ -124,7 +124,7 @@ public class VentanaIniciarSesion extends JDialog {
 		iniciarSesion.setFont(Main.FUENTE);
 		iniciarSesion.setPreferredSize(new Dimension(300, 50));
 		iniciarSesion.addActionListener(e -> {
-			if (Consulta.iniciarSesion(correoElectronicoTF.getText(), contrasenaPF.getPassword())) {
+			if (GestorDB.iniciarSesion(correoElectronicoTF.getText(), contrasenaPF.getPassword())) {
 				
 				dispose();
 				
@@ -183,7 +183,7 @@ public class VentanaIniciarSesion extends JDialog {
 	}
 	
 	private static boolean isCorreoValido(String correoElectronico) {
-		return Consulta.isCorreoInDB(correoElectronico); // TODO Comprobación del formato del correo y que el gmail esté registrado ya en BD (db.Consulta)
+		return GestorDB.isCorreoInDB(correoElectronico); // TODO Comprobación del formato del correo y que el gmail esté registrado ya en BD (db.Consulta)
 	}
 	
 	// Hacemos un getter estático para obtener la instancia de la ventana emergente (para poder centrar la siguiente ventana emergente sobre esta)

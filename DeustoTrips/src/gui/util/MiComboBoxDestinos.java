@@ -7,7 +7,7 @@ import javax.swing.JComboBox;
 
 import domain.Destino;
 import gui.util.editores.MiComboBoxEditor;
-import gui.util.renderers.MiComboBoxListCellRenderer;
+import gui.util.renderers.MiComboBoxDestinosListCellRenderer;
 import gui.util.uis.MiComboBoxUI;
 import main.Main;
 
@@ -41,7 +41,7 @@ public class MiComboBoxDestinos extends JComboBox<Destino> {
 		
 		// Personalización del popUp del ComboBox
 		
-		setRenderer(new MiComboBoxListCellRenderer());
+		setRenderer(new MiComboBoxDestinosListCellRenderer());
 		
 	}
 	

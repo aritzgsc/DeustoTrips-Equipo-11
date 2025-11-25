@@ -17,11 +17,13 @@ import javax.swing.OverlayLayout;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import db.GestorDB;
 import domain.Destino;
 import domain.Pais;
 import gui.util.MiComboBoxDestinos;
 import gui.util.MiTextField;
 import gui.util.models.MiComboBoxDestinosModel;
+import main.util.Utilidades;
 
 public class MiSelectorDestino extends JLayeredPane {
 
@@ -29,15 +31,35 @@ public class MiSelectorDestino extends JLayeredPane {
 	
 	// Datos de prueba - cuando tengamos la BD lo rellenaremos con eso
 	
-	private List<Destino> todosDestinos = new ArrayList<Destino>();		// TODO Cargar de la BD
-	private List<Destino> destinosFiltrados = todosDestinos;
+	private static List<Destino> todosDestinos = GestorDB.cargarDestinos();
+	
+	private List<Destino> todosDestinosConDefAns = new ArrayList<Destino>();
+	private List<Destino> destinosFiltrados = new ArrayList<Destino>();
 	
 	private Destino destinoSeleccionado = null;
 	
 	private MiComboBoxDestinos comboBoxDestinos;			// Sacamos el comboBox afuera para poder resetearlo con un método (también nos ayuda a tener menos problemas al crear los listeners - para tenerlo todo más ordenado)
 	private MiTextField filtro;								// Sacamos el filtro afuera para poder resetearlo con un método (también nos ayuda a tener menos problemas al crear los listeners - para tenerlo todo más ordenado)
 	
-	public MiSelectorDestino(String defaultAns) {
+	@SafeVarargs
+	public MiSelectorDestino(String defaultAns, Class<? extends Destino>... clases) {
+		
+		for (Destino destino : todosDestinos) {
+			
+			for (Class<? extends Destino> clase : clases) {
+			
+				if (clase.isInstance(destino)) {
+					
+					todosDestinosConDefAns.add(destino);
+					break;
+					
+				}
+				
+			}
+			
+		}
+		
+		destinosFiltrados = new ArrayList<Destino>(todosDestinosConDefAns);
 		
 		// Configuración del layout del selector
 		
@@ -46,14 +68,14 @@ public class MiSelectorDestino extends JLayeredPane {
 		// FIN Configuración del layout del selector
 		// Datos de prueba - cuando tengamos la BD lo rellenaremos con eso
 		
-		todosDestinos.add(new Pais(defaultAns, true));
+		todosDestinosConDefAns.add(new Pais(defaultAns, true));
 		
 		// FIN Datos de prueba - cuando tengamos la BD lo rellenaremos con eso
 		// Ordenamos la lista por su compareTo (En domain.Destino)
 		
-		Collections.sort(todosDestinos);
+		Collections.sort(todosDestinosConDefAns);
 		
-		MiComboBoxDestinosModel comboBoxDestinosModel = new MiComboBoxDestinosModel(todosDestinos);
+		MiComboBoxDestinosModel comboBoxDestinosModel = new MiComboBoxDestinosModel(todosDestinosConDefAns);
 		
 		// Creación del ComboBox ya personalizado con el modelo de datos incorporado
 		
@@ -129,13 +151,16 @@ public class MiSelectorDestino extends JLayeredPane {
 			
 			@Override
 			public void focusGained(FocusEvent e) {
+				filtro.setVisible(true);
 				componenteEditorComboBox.setVisible(false);
+				comboBoxDestinos.setPopupVisible(true);
 			}
 			
 			@Override
 			public void focusLost(FocusEvent e) {
 				filtro.setVisible(false);
 				componenteEditorComboBox.setVisible(true);
+				comboBoxDestinos.setPopupVisible(false);
 				
 				if (destinoSeleccionado != null && destinosFiltrados.contains(destinoSeleccionado)) {
 					comboBoxDestinos.setSelectedItem(destinoSeleccionado);
@@ -200,30 +225,41 @@ public class MiSelectorDestino extends JLayeredPane {
 	// Método que filtra los destinos entre todos los destinos de la lista cada vez que se escribe o borra algo en el filtro
 	
 	private void filtrarDestinos(MiComboBoxDestinos comboBoxDestinos, String filtroText) {
-		
-		if (comboBoxDestinos.getSelectedItem() != null) {
-			destinoSeleccionado = (Destino) comboBoxDestinos.getSelectedItem();
-		}
-		
-		destinosFiltrados = new ArrayList<Destino>();
-		
-		for (Destino destino : todosDestinos) {
-			
-			if (destino.toString().toUpperCase().contains(filtroText.toUpperCase()) || destino.isDefaultAns()) {
-				
-				destinosFiltrados.add(destino);
-				
-			}
-			
-		}
-		
-		Collections.sort(destinosFiltrados);
-		
-		comboBoxDestinos.setModel(new MiComboBoxDestinosModel(destinosFiltrados));;				// Actualizamos el modelo (los datos) cada vez (El renderer no se ve afectado)
-		
-		comboBoxDestinos.setPopupVisible(true);
-		filtro.grabFocus();
-		
+	    
+	    if (filtroText == null || filtroText.isEmpty()) {
+	    	
+	    	destinosFiltrados = new ArrayList<Destino>(todosDestinosConDefAns);
+	    	
+	        comboBoxDestinos.setModel(new MiComboBoxDestinosModel(todosDestinosConDefAns));
+	        comboBoxDestinos.setPopupVisible(true);
+	        return;
+	        
+	    }
+
+	    String textoUsuarioLimpio = Utilidades.normalizar(filtroText);
+	    
+	    // Creamos el array con tamaño máximo del total
+	    
+	    destinosFiltrados = new ArrayList<Destino>();
+
+	    for (Destino destino : todosDestinosConDefAns) {
+	        
+	        if (destino.isDefaultAns() || destino.getNombreBusqueda().contains(textoUsuarioLimpio)) {
+	        	
+	            destinosFiltrados.add(destino);
+	            
+	        }
+	        
+	    }
+
+	    // Actualizamos el modelo
+	    
+	    comboBoxDestinos.setModel(new MiComboBoxDestinosModel(destinosFiltrados));
+	    
+	    if (!destinosFiltrados.isEmpty()) {
+	        comboBoxDestinos.setPopupVisible(true);
+	    }
+
 	}
 	
 	// Método que resetea todos los valores establecidos por el usuario
@@ -237,6 +273,10 @@ public class MiSelectorDestino extends JLayeredPane {
 	
 	public Destino getDestinoSeleccionado() {
 		return (Destino) comboBoxDestinos.getSelectedItem();
+	}
+	
+	public void setDestinoSeleccionado(Destino destino) {
+		comboBoxDestinos.setSelectedItem(destino);
 	}
 	
 }

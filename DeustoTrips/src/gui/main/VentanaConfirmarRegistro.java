@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import db.Consulta;
+import db.GestorDB;
 import gui.util.MiTextField;
 import main.Main;
 import main.util.MailSender;
@@ -100,8 +100,8 @@ public class VentanaConfirmarRegistro extends JDialog {
 				
 				confirmado = true;
 				
-				Consulta.registrarUsuario(nombre, apellidos, correoElectronico, contrasena);
-				Consulta.iniciarSesion(correoElectronico, contrasena);
+				GestorDB.registrarUsuario(nombre, apellidos, correoElectronico, contrasena);
+				GestorDB.iniciarSesion(correoElectronico, contrasena);
 				
 				dispose();
 				

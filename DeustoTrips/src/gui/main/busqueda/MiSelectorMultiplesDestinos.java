@@ -4,6 +4,8 @@ import java.awt.GridLayout;
 
 import javax.swing.JPanel;
 
+import domain.Destino;
+
 public class MiSelectorMultiplesDestinos extends JPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -11,7 +13,8 @@ public class MiSelectorMultiplesDestinos extends JPanel {
 	MiSelectorDestino selectorDestino1;						// Tendremos que sacarlos del constructor para posteriormente poder jugar con ellos a la hora de implementar la funcionalidad del botonBuscar
 	MiSelectorDestino selectorDestino2;						// Tendremos que sacarlos del constructor para posteriormente poder jugar con ellos a la hora de implementar la funcionalidad del botonBuscar
 	
-	public MiSelectorMultiplesDestinos(String defaultAns1, String defaultAns2) {
+	@SafeVarargs
+	public MiSelectorMultiplesDestinos(String defaultAns1, String defaultAns2, Class<? extends Destino>... clases) {
 		
 		// Configuracion del panel que contendrá los selectores de fecha
 		
@@ -22,8 +25,8 @@ public class MiSelectorMultiplesDestinos extends JPanel {
 		////
 		// Creación de los selectores de fecha
 		
-		selectorDestino1 = new MiSelectorDestino(defaultAns1);
-		selectorDestino2 = new MiSelectorDestino(defaultAns2);
+		selectorDestino1 = new MiSelectorDestino(defaultAns1, clases);
+		selectorDestino2 = new MiSelectorDestino(defaultAns2, clases);
 		
 		// Añadimos los selectores al panel
 		

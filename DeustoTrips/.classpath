@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="lib/jakarta.mail-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jcalendar-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/jide-oss-3.6.9.jar"/>
+	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.47.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

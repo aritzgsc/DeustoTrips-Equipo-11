@@ -2,6 +2,7 @@ package gui.main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridLayout;
 
 import javax.swing.BoxLayout;
@@ -10,6 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import domain.Ciudad;
+import domain.Pais;
 import gui.main.busqueda.BotonBuscar;
 import gui.main.busqueda.MiSelectorDestino;
 import gui.main.busqueda.MiSelectorMultiplesFechas;
@@ -53,7 +56,7 @@ public class PanelAlojamientos extends JPanel {
 		
 		// Creación de todos los componentes necesarios para la búsqueda
 		
-		selectorDestino = new MiSelectorDestino("¿A dónde vas?");
+		selectorDestino = new MiSelectorDestino("¿A dónde vas?", Pais.class, Ciudad.class);
 		selectorFechas = new MiSelectorMultiplesFechas("Fecha de entrada", "Fecha de salida", 1);			// Lo ponemos a 1 porque en un alojamiento mínimo hay que estar 1 noche (no puedes estar 0 noches)
 		spinnerCantidadPersonas = new MiSpinnerPersonas();
 		BotonBuscar botonBuscar = new BotonBuscar();
@@ -102,7 +105,7 @@ public class PanelAlojamientos extends JPanel {
 		// Panel errores
 		
 		error = new JLabel();
-		error.setFont(Main.FUENTE);
+		error.setFont(Main.FUENTE.deriveFont(Font.ITALIC));
 		error.setForeground(Color.RED);
 		error.setHorizontalAlignment(SwingConstants.CENTER);
 		
@@ -132,13 +135,17 @@ public class PanelAlojamientos extends JPanel {
 	
 	public String setError() {
 		
-		String errorStr = ((selectorDestino.getDestinoSeleccionado() == null || selectorDestino.getDestinoSeleccionado().isDefaultAns()? "Seleccione un destino válido, " : "") +
-						   (selectorFechas.getSelectorFecha1().getDate() == null || selectorFechas.getSelectorFecha2().getDate() == null? "Seleccione un rango de fechas correcto, " : "")
+		String errorStr = ("<html>" + (selectorDestino.getDestinoSeleccionado() == null || selectorDestino.getDestinoSeleccionado().isDefaultAns()? "Seleccione un destino válido, " : "") +
+						   (selectorFechas.getSelectorFecha1().getDate() == null || selectorFechas.getSelectorFecha2().getDate() == null? "Seleccione un rango de fechas correcto, " : "") + "</html>"
 				           ).replaceAll("(?<=, )Seleccione ", "").replaceAll(",(?=([^,]*$))", "").replaceAll(",(?=([^,]*$))", " y");
 		
 		error.setText(errorStr);
 		
-		return errorStr;
+		if (errorStr.equals("<html></html>")) {
+			return "";
+		} else {
+			return errorStr;
+		}
 				
 	}
 	
