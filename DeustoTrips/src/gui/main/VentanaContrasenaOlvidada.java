@@ -9,13 +9,14 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import db.GestorDB;
+import gui.util.MiButton;
 import gui.util.MiPasswordField;
 import gui.util.MiTextField;
 import main.Main;
@@ -60,7 +61,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 		
 		// Creación del contenido del panel 
 		
-		JLabel introducirL = new JLabel("Introduzca el código que ha sido enviado al correo " + correoElectronico + ":");
+		JLabel introducirL = new JLabel("<html><p align=\"center\">Introduzca el código que ha sido enviado al correo " + correoElectronico + ":</p></html>");
 		introducirL.setFont(Main.FUENTE);
 		
 		MiTextField introducirCodigoTF = new MiTextField();
@@ -80,10 +81,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 		
 		// Creación del boton que hace lo mismo que si cerraramos la ventana emergente
 		
-		JButton cancelar = new JButton("Cancelar");
-		cancelar.setFocusable(false);
-		cancelar.setBackground(Color.WHITE);
-		cancelar.setFont(Main.FUENTE);
+		MiButton cancelar = new MiButton("Cancelar");
 		cancelar.setPreferredSize(new Dimension(165, 50));
 		cancelar.addActionListener(e -> dispose());
 
@@ -91,10 +89,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 		////
 		// Creación del botón que comprueba si el código es correcto, en caso de serlo registra un nuevo usuario e inicia sesión
 		
-		JButton confirmar = new JButton("Confirmar");
-		confirmar.setFocusable(false);
-		confirmar.setBackground(Color.WHITE);
-		confirmar.setFont(Main.FUENTE);
+		MiButton confirmar = new MiButton("Confirmar");
 		confirmar.setPreferredSize(new Dimension(300, 50));
 		confirmar.addActionListener(e -> {
 			
@@ -108,7 +103,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 				////
 				// Cambiar panel introducir
 				
-				introducirL.setText("Introduzca una nueva contraseña para el usuario con correo " + correoElectronico + ":");
+				introducirL.setText("<html><p align=\"center\">Introduzca una nueva contraseña para el usuario con correo " + correoElectronico + ":</p></html>");
 				panelIntroducir.remove(introducirCodigoTF);
 				
 				MiPasswordField introducirContrasenaPF = new MiPasswordField();
@@ -122,10 +117,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 				
 				panelBotones.remove(confirmar);
 				
-				JButton establecer = new JButton("Establecer nueva contraseña");
-				establecer.setFocusable(false);
-				establecer.setBackground(Color.WHITE);
-				establecer.setFont(Main.FUENTE);
+				MiButton establecer = new MiButton("Establecer nueva contraseña");
 				establecer.setPreferredSize(new Dimension(300, 50));
 				establecer.addActionListener(new ActionListener() {
 					
@@ -134,9 +126,21 @@ public class VentanaContrasenaOlvidada extends JDialog {
 						if (introducirContrasenaPF.isContrasenaValida()) {
 							
 							confirmado = true;
-							// TODO Cambiar contraseña del usuario con correoElectronico en BD
-							dispose();
+
+							boolean contrasenaCambiadaCorrectamente = GestorDB.cambiarContrasenaUsuario(correoElectronico, introducirContrasenaPF.getPassword());
 							
+							if (contrasenaCambiadaCorrectamente) {
+								
+								boolean sesionIniciadaCorrectamente = GestorDB.iniciarSesion(correoElectronico, introducirContrasenaPF.getPassword());
+								
+								if (sesionIniciadaCorrectamente) {
+								
+									dispose();
+									
+								}
+								
+							}
+								
 						} else {
 							
 							error.setText("Contraseña inválida");
@@ -194,16 +198,27 @@ public class VentanaContrasenaOlvidada extends JDialog {
 		////
 		// Enviamos el código al correoElectronico especificado
 		
-		String asunto = "DeustoTrips - Código para cambio de contraseña";
+		String asunto = "DeustoTrips - Código de Verificación";
 		
-		String cuerpoHTML =  """
-				  			 <div style="text-align: center; font-family: 'Comic Sans MS', cursive; font-size: 15pt;">
-				    		 	 Introduzca el siguiente código en la aplicación:
-							 </div>
-							 <div style="text-align: center; font-family: 'Comic Sans MS', cursive; font-size: 20pt; font-weight: bold; margin-top: 10px;">
-				  			     """ + codigo + """
-				  			 </div>
-				  			 """;
+		String cuerpoHTML = String.format("""
+							              <div style="text-align: center; font-family: 'Comic Sans MS', cursive; color: #333;">
+							                 
+							                 <h1 style="color: #2c3e50;">🔐 Recuperación de Cuenta</h1>
+							                 
+							                 <p style="font-size: 14pt;">Hemos recibido una solicitud para cambiar tu contraseña.</p>
+							                 <p style="font-size: 14pt;">Usa el siguiente código para continuar:</p>
+							                 
+							                 <div style="background-color: #f0f4f8; border: 2px dashed #2c3e50; padding: 15px; width: 50%%; margin: 20px auto; border-radius: 10px;">
+							                     <span style="font-size: 24pt; font-weight: bold; letter-spacing: 5px; color: #e74c3c;">%s</span>
+							                 </div>
+							                 
+							                 <p style="font-size: 12pt; color: #777;">Si no has solicitado este cambio, ignora este correo. Tu cuenta sigue segura.</p>
+							                 
+							                 <hr style="width: 80%%; border: 1px solid #ccc; margin: 20px auto;">
+							                 
+							                 <p style="font-size: 10pt; color: #999;">DeustoTrips Security Team</p>
+							              </div>
+							              """, codigo);
 		
 		MailSender.enviarCorreo(correoElectronico, asunto, cuerpoHTML);
 		

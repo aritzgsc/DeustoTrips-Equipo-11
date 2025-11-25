@@ -7,7 +7,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -15,6 +14,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import db.GestorDB;
+import gui.util.MiButton;
 import gui.util.MiPasswordField;
 import gui.util.MiTextField;
 import main.Main;
@@ -107,10 +107,7 @@ public class VentanaIniciarSesion extends JDialog {
 		// Creación del boton que hace lo mismo que si cerraramos la ventana emergente
 		
 		
-		JButton cancelar = new JButton("Cancelar");
-		cancelar.setFocusable(false);
-		cancelar.setBackground(Color.WHITE);
-		cancelar.setFont(Main.FUENTE);
+		MiButton cancelar = new MiButton("Cancelar");
 		cancelar.setPreferredSize(new Dimension(165, 50));
 		cancelar.addActionListener(e -> dispose());
 
@@ -118,10 +115,7 @@ public class VentanaIniciarSesion extends JDialog {
 		////
 		// Creación del boton que comprueba si los datos introducidos son correctos e inicia sesión en caso de ser válidos 
 		
-		JButton iniciarSesion = new JButton("Iniciar sesión");
-		iniciarSesion.setFocusable(false);
-		iniciarSesion.setBackground(Color.WHITE);
-		iniciarSesion.setFont(Main.FUENTE);
+		MiButton iniciarSesion = new MiButton("Iniciar sesión");
 		iniciarSesion.setPreferredSize(new Dimension(300, 50));
 		iniciarSesion.addActionListener(e -> {
 			if (GestorDB.iniciarSesion(correoElectronicoTF.getText(), contrasenaPF.getPassword())) {
@@ -130,7 +124,17 @@ public class VentanaIniciarSesion extends JDialog {
 				
 			} else {
 				
-				error.setText("Correo electrónico o Contraseña erróneos");
+				if (GestorDB.isCorreoInDB(correoElectronicoTF.getText())) {
+					
+					error.setText("<html><p align=\"center\">Contraseña incorrecta</p></html>");
+					
+				} else {
+					
+					error.setText("<html><p align=\"center\">Correo electrónico no registrado</p></html>");
+					
+				}
+				
+				
 				
 			}
 		});
@@ -139,10 +143,7 @@ public class VentanaIniciarSesion extends JDialog {
 		////
 		// Creación del boton que comprueba si el correo está registrado y envía un mail real (a través de la nueva ventana emergente) en caso de serlo 
 		
-		JButton contrasenaOlvidada = new JButton("He olvidado mi contraseña");
-		contrasenaOlvidada.setFocusable(false);
-		contrasenaOlvidada.setBackground(Color.WHITE);
-		contrasenaOlvidada.setFont(Main.FUENTE);
+		MiButton contrasenaOlvidada = new MiButton("He olvidado mi contraseña");
 		contrasenaOlvidada.setPreferredSize(new Dimension(485, 50));
 		contrasenaOlvidada.addActionListener(e -> {
 			if (isCorreoValido(correoElectronicoTF.getText())) {
@@ -183,7 +184,7 @@ public class VentanaIniciarSesion extends JDialog {
 	}
 	
 	private static boolean isCorreoValido(String correoElectronico) {
-		return GestorDB.isCorreoInDB(correoElectronico); // TODO Comprobación del formato del correo y que el gmail esté registrado ya en BD (db.Consulta)
+		return GestorDB.isCorreoInDB(correoElectronico.trim()); // Comprobación del formato del correo y que el gmail esté registrado ya en BD (db.Consulta)
 	}
 	
 	// Hacemos un getter estático para obtener la instancia de la ventana emergente (para poder centrar la siguiente ventana emergente sobre esta)

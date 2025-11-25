@@ -15,8 +15,10 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import db.util.PasswordSecurity;
 import domain.Aeropuerto;
 import domain.Ciudad;
+import domain.Cliente;
 import domain.Destino;
 import domain.Pais;
 
@@ -278,13 +280,107 @@ public class GestorDB {
 	}
 
 	public static boolean isCorreoInDB(String correoElectronico) {
-		return false;
+
+		boolean isCorreoInDB = true;
+
+		String sql = """
+				SELECT *
+				FROM CLIENTE
+				WHERE EMAIL_CLI = ?;
+				""";
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+			pstmt.setString(1, correoElectronico.trim());
+
+			ResultSet rs = pstmt.executeQuery();
+
+			if (!rs.next()) {
+
+				isCorreoInDB = false;
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al acceder a la BD");
+//			e.printStackTrace();
+
+		}
+
+		return isCorreoInDB;
+
 	}
 
-	public static boolean registrarUsuario(String nombre, String apellidos, String correo, String contrasena) {
-		return false;
+	public static boolean registrarUsuario(Cliente cliente) {
+
+		boolean usuarioRegistradoCorrectamente = false;
+
+		String sql = """
+				INSERT INTO
+				CLIENTE (EMAIL_CLI, NOM_CLI, AP_CLI, CONTR_CLI)
+				VALUES (?, ?, ?, ?);
+				""";
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+			pstmt.setString(1, cliente.getCorreo().trim());
+			pstmt.setString(2, cliente.getNombre().trim());
+			pstmt.setString(3, cliente.getApellidos().trim());
+			pstmt.setString(4, PasswordSecurity.hashPassword(cliente.getContrasena().trim()));
+
+			int rowCount = pstmt.executeUpdate();
+
+			if (rowCount > 0) {
+
+				usuarioRegistradoCorrectamente = true;
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al registrar el usuario");
+//			e.printStackTrace();
+
+		}
+
+		return usuarioRegistradoCorrectamente;
+
 	}
 
+	public static boolean cambiarContrasenaUsuario(String correoElectronico, String nuevaContrasena) {
+
+		boolean contrasenaCambiadaCorrectamente = false;
+
+		String sql = "UPDATE CLIENTE SET CONTR_CLI = ? WHERE EMAIL_CLI = ?";
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+			pstmt.setString(1, PasswordSecurity.hashPassword(nuevaContrasena.trim()));
+			pstmt.setString(2, correoElectronico.trim());
+
+			int rowCount = pstmt.executeUpdate();
+
+			if (rowCount > 0) {
+
+				contrasenaCambiadaCorrectamente = true;
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al cambiar la contraseña del usuario con correo: " + correoElectronico);
+//			e.printStackTrace();
+
+		}
+
+		return contrasenaCambiadaCorrectamente;
+
+	}
+	
 	public static boolean iniciarSesion(String correoElectronico, String contrasena) {
 		return true;
 	}

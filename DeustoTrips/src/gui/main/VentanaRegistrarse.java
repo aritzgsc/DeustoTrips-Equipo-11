@@ -7,7 +7,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -15,6 +14,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import db.GestorDB;
+import gui.util.MiButton;
 import gui.util.MiPasswordField;
 import gui.util.MiTextField;
 import main.Main;
@@ -118,10 +118,7 @@ public class VentanaRegistrarse extends JDialog {
 		
 		// Creación del boton que hace lo mismo que si cerraramos la ventana emergente
 		
-		JButton cancelar = new JButton("Cancelar");
-		cancelar.setFocusable(false);
-		cancelar.setBackground(Color.WHITE);
-		cancelar.setFont(Main.FUENTE);
+		MiButton cancelar = new MiButton("Cancelar");
 		cancelar.setPreferredSize(new Dimension(165, 50));
 		cancelar.addActionListener(e -> dispose());
 		
@@ -130,13 +127,10 @@ public class VentanaRegistrarse extends JDialog {
 		////
 		// Creación del boton que comprueba si los datos introducidos son correctos y envía un mail real (a través de la nueva ventana emergente) en caso de serlo 
 		
-		JButton confirmarReg = new JButton("Confirmar registro");
-		confirmarReg.setFocusable(false);
-		confirmarReg.setBackground(Color.WHITE);
-		confirmarReg.setFont(Main.FUENTE);
+		MiButton confirmarReg = new MiButton("Confirmar registro");
 		confirmarReg.setPreferredSize(new Dimension(300, 50));
 		confirmarReg.addActionListener(e -> {
-			if (!nombreTF.getText().isBlank() && !apellidosTF.getText().isBlank() && isCorreoValido(correoElectronicoTF.getText()) && contrasenaPF.isContrasenaValida()) {
+			if (getError(nombreTF.getText(), apellidosTF.getText(), correoElectronicoTF.getText(), contrasenaPF).equals("<html><p align=\"center\"></p></html>")) {
 				
 				VentanaConfirmarRegistro ventanaConfirmarRegistro = new VentanaConfirmarRegistro(nombreTF.getText(), apellidosTF.getText(), correoElectronicoTF.getText(), contrasenaPF.getPassword());
 
@@ -174,26 +168,23 @@ public class VentanaRegistrarse extends JDialog {
 	}
 	
 	private static boolean isCorreoValido(String correoElectronico) {
-		return !GestorDB.isCorreoInDB(correoElectronico); // TODO Comprobación del formato del correo y que el gmail no esté registrado ya en BD (db.Consulta)
+		return !GestorDB.isCorreoInDB(correoElectronico.trim()) && correoElectronico.trim().matches("[\\d\\w\\.]+@[\\d\\w\\.]+\\.[\\d\\w\\.]+"); // Comprobación del formato del correo y que el gmail no esté registrado ya en BD (db.Consulta)
 	}
 	
 	// Función que devuelve los errores cometidos en formato String (Primero separa todo por , y luego remplaza la ultima , por un string vacio "" y la penúltima (si la hay) por " y"
 	
 	private String getError(String nombre, String apellidos, String correoElectronico, MiPasswordField contrasenaPF) {
 		
-		int n = 0;													// Contador de errores (para saber si es 1 o varios)
+		if (nombre.isBlank());
+		if (apellidos.isBlank());
+		if (!contrasenaPF.isContrasenaValida());
+		if (!isCorreoValido(correoElectronico));
 		
-		if (nombre.isBlank()) n++;
-		if (apellidos.isBlank()) n++;
-		if (!isCorreoValido(correoElectronico)) n++;
-		if (!contrasenaPF.isContrasenaValida()) n++;
-		
-		return ((nombre.isBlank()?"Nombre, ":"") + 
-				(apellidos.isBlank()?"Apellidos, ":"") + 
-				(!isCorreoValido(correoElectronico)?"Correo, ":"") + 
-				(!contrasenaPF.isContrasenaValida()?"Contraseña, ":"") + 
-				(n > 1?"son erróneos":"es erróneo")
-				).replaceAll(",(?=([^,]*$))", "").replaceAll(",(?=([^,]*$))", " y");
+		return "<html><p align=\"center\">" + ((nombre.isBlank()?"Nombre inválido, ":"") + 
+				(apellidos.isBlank()?"Apellidos inválidos, ":"") + 
+				(!contrasenaPF.isContrasenaValida()?"Contraseña inválida, ":"") + 
+				(!isCorreoValido(correoElectronico)? (correoElectronico.trim().matches("[\\d\\w\\.]+@[\\d\\w\\.]+\\.[\\d\\w\\.]+")? "Correo previamente registrado,":"Correo inválido,"):"")
+				).replaceAll(",(?=([^,]*$))", "").replaceAll(",(?=([^,]*$))", " y") + "</p></html>";
 	}
 	
 	// Hacemos un getter estático para obtener la instancia de la ventana emergente (para poder centrar la siguiente ventana emergente sobre esta)

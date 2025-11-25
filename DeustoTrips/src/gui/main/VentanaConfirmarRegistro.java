@@ -7,14 +7,16 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import db.GestorDB;
+import domain.Cliente;
+import gui.util.MiButton;
 import gui.util.MiTextField;
 import main.Main;
 import main.util.MailSender;
@@ -58,10 +60,10 @@ public class VentanaConfirmarRegistro extends JDialog {
 		
 		// Creación del contenido del panel 
 		
-		JLabel introducirL = new JLabel("Introduzca el código que ha sido enviado al correo " + correoElectronico + ":");
+		JLabel introducirL = new JLabel("<html><p align=\"center\">Introduzca el código que ha sido enviado al correo " + correoElectronico + ":</p></html>");
 		introducirL.setFont(Main.FUENTE);
 		
-		MiTextField introducirCodigoTF = new MiTextField();
+		JTextField introducirCodigoTF = new MiTextField();
 		
 		// FIN Creación del contenido del panel
 		// Añadimos los componentes al panel correspondiente
@@ -78,10 +80,7 @@ public class VentanaConfirmarRegistro extends JDialog {
 		
 		// Creación del boton que hace lo mismo que si cerraramos la ventana emergente
 		
-		JButton cancelar = new JButton("Cancelar");
-		cancelar.setFocusable(false);
-		cancelar.setBackground(Color.WHITE);
-		cancelar.setFont(Main.FUENTE);
+		MiButton cancelar = new MiButton("Cancelar");
 		cancelar.setPreferredSize(new Dimension(165, 50));
 		cancelar.addActionListener(e -> dispose());
 
@@ -89,10 +88,7 @@ public class VentanaConfirmarRegistro extends JDialog {
 		////
 		// Creación del botón que comprueba si el código es correcto, en caso de serlo registra un nuevo usuario e inicia sesión
 		
-		JButton confirmar = new JButton("Confirmar");
-		confirmar.setFocusable(false);
-		confirmar.setBackground(Color.WHITE);
-		confirmar.setFont(Main.FUENTE);
+		MiButton confirmar = new MiButton("Confirmar");
 		confirmar.setPreferredSize(new Dimension(300, 50));
 		confirmar.addActionListener(e -> {
 			
@@ -100,8 +96,13 @@ public class VentanaConfirmarRegistro extends JDialog {
 				
 				confirmado = true;
 				
-				GestorDB.registrarUsuario(nombre, apellidos, correoElectronico, contrasena);
-				GestorDB.iniciarSesion(correoElectronico, contrasena);
+				boolean usuarioRegistradoCorrectamente = GestorDB.registrarUsuario(new Cliente(correoElectronico, nombre, apellidos, contrasena));
+				
+				if (usuarioRegistradoCorrectamente) {
+					
+					GestorDB.iniciarSesion(correoElectronico, contrasena);
+					
+				} 
 				
 				dispose();
 				
@@ -151,16 +152,28 @@ public class VentanaConfirmarRegistro extends JDialog {
 		////
 		// Enviamos el código al correoElectronico especificado (Lo ponemos en formato HTML para que quede más bonito)
 		
-		String asunto = "DeustoTrips - Código para registro";
+		String asunto = "DeustoTrips - Código de registro";
 		
-		String cuerpoHTML =  """
-				  			 <div style="text-align: center; font-family: 'Comic Sans MS', cursive; font-size: 15pt;">
-				    		 	 Introduzca el siguiente código en la aplicación:
-							 </div>
-							 <div style="text-align: center; font-family: 'Comic Sans MS', cursive; font-size: 20pt; font-weight: bold; margin-top: 10px;">
-				  			     """ + codigo + """
-				  			 </div>
-				  			 """;
+		String cuerpoHTML = String.format("""
+							              <div style="text-align: center; font-family: 'Comic Sans MS', cursive; color: #333;">
+							                 
+							                 <h1 style="color: #2980b9;">¡Hola! 👋</h1>
+							                 <h2 style="color: #2c3e50;">Bienvenido a DeustoTrips 🚀</h2>
+							                 
+							                 <p style="font-size: 14pt;">¡Estamos encantados de que te unas a nosotros!</p>
+							                 <p style="font-size: 14pt;">Para completar tu registro y empezar a viajar, introduce este código:</p>
+							                 
+							                 <div style="background-color: #e8f8f5; border: 2px dashed #1abc9c; padding: 15px; width: 50%%; margin: 20px auto; border-radius: 10px;">
+							                     <span style="font-size: 24pt; font-weight: bold; letter-spacing: 5px; color: #16a085;">%s</span>
+							                 </div>
+							                 
+							                 <p style="font-size: 12pt;">Este código es válido para verificar tu cuenta.</p>
+							                 
+							                 <hr style="width: 80%%; border: 1px solid #ccc; margin: 20px auto;">
+							                 
+							                 <p style="font-size: 10pt; color: #999;">El equipo de DeustoTrips</p>
+							              </div>
+							              """, codigo);
 		
 		MailSender.enviarCorreo(correoElectronico, asunto, cuerpoHTML);
 		
