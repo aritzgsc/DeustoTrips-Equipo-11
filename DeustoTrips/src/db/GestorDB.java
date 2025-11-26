@@ -382,6 +382,45 @@ public class GestorDB {
 
 	}
 	
+	public static boolean cambiarDatosUsuario(Cliente cliente) {
+
+		boolean datosCambiadosCorrectamente = false;
+
+		String sql = """
+				UPDATE CLIENTE
+				SET NOM_CLI = ?, AP_CLI = ?, CONTR_CLI = ?
+				WHERE EMAIL_CLI = ?
+				""";
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+			pstmt.setString(1, cliente.getNombre().trim());
+			pstmt.setString(2, cliente.getApellidos().trim());
+			pstmt.setString(3, PasswordSecurity.hashPassword(cliente.getContrasena().trim()));
+			pstmt.setString(4, cliente.getCorreo().trim());
+
+			int rowCount = pstmt.executeUpdate();
+
+			if (rowCount > 0) {
+
+				datosCambiadosCorrectamente = true;
+
+				PanelVolverRegistrarseIniciarSesion.setCliente(cliente);
+				
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al cambiar los datos del usuario con correo: " + cliente.getCorreo());
+//			e.printStackTrace();
+
+		}
+
+		return datosCambiadosCorrectamente;
+
+	}
+	
 	public static boolean iniciarSesion(String correoElectronico, String contrasena) {
 
 		boolean sesionIniciadaCorrectamente = false;

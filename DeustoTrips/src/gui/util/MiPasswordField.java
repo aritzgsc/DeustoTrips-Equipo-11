@@ -39,7 +39,7 @@ public class MiPasswordField extends JSplitPane {
 		// Creamos el panel de la izquierda (con JPasswordField)
 		
 		JPanel panelIzquierda = new JPanel(new BorderLayout());
-		
+
 		contrasenaPF.setBorder(Main.DEFAULT_LINE_BORDER);
 		contrasenaPF.setFont(Main.FUENTE);
 		contrasenaPF.addKeyListener(Main.ANTI_CARACTERES_RAROS);
@@ -99,6 +99,14 @@ public class MiPasswordField extends JSplitPane {
 			contrasena += letra;
 		}
 		return contrasena;
+	}
+	
+	// Método para escribir en el passwordfield
+	
+	public void setText(String text) {
+		
+		contrasenaPF.setText(text);
+		
 	}
 	
 	// Método para ver si la contraseña es válida 

@@ -40,7 +40,7 @@ public class BotonPopUpAccionesPerfil extends MiButton {
 			MiMenuItem visualizarApartamentos = new MiMenuItem("Mis apartamentos", getWidth(), 40);
 			MiMenuItem cerrarSesion = new MiMenuItem("Cerrar sesión", getWidth(), 40);
 			
-//			modificarCuenta.addActionListener((e1) -> new VentanaModificarCuenta());
+			modificarCuenta.addActionListener((e1) -> new VentanaModificarCuenta());
 //			visualizarReservas.addActionListener((e1) -> new VentanaVisualizarReservas());
 //			visualizarApartamentos.addActionListener((e1) -> new VentanaVisualizarApartamentos());
 			cerrarSesion.addActionListener((e1) -> PanelVolverRegistrarseIniciarSesion.cerrarSesion());

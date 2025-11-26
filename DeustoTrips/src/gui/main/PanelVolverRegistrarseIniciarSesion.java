@@ -120,6 +120,10 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 		return cliente;
 	}
 	
+	public static void setCliente(Cliente cliente) {
+		PanelVolverRegistrarseIniciarSesion.cliente = cliente;
+	}
+	
 	public static boolean isSesionIniciada() {
 		return sesionIniciada;
 	}
