@@ -21,6 +21,7 @@ import domain.Ciudad;
 import domain.Cliente;
 import domain.Destino;
 import domain.Pais;
+import gui.main.PanelVolverRegistrarseIniciarSesion;
 
 // Clase que contiene todos los métodos que utilizan la BD
 
@@ -382,7 +383,48 @@ public class GestorDB {
 	}
 	
 	public static boolean iniciarSesion(String correoElectronico, String contrasena) {
-		return true;
+
+		boolean sesionIniciadaCorrectamente = false;
+
+		String sql = """
+				SELECT *
+				FROM CLIENTE
+				WHERE EMAIL_CLI = ?
+				""";
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+			pstmt.setString(1, correoElectronico.trim());
+
+			ResultSet rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+
+				String hashContrasenaBD = rs.getString("CONTR_CLI");
+
+				if (PasswordSecurity.checkPassword(contrasena.trim(), hashContrasenaBD)) {
+
+					String nombre = rs.getString("NOM_CLI");
+					String apellidos = rs.getString("AP_CLI");
+
+					PanelVolverRegistrarseIniciarSesion.iniciarSesion(new Cliente(correoElectronico.trim(), nombre.trim(), apellidos.trim(), contrasena.trim()));
+
+					sesionIniciadaCorrectamente = true;
+
+				}
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al iniciar sesión");
+//			e.printStackTrace();
+
+		}
+
+		return sesionIniciadaCorrectamente;
+
 	}
 
 }
