@@ -3,8 +3,10 @@ package gui.main.filtros;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
 
+import gui.util.PanelSelectorResena;
 import main.Main;
 
 public class FiltroResenas extends JPanel {
@@ -52,7 +54,7 @@ public class FiltroResenas extends JPanel {
 		////
 		// Creación y personalización de los componentes que irán dentro del panel
 		
-		panelSelectorResena = new PanelSelectorResena(true);
+		panelSelectorResena = new PanelSelectorResena(true, 50);
 		panelSelectorResena.setVisible(false);
 		
 		// Añadimos todo al panel principal

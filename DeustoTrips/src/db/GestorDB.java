@@ -1,12 +1,15 @@
 package db;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -466,4 +469,78 @@ public class GestorDB {
 
 	}
 
+	public static boolean registrarApartamento(String nombre, String direccion, String descripcion, double precioNP, int capMax, List<BufferedImage> imagenesSeleccionadas, Ciudad ciudad) {
+
+		boolean apartamentoRegistradoCorrectamente = false;
+
+		String sqlInsertAp = """
+						     INSERT INTO
+						     APARTAMENTO (NOM_AP, DIR_AP, DESC_AP, PRECIO_NP_AP, CAP_MAX_AP, EMAIL_CLI, ID_D)
+						     VALUES (?, ?, ?, ? ,?, ?, ?);
+						     """;
+		
+		String sqlInsertImg = """
+							  INSERT INTO 
+							  IMAGEN_APARTAMENTO (IMAGEN_AP, ID_AP)
+							  VALUES (?, ?);
+							  """;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmtInsertAp = con.prepareStatement(sqlInsertAp, Statement.RETURN_GENERATED_KEYS);
+			 PreparedStatement pstmtInsertImg = con.prepareStatement(sqlInsertImg)) {
+
+			pstmtInsertAp.setString(1, nombre.trim());
+			pstmtInsertAp.setString(2, direccion.trim());
+			pstmtInsertAp.setString(3, descripcion.trim());
+			pstmtInsertAp.setDouble(4, precioNP);
+			pstmtInsertAp.setInt(5, capMax);
+			pstmtInsertAp.setString(6, PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo().trim());
+			pstmtInsertAp.setInt(7, ciudad.getId());
+
+			int rowCount = pstmtInsertAp.executeUpdate();
+
+			if (rowCount > 0) {
+
+				try (ResultSet rsKey = pstmtInsertAp.getGeneratedKeys()) {
+					
+					if (rsKey.next()) {
+						
+						for (BufferedImage imagen : imagenesSeleccionadas) {
+							
+							ByteArrayOutputStream baos = new ByteArrayOutputStream();
+							ImageIO.write(imagen, "png", baos);
+							byte[] imagenBytes = baos.toByteArray();
+							
+							pstmtInsertImg.setBytes(1, imagenBytes);
+							pstmtInsertImg.setInt(2, rsKey.getInt(1));
+							
+							pstmtInsertImg.executeUpdate();
+							
+						}
+						
+						apartamentoRegistradoCorrectamente = true;
+						
+					}
+					
+				} catch (Exception e) {
+					
+					System.err.println("Error al guardar las imágenes");
+					
+				}
+
+			}
+
+			
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al registrar el nuevo apartamento");
+			e.printStackTrace();
+
+		}
+
+		return apartamentoRegistradoCorrectamente;
+
+	}
+	
 }

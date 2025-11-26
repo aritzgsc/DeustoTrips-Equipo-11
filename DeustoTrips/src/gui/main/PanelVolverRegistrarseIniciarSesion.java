@@ -55,7 +55,7 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 		// Creación de los botones que aparecerán cuando esté la sesión iniciada
 		
 		registrarApartamento = new MiButton("Registrar Apartamento");
-//		registrarApartamento.addActionListener((e) -> new VentanaRegistrarApartamento());
+		registrarApartamento.addActionListener((e) -> new VentanaRegistrarApartamento());
 		
 		// FIN Creación de los botones que aparecerán cuando esté la sesión iniciada
 		////
