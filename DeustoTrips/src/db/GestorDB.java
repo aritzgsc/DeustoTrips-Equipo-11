@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,10 +21,14 @@ import javax.swing.ImageIcon;
 
 import db.util.PasswordSecurity;
 import domain.Aeropuerto;
+import domain.Alojamiento;
+import domain.Apartamento;
 import domain.Ciudad;
 import domain.Cliente;
 import domain.Destino;
+import domain.Hotel;
 import domain.Pais;
+import domain.Resena;
 import gui.main.PanelVolverRegistrarseIniciarSesion;
 
 // Clase que contiene todos los métodos que utilizan la BD
@@ -469,6 +474,124 @@ public class GestorDB {
 
 	}
 
+public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojamiento> clase, int idAlojamiento) {
+		
+		List<BufferedImage> imagenesAlojamiento = new ArrayList<BufferedImage>();
+		
+		String sqlSelect = "";
+		
+		if (clase.equals(Apartamento.class)) {
+
+			sqlSelect = """
+						SELECT IMAGEN_AP AS IMAGEN
+						FROM IMAGEN_APARTAMENTO
+						WHERE ID_AP = ?;
+						""";
+
+		} else if (clase.equals(Hotel.class)) {
+
+			sqlSelect = """
+						SELECT IMAGEN_H AS IMAGEN
+						FROM IMAGEN_HOTEL
+						WHERE ID_H = ?;
+						""";
+
+		}
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmt = con.prepareStatement(sqlSelect)) {
+			
+			pstmt.setInt(1, idAlojamiento);
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				
+				try {
+					
+					byte[] imagenBytes = rs.getBytes("IMAGEN");
+					ByteArrayInputStream bais = new ByteArrayInputStream(imagenBytes);
+					
+					BufferedImage imagenCargada = ImageIO.read(bais);
+					
+					imagenesAlojamiento.add(imagenCargada);
+					
+				} catch (IOException e) {
+					
+					e.printStackTrace();
+					
+				}
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al cargar las imágenes del alojamiento");
+			
+		}
+		
+		return imagenesAlojamiento;
+		
+	}
+	
+	public static List<Resena> getResenasAlojamiento(Class<? extends Alojamiento> clase, int idAlojamiento) {
+
+		List<Resena> resenasAlojamiento = new ArrayList<Resena>();
+
+		String sqlSelect = "";
+
+		if (clase.equals(Apartamento.class)) {
+
+			sqlSelect = """
+					SELECT NOM_CLI, AP_CLI, ESTRELLAS_R, MENSAJE_R, FECHA_R
+					FROM RESENA R, CLIENTE CLI
+					WHERE ID_R IN (SELECT ID_R
+								   FROM RESERVA_AP RVA_AP
+								   WHERE ID_AP = ? AND
+								         CLI.EMAIL_CLI = RVA_AP.EMAIL_CLI);
+					""";
+
+		} else if (clase.equals(Hotel.class)) {
+
+			sqlSelect = """
+					SELECT NOM_CLI, AP_CLI, ESTRELLAS_R, MENSAJE_R, FECHA_R
+					FROM RESENA R, CLIENTE CLI
+					WHERE ID_R IN (SELECT ID_R
+								   FROM RESERVA_H RVA_H
+								   WHERE ID_H = ? AND
+								         CLI.EMAIL_CLI = RVA_H.EMAIL_CLI);
+					""";
+
+		}
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmt = con.prepareStatement(sqlSelect)) {
+
+			pstmt.setInt(1, idAlojamiento);
+
+			ResultSet rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+
+				Resena resena = new Resena(rs.getString("NOM_CLI") + " " + rs.getString("AP_CLI"),
+						rs.getDouble("ESTRELLAS_R"), rs.getString("MENSAJE_R"),
+						LocalDate.parse(rs.getString("FECHA_R")));
+
+				resenasAlojamiento.add(resena);
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al cargar las reseñas del alojamiento");
+//			e.printStackTrace();
+
+		}
+
+		return resenasAlojamiento;
+
+	}
+	
 	public static boolean registrarApartamento(String nombre, String direccion, String descripcion, double precioNP, int capMax, List<BufferedImage> imagenesSeleccionadas, Ciudad ciudad) {
 
 		boolean apartamentoRegistradoCorrectamente = false;
