@@ -42,7 +42,7 @@ public class BotonPopUpAccionesPerfil extends MiButton {
 			
 			modificarCuenta.addActionListener((e1) -> new VentanaModificarCuenta());
 //			visualizarReservas.addActionListener((e1) -> new VentanaVisualizarReservas());
-//			visualizarApartamentos.addActionListener((e1) -> new VentanaVisualizarApartamentos());
+			visualizarApartamentos.addActionListener((e1) -> new VentanaVisualizarApartamentos());
 			cerrarSesion.addActionListener((e1) -> PanelVolverRegistrarseIniciarSesion.cerrarSesion());
 			
 			// FIN Creación de los componentes del popupMenu

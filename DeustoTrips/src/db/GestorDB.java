@@ -666,4 +666,157 @@ public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojami
 
 	}
 	
+	public static boolean modificarApartamento(int id, String nombre, String direccion, String descripcion, double precioNP, int capMax, List<BufferedImage> imagenes, Ciudad ciudad) {
+
+		boolean apartamentoModificadoCorrectamente = false;
+
+		String sqlUpdate = """
+						   UPDATE APARTAMENTO
+						   SET NOM_AP = ?, DIR_AP = ?, DESC_AP = ?, PRECIO_NP_AP = ?, CAP_MAX_AP = ?, EMAIL_CLI = ?, ID_D = ?
+						   WHERE ID_AP = ?;
+						   """;
+
+		String sqlDelete = """
+						   DELETE FROM
+						   IMAGEN_APARTAMENTO
+						   WHERE ID_AP = ?;
+						   """;
+		
+		String sqlInsert = """
+				  		   INSERT INTO 
+				  		   IMAGEN_APARTAMENTO (IMAGEN_AP, ID_AP)
+				  		   VALUES (?, ?);
+				  		   """;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmtUpdate = con.prepareStatement(sqlUpdate);
+			 PreparedStatement pstmtDelete = con.prepareStatement(sqlDelete);
+			 PreparedStatement pstmtInsert = con.prepareStatement(sqlInsert)) {
+
+			pstmtUpdate.setString(1, nombre.trim());
+			pstmtUpdate.setString(2, direccion.trim());
+			pstmtUpdate.setString(3, descripcion.trim());
+			pstmtUpdate.setDouble(4, precioNP);
+			pstmtUpdate.setInt(5, capMax);
+			pstmtUpdate.setString(6, PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo().trim());
+			pstmtUpdate.setInt(7, ciudad.getId());
+			pstmtUpdate.setInt(8, id);
+
+			int rowCount1 = pstmtUpdate.executeUpdate();
+
+			if (rowCount1 > 0) {
+
+				pstmtDelete.setInt(1, id);
+				
+				pstmtDelete.executeUpdate();
+				
+				try {
+				
+				for (BufferedImage imagen : imagenes) {
+					
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					ImageIO.write(imagen, "png", baos);
+					byte[] imagenBytes = baos.toByteArray();
+					
+					pstmtInsert.setBytes(1, imagenBytes);
+					pstmtInsert.setInt(2, id);
+					
+					pstmtInsert.executeUpdate();
+					
+				}
+				
+				} catch (Exception e) {
+					
+					System.err.println("Error al actualizar las imágenes");
+					
+				}
+				
+				apartamentoModificadoCorrectamente = true;
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al registrar el nuevo apartamento");
+			e.printStackTrace();
+
+		}
+
+		return apartamentoModificadoCorrectamente;
+
+	}
+
+	public static Map<Apartamento, Double> getApartamentos(Cliente cliente) {
+
+		Map<Apartamento, Double> dineroGenPorApartamento = new HashMap<Apartamento, Double>();
+
+		String sqlSelectApartamentos = """
+				SELECT *
+				FROM APARTAMENTO
+				WHERE EMAIL_CLI = ?;
+				""";
+		
+		String sqlSelectReservas = """
+				SELECT P_RVA_AP
+				FROM RESERVA_AP
+				WHERE ID_AP = ?;
+				""";
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmtSelectAp = con.prepareStatement(sqlSelectApartamentos);
+				PreparedStatement pstmtSelectRvas = con.prepareStatement(sqlSelectReservas)) {
+
+			pstmtSelectAp.setString(1, cliente.getCorreo().trim());
+
+			ResultSet rsAP = pstmtSelectAp.executeQuery();
+
+			while (rsAP.next()) {
+
+				// Creacion del apartamento
+
+				int idA = rsAP.getInt("ID_AP");
+				String nombreA = rsAP.getString("NOM_AP");
+				String dirA = rsAP.getString("DIR_AP");
+				Ciudad ciudadA = (Ciudad) getDestino(rsAP.getInt("ID_D"));
+				String descripcionA = rsAP.getString("DESC_AP");
+				List<Resena> resenasA = getResenasAlojamiento(Apartamento.class, idA);
+				List<BufferedImage> imagenesA = getImagenesAlojamiento(Apartamento.class, idA);
+
+				double precioNPA = rsAP.getDouble("PRECIO_NP_AP");
+				int capMaxA = rsAP.getInt("CAP_MAX_AP");
+				String correoPropA = rsAP.getString("EMAIL_CLI");
+
+				Apartamento apartamento = new Apartamento(idA, nombreA, dirA, ciudadA, descripcionA, resenasA, imagenesA, precioNPA, capMaxA, correoPropA);
+
+				// FIN Creacion del apartamento
+
+				// Cálculo de ganancias
+
+				double gananciasTotales = 0;
+
+				pstmtSelectRvas.setInt(1, idA);
+
+				ResultSet rsRVAs = pstmtSelectRvas.executeQuery();
+
+				while (rsRVAs.next()) {
+
+					gananciasTotales += rsRVAs.getDouble("P_RVA_AP");
+
+				}
+
+				dineroGenPorApartamento.put(apartamento, gananciasTotales);
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al cargar los apartamentos");
+			e.printStackTrace();
+
+		}
+
+		return dineroGenPorApartamento;
+
+	}
+	
 }
