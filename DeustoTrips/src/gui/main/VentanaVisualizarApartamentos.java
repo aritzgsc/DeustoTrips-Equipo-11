@@ -20,6 +20,7 @@ import javax.swing.JToggleButton;
 
 import db.GestorDB;
 import domain.Apartamento;
+import gui.util.MiTablaResumenApartamentos;
 import gui.util.PanelEditarApartamento;
 import main.Main;
 
@@ -103,11 +104,11 @@ public class VentanaVisualizarApartamentos extends JFrame {
 		
 		// FIN ScrollPane
 		////
-		// Tabla resumen de los apartamentos mostrados (inicialmente no colocada) TODO
+		// Tabla resumen de los apartamentos mostrados (inicialmente no colocada)
 		
-//		MiTablaResumenApartamentos resumenApartamentos = new MiTablaResumenApartamentos(apartamentos, apartamentosListaOrdenada);
+		MiTablaResumenApartamentos resumenApartamentos = new MiTablaResumenApartamentos(apartamentos, apartamentosListaOrdenada);
 		
-		// FIN Tabla TODO
+		// FIN Tabla
 		////
 		// Creación del botón que mostrará el resumen de los apartamentos en esta misma ventana
 		
@@ -139,7 +140,7 @@ public class VentanaVisualizarApartamentos extends JFrame {
 				
 				botonResumen.setText("Ocultar resumen");
 				
-//				scrollPaneApartamentos.setViewportView(resumenApartamentos);
+				scrollPaneApartamentos.setViewportView(resumenApartamentos);
 				
 			} else {
 				
@@ -174,9 +175,13 @@ public class VentanaVisualizarApartamentos extends JFrame {
 		add(scrollPaneApartamentos, BorderLayout.CENTER);
 		add(botonResumen, BorderLayout.SOUTH);
 		
-		// Hacemos visible la ventana
+		// Hacemos visible la ventana si hay apartamentos
 		
-		setVisible(true);
+		if (apartamentos.isEmpty()) {
+			dispose();
+		} else {
+			setVisible(true);
+		}
 		
 	}
 	

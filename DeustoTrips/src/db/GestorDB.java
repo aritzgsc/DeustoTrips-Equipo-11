@@ -59,33 +59,34 @@ public class GestorDB {
 		List<Destino> destinosList = new ArrayList<Destino>();
 
 		String sqlSelectPaises = """
-								 SELECT ID_D, NOM_D, LAT_D, LON_D, BANDERA
-								 FROM DESTINO D, TIPO_DESTINO TD, IMAGEN_DESTINO ID
-								 WHERE D.ID_TD = TD.ID_TD AND
-								 TD.NOM_TD = 'País' AND
-								 D.ISO_CODE = ID.ISO_CODE;
-								 """;
+				SELECT ID_D, NOM_D, LAT_D, LON_D, BANDERA
+				FROM DESTINO D, TIPO_DESTINO TD, IMAGEN_DESTINO ID
+				WHERE D.ID_TD = TD.ID_TD AND
+				TD.NOM_TD = 'País' AND
+				D.ISO_CODE = ID.ISO_CODE;
+				""";
 
 		String sqlSelectCiudades = """
-								   SELECT ID_D, NOM_D, LAT_D, LON_D, ID_D_PADRE
-								   FROM DESTINO D, TIPO_DESTINO TD
-								   WHERE D.ID_TD = TD.ID_TD AND
-								   TD.NOM_TD = 'Ciudad';
-								   """;
+				SELECT ID_D, NOM_D, LAT_D, LON_D, ID_D_PADRE
+				FROM DESTINO D, TIPO_DESTINO TD
+				WHERE D.ID_TD = TD.ID_TD AND
+				TD.NOM_TD = 'Ciudad';
+				""";
 
 		String sqlSelectAeropuertos = """
-									  SELECT ID_D, NOM_D, LAT_D, LON_D, ID_D_PADRE
-									  FROM DESTINO D, TIPO_DESTINO TD
-									  WHERE D.ID_TD = TD.ID_TD AND
-									  TD.NOM_TD = 'Aeropuerto';
-									  """;
+				SELECT ID_D, NOM_D, LAT_D, LON_D, ID_D_PADRE
+				FROM DESTINO D, TIPO_DESTINO TD
+				WHERE D.ID_TD = TD.ID_TD AND
+				TD.NOM_TD = 'Aeropuerto';
+				""";
 
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
 				PreparedStatement pstmtPaises = con.prepareStatement(sqlSelectPaises);
 				PreparedStatement pstmtCiudades = con.prepareStatement(sqlSelectCiudades);
 				PreparedStatement pstmtAeropuertos = con.prepareStatement(sqlSelectAeropuertos)) {
 
-			// Primero debemos rellenar los datos de todos los países (porque lo demás depende de ellos)
+			// Primero debemos rellenar los datos de todos los países (porque lo demás
+			// depende de ellos)
 
 			ResultSet paisesRS = pstmtPaises.executeQuery();
 
@@ -120,7 +121,8 @@ public class GestorDB {
 
 				Pais pais = new Pais(idPais, nomPais, latPais, lonPais, banderaPais);
 
-				// Rellenamos los mapas correspondientes que utilizaremos más tarde (además del mapa que devolverá la función)
+				// Rellenamos los mapas correspondientes que utilizaremos más tarde (además del
+				// mapa que devolverá la función)
 
 				paisPorID.put(idPais, pais);
 				destinosList.add(pais);
@@ -146,23 +148,24 @@ public class GestorDB {
 				Pais paisCiudad = paisPorID.get(idPaisCiudad);
 
 				Ciudad ciudad = null;
-				
+
 				if (paisCiudad != null) {
 
 					// Creamos la ciudad
-					
+
 					ciudad = new Ciudad(idCiudad, paisCiudad, nomCiudad, latCiudad, lonCiudad);
 
 					// Rellenamos los mapas correspondientes
 
 					ciudadPorID.put(idCiudad, ciudad);
 					destinosList.add(ciudad);
-					
+
 				}
 
 			}
 
-			// Por último hacemos parecido para los aeropuertos (este es un poco más complicado y costoso)
+			// Por último hacemos parecido para los aeropuertos (este es un poco más
+			// complicado y costoso)
 
 			ResultSet aeropuertosRS = pstmtAeropuertos.executeQuery();
 
@@ -175,23 +178,23 @@ public class GestorDB {
 				int idCiudadAeropuerto = aeropuertosRS.getInt("ID_D_PADRE");
 
 				// Conseguimos la ciudad del aeropuerto a través del mapa que hemos creado antes
-				
+
 				Ciudad ciudadAeropuerto = ciudadPorID.get(idCiudadAeropuerto);
-				
+
 				Aeropuerto aeropuerto = null;
-				
+
 				if (ciudadAeropuerto != null) {
-					
+
 					// Creamos el aeropuerto
 
-					aeropuerto = new Aeropuerto(idAeropuerto, ciudadAeropuerto, nomAeropuerto, latAeropuerto, lonAeropuerto);
-					
+					aeropuerto = new Aeropuerto(idAeropuerto, ciudadAeropuerto, nomAeropuerto, latAeropuerto,
+							lonAeropuerto);
+
 					// Rellenamos el mapa correspondiente
 
 					destinosList.add(aeropuerto);
-					
-				}
 
+				}
 
 			}
 
@@ -199,7 +202,7 @@ public class GestorDB {
 
 			System.err.println("Error al cargar el destino desde la BD");
 
-			 e.printStackTrace();
+			e.printStackTrace();
 
 		}
 
@@ -285,6 +288,72 @@ public class GestorDB {
 		}
 
 		return destino;
+
+	}
+
+	// Función para obtener las ciudades de un país a partir de un código ISO
+
+	public static List<Ciudad> getCiudades(String isoCode) {
+
+		List<Ciudad> ciudadesPais = new ArrayList<Ciudad>();
+
+		String sqlPais = "SELECT ID_D, NOM_D, LAT_D, LON_D, BANDERA FROM DESTINO D, IMAGEN_DESTINO ID WHERE ID_TD = 1 AND D.ISO_CODE = ID.ISO_CODE AND D.ISO_CODE = ?;";
+		String sqlCiudades = "SELECT * FROM DESTINO WHERE ID_TD = 2 AND ISO_CODE = ?;";
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmtPais = con.prepareStatement(sqlPais);
+				PreparedStatement pstmtCiudades = con.prepareStatement(sqlCiudades)) {
+
+			pstmtPais.setString(1, isoCode);
+
+			ResultSet rsPais = pstmtPais.executeQuery();
+
+			Pais paisCiudades = null;
+
+			if (rsPais.next()) {
+
+				byte[] imagenBytes = rsPais.getBytes("BANDERA");
+
+				ImageIcon bandera = null;
+				try {
+
+					ByteArrayInputStream bais = new ByteArrayInputStream(imagenBytes);
+
+					bandera = new ImageIcon(ImageIO.read(bais));
+
+				} catch (IOException e) {
+
+					System.err.println("Error al cargar la bandera del país");
+					e.printStackTrace();
+
+				}
+
+				paisCiudades = new Pais(rsPais.getInt("ID_D"), rsPais.getString("NOM_D"), rsPais.getDouble("LAT_D"),
+						rsPais.getDouble("LON_D"), bandera);
+
+				pstmtCiudades.setString(1, isoCode);
+
+				ResultSet rsCiudades = pstmtCiudades.executeQuery();
+
+				while (rsCiudades.next()) {
+
+					Ciudad ciudad = new Ciudad(rsCiudades.getInt("ID_D"), paisCiudades, rsCiudades.getString("NOM_D"),
+							rsCiudades.getDouble("LAT_D"), rsCiudades.getDouble("LON_D"));
+
+					ciudadesPais.add(ciudad);
+
+				}
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al cargar las ciudades");
+			e.printStackTrace();
+
+		}
+
+		return ciudadesPais;
 
 	}
 
@@ -389,7 +458,7 @@ public class GestorDB {
 		return contrasenaCambiadaCorrectamente;
 
 	}
-	
+
 	public static boolean cambiarDatosUsuario(Cliente cliente) {
 
 		boolean datosCambiadosCorrectamente = false;
@@ -415,7 +484,7 @@ public class GestorDB {
 				datosCambiadosCorrectamente = true;
 
 				PanelVolverRegistrarseIniciarSesion.setCliente(cliente);
-				
+
 			}
 
 		} catch (SQLException e) {
@@ -428,7 +497,7 @@ public class GestorDB {
 		return datosCambiadosCorrectamente;
 
 	}
-	
+
 	public static boolean iniciarSesion(String correoElectronico, String contrasena) {
 
 		boolean sesionIniciadaCorrectamente = false;
@@ -455,7 +524,8 @@ public class GestorDB {
 					String nombre = rs.getString("NOM_CLI");
 					String apellidos = rs.getString("AP_CLI");
 
-					PanelVolverRegistrarseIniciarSesion.iniciarSesion(new Cliente(correoElectronico.trim(), nombre.trim(), apellidos.trim(), contrasena.trim()));
+					PanelVolverRegistrarseIniciarSesion.iniciarSesion(
+							new Cliente(correoElectronico.trim(), nombre.trim(), apellidos.trim(), contrasena.trim()));
 
 					sesionIniciadaCorrectamente = true;
 
@@ -474,66 +544,66 @@ public class GestorDB {
 
 	}
 
-public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojamiento> clase, int idAlojamiento) {
-		
+	public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojamiento> clase, int idAlojamiento) {
+
 		List<BufferedImage> imagenesAlojamiento = new ArrayList<BufferedImage>();
-		
+
 		String sqlSelect = "";
-		
+
 		if (clase.equals(Apartamento.class)) {
 
 			sqlSelect = """
-						SELECT IMAGEN_AP AS IMAGEN
-						FROM IMAGEN_APARTAMENTO
-						WHERE ID_AP = ?;
-						""";
+					SELECT IMAGEN_AP AS IMAGEN
+					FROM IMAGEN_APARTAMENTO
+					WHERE ID_AP = ?;
+					""";
 
 		} else if (clase.equals(Hotel.class)) {
 
 			sqlSelect = """
-						SELECT IMAGEN_H AS IMAGEN
-						FROM IMAGEN_HOTEL
-						WHERE ID_H = ?;
-						""";
+					SELECT IMAGEN_H AS IMAGEN
+					FROM IMAGEN_HOTEL
+					WHERE ID_H = ?;
+					""";
 
 		}
-		
+
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
-			 PreparedStatement pstmt = con.prepareStatement(sqlSelect)) {
-			
+				PreparedStatement pstmt = con.prepareStatement(sqlSelect)) {
+
 			pstmt.setInt(1, idAlojamiento);
-			
+
 			ResultSet rs = pstmt.executeQuery();
-			
+
 			while (rs.next()) {
-				
+
 				try {
-					
+
 					byte[] imagenBytes = rs.getBytes("IMAGEN");
 					ByteArrayInputStream bais = new ByteArrayInputStream(imagenBytes);
-					
+
 					BufferedImage imagenCargada = ImageIO.read(bais);
-					
+
 					imagenesAlojamiento.add(imagenCargada);
-					
+
 				} catch (IOException e) {
-					
+
 					e.printStackTrace();
-					
+
 				}
-				
+
 			}
-			
+
 		} catch (SQLException e) {
-			
+
 			System.err.println("Error al cargar las imágenes del alojamiento");
-			
+
 		}
-		
+
 		return imagenesAlojamiento;
-		
+
 	}
-	
+
 	public static List<Resena> getResenasAlojamiento(Class<? extends Alojamiento> clase, int idAlojamiento) {
 
 		List<Resena> resenasAlojamiento = new ArrayList<Resena>();
@@ -591,26 +661,27 @@ public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojami
 		return resenasAlojamiento;
 
 	}
-	
-	public static boolean registrarApartamento(String nombre, String direccion, String descripcion, double precioNP, int capMax, List<BufferedImage> imagenesSeleccionadas, Ciudad ciudad) {
+
+	public static boolean registrarApartamento(String nombre, String direccion, String descripcion, double precioNP,
+			int capMax, List<BufferedImage> imagenesSeleccionadas, Ciudad ciudad) {
 
 		boolean apartamentoRegistradoCorrectamente = false;
 
 		String sqlInsertAp = """
-						     INSERT INTO
-						     APARTAMENTO (NOM_AP, DIR_AP, DESC_AP, PRECIO_NP_AP, CAP_MAX_AP, EMAIL_CLI, ID_D)
-						     VALUES (?, ?, ?, ? ,?, ?, ?);
-						     """;
-		
+				INSERT INTO
+				APARTAMENTO (NOM_AP, DIR_AP, DESC_AP, PRECIO_NP_AP, CAP_MAX_AP, EMAIL_CLI, ID_D)
+				VALUES (?, ?, ?, ? ,?, ?, ?);
+				""";
+
 		String sqlInsertImg = """
-							  INSERT INTO 
-							  IMAGEN_APARTAMENTO (IMAGEN_AP, ID_AP)
-							  VALUES (?, ?);
-							  """;
-		
+				INSERT INTO
+				IMAGEN_APARTAMENTO (IMAGEN_AP, ID_AP)
+				VALUES (?, ?);
+				""";
+
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
-			 PreparedStatement pstmtInsertAp = con.prepareStatement(sqlInsertAp, Statement.RETURN_GENERATED_KEYS);
-			 PreparedStatement pstmtInsertImg = con.prepareStatement(sqlInsertImg)) {
+				PreparedStatement pstmtInsertAp = con.prepareStatement(sqlInsertAp, Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement pstmtInsertImg = con.prepareStatement(sqlInsertImg)) {
 
 			pstmtInsertAp.setString(1, nombre.trim());
 			pstmtInsertAp.setString(2, direccion.trim());
@@ -625,35 +696,33 @@ public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojami
 			if (rowCount > 0) {
 
 				try (ResultSet rsKey = pstmtInsertAp.getGeneratedKeys()) {
-					
+
 					if (rsKey.next()) {
-						
+
 						for (BufferedImage imagen : imagenesSeleccionadas) {
-							
+
 							ByteArrayOutputStream baos = new ByteArrayOutputStream();
 							ImageIO.write(imagen, "png", baos);
 							byte[] imagenBytes = baos.toByteArray();
-							
+
 							pstmtInsertImg.setBytes(1, imagenBytes);
 							pstmtInsertImg.setInt(2, rsKey.getInt(1));
-							
+
 							pstmtInsertImg.executeUpdate();
-							
+
 						}
-						
+
 						apartamentoRegistradoCorrectamente = true;
-						
+
 					}
-					
+
 				} catch (Exception e) {
-					
+
 					System.err.println("Error al guardar las imágenes");
-					
+
 				}
 
 			}
-
-			
 
 		} catch (SQLException e) {
 
@@ -665,33 +734,34 @@ public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojami
 		return apartamentoRegistradoCorrectamente;
 
 	}
-	
-	public static boolean modificarApartamento(int id, String nombre, String direccion, String descripcion, double precioNP, int capMax, List<BufferedImage> imagenes, Ciudad ciudad) {
+
+	public static boolean modificarApartamento(int id, String nombre, String direccion, String descripcion,
+			double precioNP, int capMax, List<BufferedImage> imagenes, Ciudad ciudad) {
 
 		boolean apartamentoModificadoCorrectamente = false;
 
 		String sqlUpdate = """
-						   UPDATE APARTAMENTO
-						   SET NOM_AP = ?, DIR_AP = ?, DESC_AP = ?, PRECIO_NP_AP = ?, CAP_MAX_AP = ?, EMAIL_CLI = ?, ID_D = ?
-						   WHERE ID_AP = ?;
-						   """;
+				UPDATE APARTAMENTO
+				SET NOM_AP = ?, DIR_AP = ?, DESC_AP = ?, PRECIO_NP_AP = ?, CAP_MAX_AP = ?, EMAIL_CLI = ?, ID_D = ?
+				WHERE ID_AP = ?;
+				""";
 
 		String sqlDelete = """
-						   DELETE FROM
-						   IMAGEN_APARTAMENTO
-						   WHERE ID_AP = ?;
-						   """;
-		
+				DELETE FROM
+				IMAGEN_APARTAMENTO
+				WHERE ID_AP = ?;
+				""";
+
 		String sqlInsert = """
-				  		   INSERT INTO 
-				  		   IMAGEN_APARTAMENTO (IMAGEN_AP, ID_AP)
-				  		   VALUES (?, ?);
-				  		   """;
-		
+				INSERT INTO
+				IMAGEN_APARTAMENTO (IMAGEN_AP, ID_AP)
+				VALUES (?, ?);
+				""";
+
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
-			 PreparedStatement pstmtUpdate = con.prepareStatement(sqlUpdate);
-			 PreparedStatement pstmtDelete = con.prepareStatement(sqlDelete);
-			 PreparedStatement pstmtInsert = con.prepareStatement(sqlInsert)) {
+				PreparedStatement pstmtUpdate = con.prepareStatement(sqlUpdate);
+				PreparedStatement pstmtDelete = con.prepareStatement(sqlDelete);
+				PreparedStatement pstmtInsert = con.prepareStatement(sqlInsert)) {
 
 			pstmtUpdate.setString(1, nombre.trim());
 			pstmtUpdate.setString(2, direccion.trim());
@@ -707,30 +777,30 @@ public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojami
 			if (rowCount1 > 0) {
 
 				pstmtDelete.setInt(1, id);
-				
+
 				pstmtDelete.executeUpdate();
-				
+
 				try {
-				
-				for (BufferedImage imagen : imagenes) {
-					
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					ImageIO.write(imagen, "png", baos);
-					byte[] imagenBytes = baos.toByteArray();
-					
-					pstmtInsert.setBytes(1, imagenBytes);
-					pstmtInsert.setInt(2, id);
-					
-					pstmtInsert.executeUpdate();
-					
-				}
-				
+
+					for (BufferedImage imagen : imagenes) {
+
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						ImageIO.write(imagen, "png", baos);
+						byte[] imagenBytes = baos.toByteArray();
+
+						pstmtInsert.setBytes(1, imagenBytes);
+						pstmtInsert.setInt(2, id);
+
+						pstmtInsert.executeUpdate();
+
+					}
+
 				} catch (Exception e) {
-					
+
 					System.err.println("Error al actualizar las imágenes");
-					
+
 				}
-				
+
 				apartamentoModificadoCorrectamente = true;
 
 			}
@@ -755,7 +825,7 @@ public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojami
 				FROM APARTAMENTO
 				WHERE EMAIL_CLI = ?;
 				""";
-		
+
 		String sqlSelectReservas = """
 				SELECT P_RVA_AP
 				FROM RESERVA_AP
@@ -786,7 +856,8 @@ public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojami
 				int capMaxA = rsAP.getInt("CAP_MAX_AP");
 				String correoPropA = rsAP.getString("EMAIL_CLI");
 
-				Apartamento apartamento = new Apartamento(idA, nombreA, dirA, ciudadA, descripcionA, resenasA, imagenesA, precioNPA, capMaxA, correoPropA);
+				Apartamento apartamento = new Apartamento(idA, nombreA, dirA, ciudadA, descripcionA, resenasA,
+						imagenesA, precioNPA, capMaxA, correoPropA);
 
 				// FIN Creacion del apartamento
 
@@ -818,5 +889,42 @@ public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojami
 		return dineroGenPorApartamento;
 
 	}
-	
+
+	public static Map<LocalDate, LocalDate> getFechasReservas(Apartamento apartamento) {
+
+		Map<LocalDate, LocalDate> fechasReservas = new HashMap<LocalDate, LocalDate>();
+
+		String sql = """
+				SELECT F_INI_RVA, F_FIN_RVA
+				FROM RESERVA_AP
+				WHERE ID_AP = ?;
+				""";
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+			pstmt.setInt(1, apartamento.getId());
+
+			ResultSet rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+
+				LocalDate fechaEntrada = LocalDate.parse(rs.getString("F_INI_RVA"));
+				LocalDate fechaSalida = LocalDate.parse(rs.getString("F_FIN_RVA"));
+
+				fechasReservas.put(fechaEntrada, fechaSalida);
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al cargar las fechas de las reservas del apartamento " + apartamento.getNombre());
+			e.printStackTrace();
+
+		}
+
+		return fechasReservas;
+
+	}
+
 }
