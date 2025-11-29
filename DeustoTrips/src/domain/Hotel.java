@@ -46,7 +46,7 @@ public class Hotel extends Alojamiento {
 	}
 
 	public int nHabitacionesOcupadas(int nPersonas) {
-		return (int) Math.ceil(nPersonas / capMaxHab); 
+		return (int) Math.ceil((double) nPersonas / capMaxHab); 
 	}
 	
 	@Override

@@ -3,18 +3,24 @@ package gui.util;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -41,12 +47,19 @@ public class PanelAlojamiento extends JPanel {
 	public static final int MODO_RESERVAR = 1;
 	public static final int MODO_CANCELAR_O_DEJARRESENA = 2;
 
-	private MiButton resenasB;
+	private Resena resena;
 
+	private MiButton resenasB;
+	
+	private Alojamiento alojamiento;
 	private JLabel notaL;
 	private JProgressBar ratingPB;
 	
-	public PanelAlojamiento(Alojamiento alojamiento, int nPersonas, LocalDate fechaInicio, LocalDate fechaFin, double precioRva, int idRva /*Si no tiene -1*/, Resena resena, int modo) {
+	public PanelAlojamiento(Alojamiento alojamiento, int nPersonas, LocalDate fechaInicio, LocalDate fechaFin, double precioRva, int idRva /*Si no tiene -1*/, Resena resena,
+			int modo) {
+
+		this.resena = resena;
+		this.alojamiento = alojamiento;
 		
 		int nNoches = (int) ChronoUnit.DAYS.between(fechaInicio, fechaFin);
 
@@ -219,11 +232,13 @@ public class PanelAlojamiento extends JPanel {
 		reservarB.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
 
 		reservarB.addActionListener(e -> {
-
+			
 			if (PanelVolverRegistrarseIniciarSesion.isSesionIniciada()) {
 
-				int nPerHab = (alojamiento instanceof Apartamento) ? nPersonas : ((Hotel) alojamiento).nHabitacionesOcupadas(nPersonas);
-				boolean reservaCreadaCorrectamente = GestorDB.crearReservaAlojamiento(alojamiento, fechaInicio, fechaFin, nPerHab);
+				int nPerHab = (alojamiento instanceof Apartamento) ? nPersonas
+						: ((Hotel) alojamiento).nHabitacionesOcupadas(nPersonas);
+				boolean reservaCreadaCorrectamente = GestorDB.crearReservaAlojamiento(alojamiento, fechaInicio,
+						fechaFin, nPerHab);
 
 				if (reservaCreadaCorrectamente) {
 
@@ -239,7 +254,7 @@ public class PanelAlojamiento extends JPanel {
 				PanelPestanasBusqueda.setError("Inicia sesión para reservar");
 
 			}
-			
+
 		});
 
 		// Botón cancelar
@@ -253,7 +268,50 @@ public class PanelAlojamiento extends JPanel {
 
 		cancelarB.addActionListener((e) -> {
 
-			// TODO Cancelar reserva
+			MiButton botonSi = new MiButton("Si");
+			MiButton botonNo = new MiButton("No");
+
+			Object[] opciones = { botonSi, botonNo };
+
+			JOptionPane pregunta = new JOptionPane(new JLabel("¿Estás seguro de que quieres cancelar esta reserva?"),
+					JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+					new ImageIcon(new ImageIcon("resources/images/icono_imagen.jpg").getImage().getScaledInstance(64,
+							64, Image.SCALE_SMOOTH)),
+					opciones, botonSi);
+			pregunta.setFont(Main.FUENTE);
+			
+			botonSi.addActionListener((e1) -> pregunta.setValue(JOptionPane.YES_OPTION));
+			botonNo.addActionListener((e1) -> pregunta.setValue(JOptionPane.NO_OPTION));
+			
+			JDialog dialog = pregunta.createDialog(this, "Confirmación");
+			dialog.setVisible(true);
+
+			if ((int) pregunta.getValue() == JOptionPane.YES_OPTION) {
+
+				int nPerHab = (alojamiento instanceof Apartamento) ? nPersonas
+						: ((Hotel) alojamiento).nHabitacionesOcupadas(nPersonas);
+
+				boolean reservaCanceladaCorrectamente = GestorDB.cancelarReservaAlojamiento(alojamiento, fechaInicio,
+						fechaFin, nPerHab);
+
+				if (reservaCanceladaCorrectamente) {
+
+					Container parent = this.getParent();
+					
+					if (parent != null) {
+						
+						parent.remove(this);
+						
+						parent.revalidate();
+						parent.repaint();
+						
+					}
+					
+					enviarMensajeCancelacion(alojamiento, fechaInicio, fechaFin, nPersonas);
+
+				}
+
+			}
 
 		});
 
@@ -326,8 +384,97 @@ public class PanelAlojamiento extends JPanel {
 		
 		guardarResB.addActionListener((e) -> {
 			
-			// TODO Guardar nueva reseña o actualizar la que ya existía
+			Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
 			
+			if (!resenaTA.getText().equals("Escriba su reseña aqui...") && !resenaTA.getText().equals("")) {
+			
+				if (idRva != -1 && this.resena == null) {
+					
+					Resena resenaFinal = new Resena(-1, cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0], panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
+					
+					int idR = GestorDB.guardarNuevaResena(alojamiento.getClass(), idRva, resenaFinal);
+					
+					if (idR != -1) {
+					
+						alojamiento.getResenas().add(resenaFinal);
+					
+					}
+					
+					this.resena = new Resena(idR, cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0], panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());;
+					
+					Container parent = this.getParent();
+					
+					for (Component c : parent.getComponents()) {
+						
+						if (c instanceof PanelAlojamiento) {
+		                    PanelAlojamiento otroPanel = (PanelAlojamiento) c;
+		                    
+		                    if (otroPanel.alojamiento.getId() == this.alojamiento.getId() &&
+		                        otroPanel.alojamiento.getClass().equals(this.alojamiento.getClass())) {
+		                        
+		                        otroPanel.alojamiento = this.alojamiento;
+		                        
+		                        otroPanel.actualizarResenas();
+
+		                        otroPanel.resenasB.setEnabled(true);
+		                    }
+		                }
+						
+					}
+					
+					this.resena = resenaFinal; 
+			        resenasB.setEnabled(true);
+			        actualizarResenas();
+					
+				} else {
+					
+					Resena resenaFinal = new Resena(this.resena.getId(), cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0], panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
+					
+					boolean resenaActualizada = GestorDB.actualizarResena(resenaFinal);
+					
+					if (resenaActualizada) {
+					
+						List<Resena> resenasAlojamiento = alojamiento.getResenas();
+						
+						for (int i = 0; i < resenasAlojamiento.size(); i++) {
+							
+						    if (resenasAlojamiento.get(i).getId() == resenaFinal.getId()) {
+						    	
+						        resenasAlojamiento.set(i, resenaFinal); 
+						        break; 
+						        
+						    }
+						    
+						}
+					
+						Container parent = this.getParent();
+						
+						for (Component c : parent.getComponents()) {
+							
+							if (c instanceof PanelAlojamiento) {
+			                    PanelAlojamiento otroPanel = (PanelAlojamiento) c;
+			                    
+			                    if (otroPanel.alojamiento.getId() == this.alojamiento.getId() &&
+			                        otroPanel.alojamiento.getClass().equals(this.alojamiento.getClass())) {
+			                        
+			                        otroPanel.alojamiento = this.alojamiento;
+			                        
+			                        otroPanel.actualizarResenas();
+			                        
+			                    }
+			                }
+							
+						}
+						
+						this.resena = resenaFinal; 
+				        resenasB.setEnabled(true);
+				        actualizarResenas();
+						
+					}
+					
+				}
+			
+			}
 		});
 		
 		// Añadimos los componentes al panel
@@ -366,59 +513,126 @@ public class PanelAlojamiento extends JPanel {
 		add(panelDerecha, BorderLayout.EAST);
 	}
 
+	// Función que actualiza la progressBar de reseñas cuando se añade una
+	
+	public void actualizarResenas() {
+		
+		double notaMedia = alojamiento.calcularNotaMedia();
+		
+		notaL.setText(String.format("%.1f ", notaMedia));
+		ratingPB.setValue((int) (notaMedia * 100));
+		
+		revalidate();
+		repaint();
+		
+	}
+	
 	// Función que envía un mensaje que notifica al usuario de la reserva
 
-		public void enviarMensajeReserva(Alojamiento alojamiento, LocalDate fechaInicio, LocalDate fechaFin,
-				int nPersonas) {
+	public void enviarMensajeReserva(Alojamiento alojamiento, LocalDate fechaInicio, LocalDate fechaFin,
+			int nPersonas) {
 
-			Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
+		Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
 
-			int nNoches = (int) ChronoUnit.DAYS.between(fechaInicio, fechaFin);
+		int nNoches = (int) ChronoUnit.DAYS.between(fechaInicio, fechaFin);
 
-			// Enviamos el mensaje al correoElectronico del cliente con la sesion iniciada
-			// (Lo ponemos en formato HTML para que quede más bonito)
+		// Enviamos el mensaje al correoElectronico del cliente con la sesion iniciada
+		// (Lo ponemos en formato HTML para que quede más bonito)
 
-			String asunto = "DeustoTrips - Reserva de alojamiento: " + alojamiento.getNombre();
+		String asunto = "DeustoTrips - Reserva de alojamiento: " + alojamiento.getNombre();
 
-			String cuerpoHTML = String.format(
-					"""
-												  <div style="text-align: center; font-family: 'Comic Sans MS', cursive; color: #333;">
+		String cuerpoHTML = String.format(
+				"""
+											  <div style="text-align: center; font-family: 'Comic Sans MS', cursive; color: #333;">
 
-							<h1 style="color: #2c3e50;">¡Todo listo, %s! ✅</h1>
+						<h1 style="color: #2c3e50;">¡Todo listo, %s! ✅</h1>
 
-							<p style="font-size: 16pt;">Tu reserva en <strong>%s</strong> se ha realizado con éxito.</p>
+						<p style="font-size: 16pt;">Tu reserva en <strong>%s</strong> se ha realizado con éxito.</p>
 
-								<hr style="width: 80%%; border: 1px solid #ccc; margin: 20px auto;">
+							<hr style="width: 80%%; border: 1px solid #ccc; margin: 20px auto;">
 
-										<div style="background-color: #f9f9f9; border: 2px dashed #2c3e50; padding: 20px; width: 70%%; margin: 0 auto; border-radius: 10px;">
-							           	<h2 style="margin-top: 0;">Detalles de la Reserva</h2>
-							              <p style="font-size: 15pt; margin: 5px;">🏨 <strong>Alojamiento:</strong> %s</p>
-							              <p style="font-size: 15pt; margin: 5px;">📍 <strong>Ubicación:</strong> %s</p>
-							              <p style="font-size: 15pt; margin: 5px;">📅 <strong>Entrada:</strong> %s</p>
-							              <p style="font-size: 15pt; margin: 5px;">📅 <strong>Salida:</strong> %s</p>
-							              <br>
-							              <p style="font-size: 18pt; margin: 5px; color: #27ae60;">💰 <strong>Precio Total:</strong> %.2f €</p>
-							         </div>
+									<div style="background-color: #f9f9f9; border: 2px dashed #2c3e50; padding: 20px; width: 70%%; margin: 0 auto; border-radius: 10px;">
+						           	<h2 style="margin-top: 0;">Detalles de la Reserva</h2>
+						              <p style="font-size: 15pt; margin: 5px;">🏨 <strong>Alojamiento:</strong> %s</p>
+						              <p style="font-size: 15pt; margin: 5px;">📍 <strong>Ubicación:</strong> %s</p>
+						              <p style="font-size: 15pt; margin: 5px;">📅 <strong>Entrada:</strong> %s</p>
+						              <p style="font-size: 15pt; margin: 5px;">📅 <strong>Salida:</strong> %s</p>
+						              <br>
+						              <p style="font-size: 18pt; margin: 5px; color: #27ae60;">💰 <strong>Precio Total:</strong> %.2f €</p>
+						         </div>
 
-							        <hr style="width: 80%%; border: 1px solid #ccc; margin: 20px auto;">
+						        <hr style="width: 80%%; border: 1px solid #ccc; margin: 20px auto;">
 
-							      <p style="font-size: 14pt;">Gracias por confiar en <strong>DeustoTrips</strong> para tu próxima aventura.</p>
-							      <p style="font-size: 10pt; color: #777;">Si tienes alguna duda, responde a este correo.</p>
-							</div>
-							      """,
-					cliente.getNombre(), // 1. Nombre Cliente
-					alojamiento.getNombre(), // 2. Nombre alojamiento (texto)
-					alojamiento.getNombre(), // 3. Nombre alojamiento (lista)
-					alojamiento.getCiudad() + ", " + alojamiento.getDireccion(), // 4. Ubicación
-					fechaInicio, // 5. Fecha Inicio
-					fechaFin, // 6. Fecha Fin
-					alojamiento.calcularPrecio(nPersonas, nNoches) // 7. Precio total
-			);
+						      <p style="font-size: 14pt;">Gracias por confiar en <strong>DeustoTrips</strong> para tu próxima aventura.</p>
+						      <p style="font-size: 10pt; color: #777;">Si tienes alguna duda, responde a este correo.</p>
+						</div>
+						      """,
+				cliente.getNombre(), // 1. Nombre Cliente
+				alojamiento.getNombre(), // 2. Nombre alojamiento (texto)
+				alojamiento.getNombre(), // 3. Nombre alojamiento (lista)
+				alojamiento.getCiudad() + ", " + alojamiento.getDireccion(), // 4. Ubicación
+				fechaInicio, // 5. Fecha Inicio
+				fechaFin, // 6. Fecha Fin
+				alojamiento.calcularPrecio(nPersonas, nNoches) // 7. Precio total
+		);
 
-			MailSender.enviarCorreo(cliente.getCorreo(), asunto, cuerpoHTML);
+		MailSender.enviarCorreo(cliente.getCorreo(), asunto, cuerpoHTML);
 
-			// Correo enviado
+		// Correo enviado
 
-		}
-	
+	}
+
+	public void enviarMensajeCancelacion(Alojamiento alojamiento, LocalDate fechaInicio, LocalDate fechaFin,
+			int nPersonas) {
+
+		Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
+
+		int nNoches = (int) ChronoUnit.DAYS.between(fechaInicio, fechaFin);
+
+		// Enviamos el mensaje al correoElectronico del cliente con la sesion iniciada
+		// (Lo ponemos en formato HTML para que quede más bonito)
+
+		String asunto = "DeustoTrips - Cancelación de reserva: " + alojamiento.getNombre();
+
+		String cuerpoHTML = String.format(
+				"""
+						<div style="text-align: center; font-family: 'Comic Sans MS', cursive; color: #333;">
+
+						    <h1 style="color: #c0392b;">Cancelación confirmada ❌</h1>
+
+						    <p style="font-size: 16pt;">Hola %s, te confirmamos que tu reserva en <strong>%s</strong> ha sido cancelada correctamente.</p>
+
+						    <hr style="width: 80%%; border: 1px solid #ccc; margin: 20px auto;">
+
+						    <div style="background-color: #fff5f5; border: 2px dashed #c0392b; padding: 20px; width: 70%%; margin: 0 auto; border-radius: 10px;">
+						        <h2 style="margin-top: 0; color: #c0392b;">Datos de la Reserva Anulada</h2>
+						        <p style="font-size: 15pt; margin: 5px;">🏨 <strong>Alojamiento:</strong> %s</p>
+						        <p style="font-size: 15pt; margin: 5px;">📍 <strong>Ubicación:</strong> %s</p>
+						        <p style="font-size: 15pt; margin: 5px;">📅 <strong>Entrada:</strong> %s</p>
+						        <p style="font-size: 15pt; margin: 5px;">📅 <strong>Salida:</strong> %s</p>
+						        <br>
+						        <p style="font-size: 18pt; margin: 5px; color: #555;">💰 <strong>Valor de la reserva:</strong> %.2f €</p>
+						    </div>
+
+						    <hr style="width: 80%%; border: 1px solid #ccc; margin: 20px auto;">
+
+						    <p style="font-size: 14pt;">Lamentamos que no puedas realizar este viaje.</p>
+						    <p style="font-size: 14pt;">¡Esperamos verte pronto en una nueva aventura con <strong>DeustoTrips</strong>!</p>
+						    <p style="font-size: 10pt; color: #777;">Si ha sido un error, por favor contacta con soporte.</p>
+						</div>
+						""",
+				cliente.getNombre(), // 1. Nombre Cliente
+				alojamiento.getNombre(), // 2. Nombre alojamiento (texto intro)
+				alojamiento.getNombre(), // 3. Nombre alojamiento (lista)
+				alojamiento.getCiudad() + ", " + alojamiento.getDireccion(), // 4. Ubicación
+				fechaInicio, // 5. Fecha Inicio
+				fechaFin, // 6. Fecha Fin
+				alojamiento.calcularPrecio(nPersonas, nNoches) // 7. Precio total (reembolso o valor anulado)
+		);
+
+		MailSender.enviarCorreo(cliente.getCorreo(), asunto, cuerpoHTML);
+
+		// Correo de cancelación enviado
+	}
+
 }

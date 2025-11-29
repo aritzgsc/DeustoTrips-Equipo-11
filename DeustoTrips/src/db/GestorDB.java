@@ -614,7 +614,7 @@ public class GestorDB {
 		if (clase.equals(Apartamento.class)) {
 
 			sqlSelect = """
-					SELECT NOM_CLI, AP_CLI, ESTRELLAS_R, MENSAJE_R, FECHA_R
+					SELECT NOM_CLI, AP_CLI, ID_R, ESTRELLAS_R, MENSAJE_R, FECHA_R
 					FROM RESENA R, CLIENTE CLI
 					WHERE ID_R IN (SELECT ID_R
 								   FROM RESERVA_AP RVA_AP
@@ -625,7 +625,7 @@ public class GestorDB {
 		} else if (clase.equals(Hotel.class)) {
 
 			sqlSelect = """
-					SELECT NOM_CLI, AP_CLI, ESTRELLAS_R, MENSAJE_R, FECHA_R
+					SELECT NOM_CLI, AP_CLI, ID_R, ESTRELLAS_R, MENSAJE_R, FECHA_R
 					FROM RESENA R, CLIENTE CLI
 					WHERE ID_R IN (SELECT ID_R
 								   FROM RESERVA_H RVA_H
@@ -644,7 +644,7 @@ public class GestorDB {
 
 			while (rs.next()) {
 
-				Resena resena = new Resena(rs.getString("NOM_CLI") + " " + rs.getString("AP_CLI"),
+				Resena resena = new Resena(rs.getInt("ID_R"), rs.getString("NOM_CLI") + " " + rs.getString("AP_CLI"),
 						rs.getDouble("ESTRELLAS_R"), rs.getString("MENSAJE_R"),
 						LocalDate.parse(rs.getString("FECHA_R")));
 
@@ -663,6 +663,114 @@ public class GestorDB {
 
 	}
 
+	public static int guardarNuevaResena(Class<? extends Alojamiento> clase, int idRva, Resena resena) {
+
+		int idR = -1;
+
+		String sqlInsert = """
+				INSERT INTO RESENA (ESTRELLAS_R, MENSAJE_R, FECHA_R)
+				VALUES (?, ?, ?);
+				""";
+
+		String sqlUpdate = "";
+
+		if (clase.equals(Apartamento.class)) {
+
+			sqlUpdate = """
+					UPDATE RESERVA_AP
+					SET ID_R = ?
+					WHERE ID_RVA_AP = ?;
+					""";
+
+		} else if (clase.equals(Hotel.class)) {
+
+			sqlUpdate = """
+					UPDATE RESERVA_H
+					SET ID_R = ?
+					WHERE ID_RVA_H = ?;
+					""";
+
+		}
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmtInsert = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement pstmtUpdate = con.prepareStatement(sqlUpdate)) {
+			
+			pstmtInsert.setDouble(1, resena.getEstrellas());
+			pstmtInsert.setString(2, resena.getMensaje());
+			pstmtInsert.setString(3, resena.getFecha().toString());			
+			
+			int rowCount1 = pstmtInsert.executeUpdate();
+			
+			if (rowCount1 > 0) {
+				
+				try (ResultSet rsIdR = pstmtInsert.getGeneratedKeys()) {
+					
+					if (rsIdR.next()) {
+						
+						pstmtUpdate.setInt(1, rsIdR.getInt(1));
+						pstmtUpdate.setInt(2, idRva);
+						
+						int rowCount2 = pstmtUpdate.executeUpdate();
+						
+						if (rowCount2 > 0) {
+							
+							idR = rsIdR.getInt(1);
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al crear la reseña y asignarla a la reserva correspondiente");
+			
+		}
+		
+		return idR;
+
+	}
+
+	public static boolean actualizarResena(Resena resena) {
+
+		boolean resenaActualizada = false;
+
+		String sqlUpdate = """
+				UPDATE RESENA
+				SET ESTRELLAS_R = ?, MENSAJE_R = ?, FECHA_R = ?
+				WHERE ID_R = ?;
+				""";
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmt = con.prepareStatement(sqlUpdate)) {
+
+			pstmt.setDouble(1, resena.getEstrellas());
+			pstmt.setString(2, resena.getMensaje());
+			pstmt.setString(3, resena.getFecha().toString());
+			pstmt.setInt(4, resena.getId());
+
+			int rowCount = pstmt.executeUpdate();
+
+			if (rowCount > 0) {
+
+				resenaActualizada = true;
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al actualizar la reseña");
+
+		}
+
+		return resenaActualizada;
+
+	}
+	
 	public static boolean registrarApartamento(String nombre, String direccion, String descripcion, double precioNP,
 			int capMax, List<BufferedImage> imagenesSeleccionadas, Ciudad ciudad) {
 
@@ -1015,6 +1123,63 @@ public class GestorDB {
 		}
 
 		return reservaCreadaCorrectamente;
+
+	}
+	
+	public static boolean cancelarReservaAlojamiento(Alojamiento alojamiento, LocalDate fechaInicio, LocalDate fechaFin, int nPerHab) {
+
+		boolean reservaCanceladaCorrectamente = false;
+
+		String sqlDelete = "";
+
+		if (alojamiento instanceof Apartamento) {
+
+			sqlDelete = """
+					DELETE FROM RESERVA_AP
+					WHERE EMAIL_CLI = ? AND
+						  ID_AP = ? AND
+						  F_INI_RVA = ? AND
+						  F_FIN_RVA = ? AND
+						  N_PER = ?;
+					""";
+
+		} else if (alojamiento instanceof Hotel) {
+
+			sqlDelete = """
+					DELETE FROM RESERVA_H
+					WHERE EMAIL_CLI = ? AND
+						  ID_H = ? AND
+						  F_INI_RVA = ? AND
+						  F_FIN_RVA = ? AND
+						  N_HAB = ?;
+					""";
+
+		}
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmt = con.prepareStatement(sqlDelete)) {
+
+			pstmt.setString(1, PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo().trim());
+			pstmt.setInt(2, alojamiento.getId());
+			pstmt.setString(3, fechaInicio.toString());
+			pstmt.setString(4, fechaFin.toString());
+			pstmt.setInt(5, nPerHab);
+
+			int rowCount = pstmt.executeUpdate();
+
+			if (rowCount > 0) {
+
+				reservaCanceladaCorrectamente = true;
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al cancelar la reserva");
+
+		}
+
+		return reservaCanceladaCorrectamente;
 
 	}
 	
