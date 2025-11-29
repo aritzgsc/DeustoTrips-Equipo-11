@@ -6,6 +6,9 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -17,6 +20,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import domain.Ciudad;
+import domain.Destino;
 import domain.Pais;
 import gui.main.busqueda.BotonBuscar;
 import gui.main.busqueda.MiSelectorDestino;
@@ -196,6 +200,51 @@ public class PanelViajeAlojamiento extends JPanel {
 			return errorStr;
 		}
 				
+	}
+	
+	public void setError(String errorStr) {
+		error.setText(errorStr);
+	}
+	
+	public Destino getDestinoSeleccionado() {
+		return selectorDestino.getDestinoSeleccionado();
+	}
+	
+	public LocalDate getFechaEntrada() {
+		if (selectorFechas.getSelectorFecha1().getDate() == null) {
+			return null;
+		}
+		return LocalDate.ofInstant(selectorFechas.getSelectorFecha1().getDate().toInstant(), ZoneId.systemDefault());
+	}
+	
+	public LocalDate getFechaSalida() {
+		if (selectorFechas.getSelectorFecha2().getDate() == null) {
+			return null;
+		}
+		return LocalDate.ofInstant(selectorFechas.getSelectorFecha2().getDate().toInstant(), ZoneId.systemDefault());
+	}
+	
+	public int getNPersonas() {
+		return spinnerCantidadPersonas.getNPersonas();
+	}
+	
+	public int getNNoches() {
+		if (getFechaEntrada() == null || getFechaSalida() == null) {
+			return 1;
+		}
+		return (int) ChronoUnit.DAYS.between(getFechaEntrada(), getFechaSalida());
+	}
+	
+	public int getPrecioMin() {
+		return filtroPrecio.getLowValue();
+	}
+	
+	public int getPrecioMax() {
+		return filtroPrecio.getHighValue();
+	}
+	
+	public double getValoracionMin() {
+		return filtroResenas.getValor();
 	}
 	
 }

@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -927,4 +928,94 @@ public class GestorDB {
 
 	}
 
+	public static boolean crearReservaAlojamiento(Alojamiento alojamiento, LocalDate fechaInicio, LocalDate fechaFin,
+			int nPerHab) {
+
+		boolean reservaCreadaCorrectamente = false;
+
+		String sqlSelect = "";
+		String sqlInsert = "";
+
+		if (alojamiento instanceof Apartamento) {
+
+			sqlSelect = """
+					SELECT COUNT(*) AS N_RVAS
+					FROM RESERVA_AP
+					WHERE F_INI_RVA <= ? AND
+						  F_FIN_RVA > ? AND
+					ID_AP = ?;
+					""";
+
+			sqlInsert = """
+					INSERT INTO
+					RESERVA_AP (F_INI_RVA, F_FIN_RVA, N_PER, P_RVA_AP, EMAIL_CLI, ID_AP)
+					VALUES (?, ?, ?, ?, ?, ?);
+					""";
+
+		} else if (alojamiento instanceof Hotel) {
+
+			sqlSelect = """
+					SELECT SUM(N_HAB) AS N_HABS_RVDAS
+					FROM RESERVA_H
+					WHERE F_INI_RVA <= ? AND
+						  F_FIN_RVA > ? AND
+						  ID_H = ?;
+					""";
+			sqlInsert = """
+					INSERT INTO
+					RESERVA_H (F_INI_RVA, F_FIN_RVA, N_HAB, P_RVA_H, EMAIL_CLI, ID_H)
+					VALUES (?, ?, ?, ?, ?, ?);
+					""";
+
+		}
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmtSelect = con.prepareStatement(sqlSelect);
+				PreparedStatement pstmtInsert = con.prepareStatement(sqlInsert);) {
+
+			pstmtSelect.setString(1, fechaFin.toString());
+			pstmtSelect.setString(2, fechaInicio.toString());
+			pstmtSelect.setInt(3, alojamiento.getId());
+
+			ResultSet rs = pstmtSelect.executeQuery();
+
+			int rowCount = 0;
+
+			if (rs.next()) {
+
+				if ((alojamiento instanceof Apartamento && rs.getInt("N_RVAS") == 0) || alojamiento instanceof Hotel
+						&& (rs.getInt("N_HABS_RVDAS") + nPerHab) <= ((Hotel) alojamiento).getNumHabs()) {
+
+					int nNoches = (int) ChronoUnit.DAYS.between(fechaInicio, fechaFin);
+
+					pstmtInsert.setString(1, fechaInicio.toString());
+					pstmtInsert.setString(2, fechaFin.toString());
+					pstmtInsert.setInt(3, nPerHab);
+					pstmtInsert.setDouble(4, alojamiento.calcularPrecio(nPerHab, nNoches));
+					pstmtInsert.setString(5, PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo());
+					pstmtInsert.setInt(6, alojamiento.getId());
+
+					rowCount = pstmtInsert.executeUpdate();
+
+				}
+
+				if (rowCount > 0) {
+
+					reservaCreadaCorrectamente = true;
+
+				}
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al reservar el hotel");
+//			e.printStackTrace();
+
+		}
+
+		return reservaCreadaCorrectamente;
+
+	}
+	
 }

@@ -8,6 +8,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import gui.main.filtros.FiltroPrecio;
 import main.Main;
 
 // Panel que contiene todas las pestañas de búsqueda (Alojamientos, Viajes y Viaje + Alojamiento)
@@ -29,6 +30,7 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		// Configuración del panel
 		
 		setBorder(new EmptyBorder(5, 20, 5, 20));
+		setPreferredSize(new Dimension(1400, 450));
 		setFocusable(false);
 		
 		// FIN Configuración del panel
@@ -96,21 +98,42 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		// FIN Creamos el compontente personalizado
 		// FIN Panel Viaje + Alojamiento
 		
+		addChangeListener((e) -> FiltroPrecio.calcularPrecioMaximo());
+		
 		setSelectedIndex(0);		// Seleccionamos el primer elemento como "Inicio" (Alojamientos)
 		
 	}
 	
+	public static PanelPestanasBusqueda getPanelPestanasBusqueda() {
+		return panelPestanasBusqueda;
+	}
+	
 	public static String setError() {
-		Component componenteSeleccionado = panelPestanasBusqueda.getSelectedComponent();
-		if (componenteSeleccionado instanceof PanelAlojamientos) {
-			return ((PanelAlojamientos) componenteSeleccionado).setError();
-		} else if (componenteSeleccionado instanceof PanelViajes) {
-			return ((PanelViajes) componenteSeleccionado).setError();
-		} else if (componenteSeleccionado instanceof PanelViajeAlojamiento) {
-			return ((PanelViajeAlojamiento) componenteSeleccionado).setError();
+		
+		Component panelSeleccionado = panelPestanasBusqueda.getSelectedComponent();
+		if (panelSeleccionado instanceof PanelAlojamientos) {
+			return ((PanelAlojamientos) panelSeleccionado).setError();
+		} else if (panelSeleccionado instanceof PanelViajes) {
+			return ((PanelViajes) panelSeleccionado).setError();
+		} else if (panelSeleccionado instanceof PanelViajeAlojamiento) {
+			return ((PanelViajeAlojamiento) panelSeleccionado).setError();
 		} else {
 			return null;
 		}
+		
+	}
+	
+	public static void setError(String error) {
+		
+		Component panelSeleccionado = panelPestanasBusqueda.getSelectedComponent();
+		if (panelSeleccionado instanceof PanelAlojamientos) {
+			((PanelAlojamientos) panelSeleccionado).setError(error);
+		} else if (panelSeleccionado instanceof PanelViajes) {
+			((PanelViajes) panelSeleccionado).setError(error);
+		} else if (panelSeleccionado instanceof PanelViajeAlojamiento) {
+			((PanelViajeAlojamiento) panelSeleccionado).setError(error);
+		}
+		
 	}
 	
 	public static void resetAll() {

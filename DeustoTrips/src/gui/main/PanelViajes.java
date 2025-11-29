@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
@@ -175,6 +177,48 @@ public class PanelViajes extends JPanel {
 			return errorStr;
 		}
 				
+	}
+	
+	public void setError(String errorStr) {
+		error.setText(errorStr);
+	}
+	
+	public Destino getOrigenSeleccionado() {
+		return selectorMultiplesDestinos.getSelectorDestino1().getDestinoSeleccionado();
+	}
+	
+	public Destino getDestinoSeleccionado() {
+		return selectorMultiplesDestinos.getSelectorDestino2().getDestinoSeleccionado();
+	}
+	
+	public LocalDate getFechaIda() {
+		if (selectorFechas.getSelectorFecha1().getDate() == null) {
+			return null;
+		}
+		return LocalDate.ofInstant(selectorFechas.getSelectorFecha1().getDate().toInstant(), ZoneId.systemDefault());
+	}
+	
+	public LocalDate getFechaVuelta() {
+		if (selectorFechas.getSelectorFecha2().getDate() == null) {
+			return null;
+		}
+		return LocalDate.ofInstant(selectorFechas.getSelectorFecha2().getDate().toInstant(), ZoneId.systemDefault());
+	}
+	
+	public int getNPersonas() {
+		return spinnerCantidadPersonas.getNPersonas();
+	}
+	
+	public int getPrecioMin() {
+		return filtroPrecio.getLowValue();
+	}
+	
+	public int getPrecioMax() {
+		return filtroPrecio.getHighValue();
+	}
+	
+	public String getTipo() {
+		return selectorTipo.getComboBox().getSelectedItem().toString();
 	}
 	
 }
