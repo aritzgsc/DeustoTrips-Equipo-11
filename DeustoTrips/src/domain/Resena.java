@@ -2,6 +2,8 @@ package domain;
 
 import java.time.LocalDate;
 
+// Reseña que se deja en una reserva de alojamiento particular (1 reseña <-> 1 reserva)
+
 public class Resena {
 
 	private int id;

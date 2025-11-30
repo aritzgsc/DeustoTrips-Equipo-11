@@ -29,8 +29,6 @@ public class MiSelectorDestino extends JLayeredPane {
 
 	private static final long serialVersionUID = 1L;
 	
-	// Datos de prueba - cuando tengamos la BD lo rellenaremos con eso
-	
 	private static List<Destino> todosDestinos = GestorDB.cargarDestinos();
 	
 	private List<Destino> todosDestinosConDefAns = new ArrayList<Destino>();
@@ -230,7 +228,7 @@ public class MiSelectorDestino extends JLayeredPane {
 	    	
 	    	destinosFiltrados = new ArrayList<Destino>(todosDestinosConDefAns);
 	    	
-	        comboBoxDestinos.setModel(new MiComboBoxDestinosModel(todosDestinosConDefAns));
+	        comboBoxDestinos.setModel(new MiComboBoxDestinosModel(destinosFiltrados));
 	        comboBoxDestinos.setPopupVisible(true);
 	        return;
 	        
@@ -238,7 +236,7 @@ public class MiSelectorDestino extends JLayeredPane {
 
 	    String textoUsuarioLimpio = Utilidades.normalizar(filtroText);
 	    
-	    // Creamos el array con tamaño máximo del total
+	    // Creamos el array
 	    
 	    destinosFiltrados = new ArrayList<Destino>();
 

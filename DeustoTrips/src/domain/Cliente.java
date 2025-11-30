@@ -1,5 +1,7 @@
 package domain;
 
+// Usuario con los datos que se guardan en la BD
+
 public class Cliente {
 
 	private String correo;

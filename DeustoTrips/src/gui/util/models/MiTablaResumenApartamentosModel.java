@@ -29,7 +29,7 @@ public class MiTablaResumenApartamentosModel extends AbstractTableModel {
         
         for(Apartamento apartamento : apartamentosListaOrdenada) {
         	
-             this.mapaReservasPorApartamento.put(apartamento, GestorDB.getFechasReservas(apartamento));
+             this.mapaReservasPorApartamento.put(apartamento, GestorDB.getFechasReservasApartamento(apartamento));
              
         }
         

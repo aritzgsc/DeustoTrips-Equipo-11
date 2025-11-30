@@ -24,6 +24,8 @@ import gui.util.MiProgressBarTabla;
 import gui.util.MiTextField;
 import main.Main;
 
+// Nuestro objetivo es que el renderizado de la tabla sin estar siendo "editada" sea el mismo que cuando si lo está
+
 public class MiTablaResumenApartamentosRenderer implements TableCellRenderer {
 
 	// Creamos los componentes fuera de la funcion principal para mayor rendimiento (no creamos tantos componentes todo el rato solo se crean una vez)

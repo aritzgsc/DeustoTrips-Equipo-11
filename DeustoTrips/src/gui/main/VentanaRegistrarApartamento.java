@@ -30,6 +30,8 @@ import gui.util.MiSelectorImagenes;
 import gui.util.MiTextField;
 import main.Main;
 
+// Ventana que nos permite registrar un nuevo apartamento
+
 public class VentanaRegistrarApartamento extends JFrame {
 
 	private static final long serialVersionUID = 1L;

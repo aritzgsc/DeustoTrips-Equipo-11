@@ -18,7 +18,7 @@ import javax.swing.SwingUtilities;
 import gui.main.VentanaPrincipal;
 import main.Main;
 
-// Clase para normalizar el tipo de JPasswordField utilizado, añade la funcionalidad de poder visualizar lo que tienes escrito mientras estés clicando en el botón
+// Normalización de JPasswordField, añade la funcionalidad de poder visualizar lo que tienes escrito mientras estés clicando en el botón
 
 public class MiPasswordField extends JSplitPane {
 

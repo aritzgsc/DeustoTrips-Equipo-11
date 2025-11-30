@@ -17,6 +17,8 @@ import gui.util.models.MiListaResenasModel;
 import gui.util.renderers.MiListaResenasRenderer;
 import main.Main;
 
+// Ventana que nos permite visualizar las reseñas de un alojamiento concreto
+
 public class VentanaMostrarResenas extends JFrame {
 
 	private static final long serialVersionUID = 1L;

@@ -13,7 +13,7 @@ public abstract class Destino implements Comparable<Destino> {
 	private ImageIcon bandera;
 	private boolean defaultAns;
 	
-	private String nombreBusqueda;		// Para mayor eficiencia
+	private String nombreBusqueda;		// Para mayor eficiencia de búsqueda
 	
 	public int getId() {
 		return id;

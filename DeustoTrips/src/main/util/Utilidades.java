@@ -1,7 +1,6 @@
 package main.util;
 
 import java.text.Normalizer;
-import java.util.regex.Pattern;
 
 public class Utilidades {
 
@@ -13,14 +12,14 @@ public class Utilidades {
 
 	public static String normalizar(String input) {
 
-		if (input == null)
+		if (input == null) {
 			return "";
+		}
+		
+		String inputNorm = Normalizer.normalize(input, Normalizer.Form.NFD);
 
-		String temp = Normalizer.normalize(input, Normalizer.Form.NFD);
-
-		Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-
-		return pattern.matcher(temp).replaceAll("").toLowerCase().trim();
+		return inputNorm.replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase().trim();
+		
 	}
 
 	// Función que devuelve un entero que indica la "distancia" entre dos strings

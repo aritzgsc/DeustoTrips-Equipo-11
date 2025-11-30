@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Objects;
 
+// Alojamiento es una clase abstracta (Apartamento o Hotel)
+
 public abstract class Alojamiento {
 
 	private String nombre;

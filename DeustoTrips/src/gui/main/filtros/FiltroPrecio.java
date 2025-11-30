@@ -1,17 +1,31 @@
 package gui.main.filtros;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.*;
-import javax.swing.event.*;
-
-import com.jidesoft.swing.RangeSlider;				// Añadimos esta librería para crear un slider con dos thumbs que actúen de mínimo y máximo más fácilmente (es decir, un slider de rangos)
-
-import gui.util.MiTextField;
-import main.Main;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.jidesoft.plaf.basic.BasicRangeSliderUI;	// Añadimos esta librería para importar la UI del RangeSlider para que sea más bonito
+import com.jidesoft.swing.RangeSlider;				// Añadimos esta librería para crear un slider con dos thumbs que actúen de mínimo y máximo más fácilmente (es decir, un slider de rangos)
+
+import gui.main.PanelAlojamientos;
+import gui.main.PanelPestanasBusqueda;
+import gui.main.PanelViajeAlojamiento;
+import gui.main.PanelViajes;
+import gui.util.MiTextField;
+import main.Main;
 
 // Clase que contendrá el filtro de precio con un rango
 
@@ -24,11 +38,15 @@ public class FiltroPrecio extends JPanel {
 	private MiTextField minimoTF;
 	private MiTextField maximoTF;
 	
-	private static int precioMaximo;
+	private static int precioMaximo = 0;
+	
+	private static List<FiltroPrecio> misFiltrosPrecio = new ArrayList<FiltroPrecio>();
 	
 	public FiltroPrecio() {
 		
-		precioMaximo = calcularPrecioMaximo();
+		// Añadimos la instancia a la lista estática
+		
+		misFiltrosPrecio.add(this);
 		
 		// Configuración del panel
 		
@@ -102,18 +120,17 @@ public class FiltroPrecio extends JPanel {
 			public void keyTyped(KeyEvent e) {
 				if (!Character.toString(e.getKeyChar()).matches("\\d") || Integer.parseInt(minimoTF.getText() + e.getKeyChar()) > precioMaximo) {
 					e.consume();
-					System.out.println(sliderRangoPrecios.getLowValue());
 				}
 			}
 			
 		});
+		
 		maximoTF.addKeyListener(new KeyAdapter() {
 			
 			@Override
 			public void keyTyped(KeyEvent e) {
 				if (!Character.toString(e.getKeyChar()).matches("\\d") || Integer.parseInt(maximoTF.getText() + e.getKeyChar()) > precioMaximo) {
 					e.consume();
-					System.out.println(sliderRangoPrecios.getHighValue());
 				}
 			}
 			
@@ -197,6 +214,10 @@ public class FiltroPrecio extends JPanel {
             }
         });
 		
+        // Calculamos el precio máximo
+		
+     		SwingUtilities.invokeLater(() -> calcularPrecioMaximo());
+        
         // FIN Implementación del funcionamiento de la interacción entre los TextFields y el RangeSlider
         // Añadimos en orden todos los componentes del filtro
         
@@ -205,6 +226,14 @@ public class FiltroPrecio extends JPanel {
 		add(minimoTF);
 		add(maximoTF);
 		
+	}
+	
+	public RangeSlider getRangeSlider() {
+		return sliderRangoPrecios;
+	}
+	
+	public MiTextField getMaximoTF() {
+		return maximoTF;
 	}
 	
 	public int getLowValue() {
@@ -225,8 +254,56 @@ public class FiltroPrecio extends JPanel {
 	}
 	
 	public static int calcularPrecioMaximo() {
-		//TODO Con los datos que hay puestos arriba (nº personas) devolver el precio más caro de la BD * nº personas (default 1) * nº de noches (default 1)
-		return 1000;
+		
+		Component panelSeleccionado = PanelPestanasBusqueda.getPanelPestanasBusqueda().getSelectedComponent();
+		
+		if (panelSeleccionado instanceof PanelAlojamientos) {
+			
+			precioMaximo = 10000 * ((PanelAlojamientos) panelSeleccionado).getNPersonas() * ((PanelAlojamientos) panelSeleccionado).getNNoches();
+			
+			for (FiltroPrecio filtroPrecio : misFiltrosPrecio) {
+				filtroPrecio.getRangeSlider().setMaximum(precioMaximo);
+				filtroPrecio.getMaximoTF().setText(Integer.toString(precioMaximo));
+			}
+			
+			return 10000 * ((PanelAlojamientos) panelSeleccionado).getNPersonas() * ((PanelAlojamientos) panelSeleccionado).getNNoches();
+			
+		} else if (panelSeleccionado instanceof PanelViajes) {
+			
+			precioMaximo = 1000 * ((PanelViajes) panelSeleccionado).getNPersonas() * (((PanelViajes) panelSeleccionado).getTipo().equals("Ida")? 1 : 2);
+			
+			for (FiltroPrecio filtroPrecio : misFiltrosPrecio) {
+				filtroPrecio.getRangeSlider().setMaximum(precioMaximo);
+				filtroPrecio.getMaximoTF().setText(Integer.toString(precioMaximo));
+			}
+			
+			return 1000 * ((PanelViajes) panelSeleccionado).getNPersonas() * (((PanelViajes) panelSeleccionado).getTipo().equals("Ida")? 1 : 2);
+			
+		} else if (panelSeleccionado instanceof PanelViajeAlojamiento) {
+			
+			precioMaximo = 10000 * ((PanelViajeAlojamiento) panelSeleccionado).getNPersonas() * ((PanelViajeAlojamiento) panelSeleccionado).getNNoches() + 1000 * ((PanelViajeAlojamiento) panelSeleccionado).getNPersonas() * 2;
+			
+			for (FiltroPrecio filtroPrecio : misFiltrosPrecio) {
+				filtroPrecio.getRangeSlider().setMaximum(precioMaximo);
+				filtroPrecio.getMaximoTF().setText(Integer.toString(precioMaximo));
+			}
+			
+			return 10000 * ((PanelViajeAlojamiento) panelSeleccionado).getNPersonas() * ((PanelViajeAlojamiento) panelSeleccionado).getNNoches() + 1000 * ((PanelViajeAlojamiento) panelSeleccionado).getNPersonas() * 2;
+			
+		}
+		
+		precioMaximo = 10000;
+		
+		for (FiltroPrecio filtroPrecio : misFiltrosPrecio) {
+			filtroPrecio.getRangeSlider().setMaximum(precioMaximo);
+			filtroPrecio.getMaximoTF().setText(Integer.toString(precioMaximo));
+		}
+		
+		return 10000;
+	}
+	
+	public boolean isEnabled() {
+		return checkBoxPrecio.isEnabled();
 	}
 	
 }

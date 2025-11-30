@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Objects;
 
+// Apartamento es un tipo de Alojamiento
+
 public class Apartamento extends Alojamiento {
 
 	private int id;

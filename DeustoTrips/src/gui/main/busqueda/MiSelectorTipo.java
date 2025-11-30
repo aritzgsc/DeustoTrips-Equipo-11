@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.MatteBorder;
 
+import gui.main.filtros.FiltroPrecio;
 import gui.util.MiComboBoxTipos;
 import main.Main;
 
@@ -61,6 +62,7 @@ public class MiSelectorTipo extends JPanel {
 		
 		comboBoxTipos.addActionListener((e) -> {
 			componenteEditorComboBoxTipos.setToolTipText(comboBoxTipos.getSelectedItem().toString());
+			FiltroPrecio.calcularPrecioMaximo();
 		});
 		
 		// FIN Actualizamos el toolTipText del editor cuando seleccionemos algo		

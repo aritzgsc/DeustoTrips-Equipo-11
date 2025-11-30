@@ -20,6 +20,8 @@ import gui.util.models.MiTablaResumenApartamentosModel;
 import gui.util.renderers.MiTablaResumenApartamentosRenderer;
 import main.Main;
 
+// Tabla que nos permite visualizar un resumen de los apartamentos del usuario (complementario a ventana visualizar apartamentos)
+
 public class MiTablaResumenApartamentos extends JTable {
 
 	private static final long serialVersionUID = 1L;
@@ -41,7 +43,7 @@ public class MiTablaResumenApartamentos extends JTable {
 		
 		getColumnModel().getColumn(0).setPreferredWidth(230); // Nombre
 		getColumnModel().getColumn(1).setPreferredWidth(140); // Precio
-		getColumnModel().getColumn(2).setPreferredWidth(140);  // Capacidad
+		getColumnModel().getColumn(2).setPreferredWidth(140); // Capacidad
 		getColumnModel().getColumn(3).setPreferredWidth(250); // Noches
 		getColumnModel().getColumn(4).setPreferredWidth(220); // Reseñas
 		getColumnModel().getColumn(5).setPreferredWidth(120); // Ganancias
@@ -50,6 +52,7 @@ public class MiTablaResumenApartamentos extends JTable {
 		
 		JTableHeader header = getTableHeader();
 		header.setReorderingAllowed(false);
+		header.setResizingAllowed(false);
 		header.setFont(Main.FUENTE.deriveFont(14f));
 		header.setBackground(Color.WHITE);
 		header.setForeground(Color.DARK_GRAY);

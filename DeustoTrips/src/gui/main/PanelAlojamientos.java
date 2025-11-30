@@ -153,6 +153,8 @@ public class PanelAlojamientos extends JPanel {
 				
 	}
 	
+	// Getters y setters para utilizarlos desde otras clases
+	
 	public void setError(String errorStr) {
 		error.setText(errorStr);
 	}

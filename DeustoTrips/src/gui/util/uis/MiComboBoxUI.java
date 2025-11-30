@@ -14,6 +14,8 @@ import javax.swing.plaf.basic.BasicComboBoxUI;
 
 import main.Main;
 
+// Para darle un formato más con nuestro estilo al boton del comboBox
+
 public class MiComboBoxUI extends BasicComboBoxUI {
 
 	@Override

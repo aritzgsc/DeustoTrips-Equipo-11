@@ -58,7 +58,7 @@ public class PanelEditarApartamento extends JPanel {
 		
 		setLayout(new BorderLayout(10, 10));
 		setBorder(new CompoundBorder(Main.DEFAULT_LINE_BORDER, new EmptyBorder(10, 10, 10, 10)));
-		setMinimumSize(new Dimension(1100, 350));
+		setMinimumSize(new Dimension(1080, 350));
 		setMaximumSize(new Dimension(Integer.MAX_VALUE, 350));
 		setPreferredSize(new Dimension(1080, 350));
 		

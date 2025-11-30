@@ -6,6 +6,8 @@ import javax.swing.JMenuItem;
 
 import main.Main;
 
+// Normalización de JMenuItem
+
 public class MiMenuItem extends JMenuItem {
 
 	private static final long serialVersionUID = 1L;

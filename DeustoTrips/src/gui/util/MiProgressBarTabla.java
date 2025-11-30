@@ -4,11 +4,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 
 import javax.swing.JProgressBar;
+import javax.swing.border.MatteBorder;
 
 import main.Main;
+
+// Para no hacerlo en la misma clase de la tabla (código feo)
 
 public class MiProgressBarTabla extends JProgressBar {
     
@@ -23,8 +25,8 @@ public class MiProgressBarTabla extends JProgressBar {
         
         setPreferredSize(new Dimension(150, 40));
         setForeground(new Color(255, 193, 7));
-        setBorderPainted(false);
         setStringPainted(false);
+        setBorder(new MatteBorder(0, 1, 0, 1, new Color(0x7A8A99)));
         
     }
 
@@ -36,24 +38,27 @@ public class MiProgressBarTabla extends JProgressBar {
         
     }
 
+    // Para pintar la media y el total de reseñas
+    
     @Override
     protected void paintComponent(Graphics g) {
     	
         super.paintComponent(g);	// Para pintar el resto de la barra
         
-        Graphics2D g2 = (Graphics2D) g;
+        // Para pintar el String como lo queremos -> X.X (X)
         
-        g2.setFont(Main.FUENTE.deriveFont(16f));
+        g.setFont(Main.FUENTE.deriveFont(16f));
         String texto = String.format("%.1f (%d)", media, total);
         
         // Centrar texto
-        FontMetrics fm = g2.getFontMetrics();
+        
+        FontMetrics fm = g.getFontMetrics();
         
         int x = (getWidth() - fm.stringWidth(texto)) / 2;
         int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
         
-        g2.setColor(Color.DARK_GRAY);
-        g2.drawString(texto, x, y);
+        g.setColor(Color.DARK_GRAY);
+        g.drawString(texto, x, y);
         
     }
 }

@@ -74,4 +74,8 @@ public class FiltroResenas extends JPanel {
 		panelSelectorResena.setVisible(false);
 	}
 	
+	public boolean isEnabled() {
+		return checkBoxResenas.isEnabled();
+	}
+	
 }

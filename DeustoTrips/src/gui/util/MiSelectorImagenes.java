@@ -26,6 +26,8 @@ import javax.swing.filechooser.FileSystemView;
 import gui.main.VentanaPrincipal;
 import main.Main;
 
+// Panel que implementa un selector de imágenes con un carrusel
+
 public class MiSelectorImagenes extends JPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -86,11 +88,13 @@ public class MiSelectorImagenes extends JPanel {
 			
 		};
 		
-		// Label para Efecto Hover
+		// Label para Efecto Hover 
 
 		JLabel texto = new JLabel("Cambiar imágenes") {
 			private static final long serialVersionUID = 1L;
 
+			// Cambiamos este método para que no se le pueda clicar (aun estando por encima)
+			
 			@Override
 			public boolean contains(int x, int y) {
 				return false;
@@ -137,7 +141,7 @@ public class MiSelectorImagenes extends JPanel {
 							
 						botonSeleccionarImagen.setIcon(new ImageIcon(imagenes.get(0).getScaledInstance(300, 300, Image.SCALE_SMOOTH)));
 						
-						botonSeleccionarImagen.add(texto);
+						botonSeleccionarImagen.add(texto);		// Añadimos el texto con efecto
 						botonSeleccionarImagen.revalidate();
 						botonSeleccionarImagen.repaint();
 	
@@ -161,7 +165,7 @@ public class MiSelectorImagenes extends JPanel {
 					
 					}
 					
-					botonSeleccionarImagen.remove(texto);
+					botonSeleccionarImagen.remove(texto);		// Quitamos el texto con efecto
 					botonSeleccionarImagen.revalidate();
 					botonSeleccionarImagen.repaint();
 					

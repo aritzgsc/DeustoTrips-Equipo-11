@@ -150,7 +150,7 @@ public class VentanaConfirmarRegistro extends JDialog {
 		
 		// Código aleatorio generado
 		////
-		// Enviamos el código al correoElectronico especificado (Lo ponemos en formato HTML para que quede más bonito)
+		// Enviamos el código al correoElectronico especificado (Lo ponemos en formato HTML para que quede más bonito) - Cuerpo HTML diseñado por Gemini
 		
 		String asunto = "DeustoTrips - Código de registro";
 		

@@ -96,4 +96,8 @@ public class FiltroTipoViaje extends JPanel {
 		panelSelectorTipo.setVisible(false);
 	}
 	
+	public boolean isEnabled() {
+		return checkBoxTipo.isEnabled();
+	}
+	
 }

@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Objects;
 
+// Hotel es un tipo de Alojamiento
+
 public class Hotel extends Alojamiento {
 
 	private int id;

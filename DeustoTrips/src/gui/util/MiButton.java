@@ -6,6 +6,8 @@ import javax.swing.JButton;
 
 import main.Main;
 
+// Normalización de JButton
+
 public class MiButton extends JButton {
 
 	private static final long serialVersionUID = 1L;

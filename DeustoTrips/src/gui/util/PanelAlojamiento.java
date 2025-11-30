@@ -8,8 +8,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.image.BufferedImage;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -25,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import db.GestorDB;
@@ -37,6 +40,7 @@ import gui.main.PanelPestanasBusqueda;
 import gui.main.PanelResultadosBusqueda;
 import gui.main.PanelVolverRegistrarseIniciarSesion;
 import gui.main.VentanaMostrarResenas;
+import gui.main.busqueda.BotonBuscar;
 import main.Main;
 import main.util.MailSender;
 
@@ -49,18 +53,19 @@ public class PanelAlojamiento extends JPanel {
 
 	private Resena resena;
 
+	private MiSelectorImagenes panelImagen;
 	private MiButton resenasB;
-	
+
 	private Alojamiento alojamiento;
 	private JLabel notaL;
 	private JProgressBar ratingPB;
-	
-	public PanelAlojamiento(Alojamiento alojamiento, int nPersonas, LocalDate fechaInicio, LocalDate fechaFin, double precioRva, int idRva /*Si no tiene -1*/, Resena resena,
-			int modo) {
+
+	public PanelAlojamiento(Alojamiento alojamiento, int nPersonas, LocalDate fechaInicio, LocalDate fechaFin,
+			double precioRva, int idRva /* Si no tiene -1 */, Resena resena, int modo) {
 
 		this.resena = resena;
 		this.alojamiento = alojamiento;
-		
+
 		int nNoches = (int) ChronoUnit.DAYS.between(fechaInicio, fechaFin);
 
 		// Creación y configuracion del panel principal
@@ -75,7 +80,7 @@ public class PanelAlojamiento extends JPanel {
 		////
 		// Creacion del panel de la imágen
 
-		MiSelectorImagenes panelImagen = new MiSelectorImagenes(alojamiento.getImagenes(), false);
+		panelImagen = new MiSelectorImagenes(alojamiento.getImagenes(), false);
 		add(panelImagen, BorderLayout.WEST);
 
 		// Panel central (datos apartamento)
@@ -232,17 +237,17 @@ public class PanelAlojamiento extends JPanel {
 		reservarB.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
 
 		reservarB.addActionListener(e -> {
-			
+
 			if (PanelVolverRegistrarseIniciarSesion.isSesionIniciada()) {
 
-				int nPerHab = (alojamiento instanceof Apartamento) ? nPersonas
-						: ((Hotel) alojamiento).nHabitacionesOcupadas(nPersonas);
 				boolean reservaCreadaCorrectamente = GestorDB.crearReservaAlojamiento(alojamiento, fechaInicio,
-						fechaFin, nPerHab);
+						fechaFin, nPersonas);
 
 				if (reservaCreadaCorrectamente) {
 
 					enviarMensajeReserva(alojamiento, fechaInicio, fechaFin, nPersonas);
+
+					BotonBuscar.pararBusqueda();
 					PanelResultadosBusqueda.borrarBusqueda();
 
 					PanelPestanasBusqueda.setError("");
@@ -273,40 +278,50 @@ public class PanelAlojamiento extends JPanel {
 
 			Object[] opciones = { botonSi, botonNo };
 
-			JOptionPane pregunta = new JOptionPane(new JLabel("¿Estás seguro de que quieres cancelar esta reserva?"),
-					JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
+			JLabel mensaje = new JLabel("¿Estás seguro de que quieres cancelar esta reserva?");
+			mensaje.setFont(Main.FUENTE.deriveFont(16f));
+
+			JOptionPane pregunta = new JOptionPane(mensaje, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION,
 					new ImageIcon(new ImageIcon("resources/images/icono_imagen.jpg").getImage().getScaledInstance(64,
 							64, Image.SCALE_SMOOTH)),
 					opciones, botonSi);
-			pregunta.setFont(Main.FUENTE);
-			
+
 			botonSi.addActionListener((e1) -> pregunta.setValue(JOptionPane.YES_OPTION));
 			botonNo.addActionListener((e1) -> pregunta.setValue(JOptionPane.NO_OPTION));
-			
+
 			JDialog dialog = pregunta.createDialog(this, "Confirmación");
 			dialog.setVisible(true);
 
 			if ((int) pregunta.getValue() == JOptionPane.YES_OPTION) {
 
-				int nPerHab = (alojamiento instanceof Apartamento) ? nPersonas
-						: ((Hotel) alojamiento).nHabitacionesOcupadas(nPersonas);
-
 				boolean reservaCanceladaCorrectamente = GestorDB.cancelarReservaAlojamiento(alojamiento, fechaInicio,
-						fechaFin, nPerHab);
+						fechaFin, nPersonas);
 
 				if (reservaCanceladaCorrectamente) {
 
 					Container parent = this.getParent();
-					
+
 					if (parent != null) {
-						
+
 						parent.remove(this);
+
+						if (parent.getComponents().length == 0) {
+							
+							// Si al parent ya no le quedan componentes matamos la ventana
+							
+							Window ventana = SwingUtilities.getWindowAncestor(parent);			// Para conseguir la ventana sobre la que está el parent (Parent => PanelAlojamiento ; Ventana => VentanaVisualizarReservas (en este caso))
+							
+							if (ventana != null) {
+								ventana.dispose();
+							}
+							
+						}
 						
 						parent.revalidate();
 						parent.repaint();
-						
+
 					}
-					
+
 					enviarMensajeCancelacion(alojamiento, fechaInicio, fechaFin, nPersonas);
 
 				}
@@ -316,181 +331,196 @@ public class PanelAlojamiento extends JPanel {
 		});
 
 		// Panel para dejar reseñas
-		
+
 		JPanel panelDejarResena = new JPanel(new BorderLayout(0, 15));
-		
+
 		PanelSelectorResena panelSelectorResena = new PanelSelectorResena(true, 30);
 		if (resena != null) {
-			
+
 			panelSelectorResena.setValor(resena.getEstrellas());
-			
+
 		}
-		
+
 		JTextArea resenaTA = new JTextArea();
 		if (resena != null) {
-			
+
 			resenaTA.setText(resena.getMensaje());
-			
+
 		} else {
-			
+
 			resenaTA.setText("Escriba su reseña aqui...");
-			
+
 		}
 		resenaTA.setFont(Main.FUENTE.deriveFont(16.f));
 		resenaTA.setLineWrap(true);
 		resenaTA.setWrapStyleWord(true);
 		resenaTA.setMargin(new Insets(5, 10, 5, 10));
 		resenaTA.setBorder(Main.DEFAULT_LINE_BORDER);
-		
+
 		JScrollPane resenaSP = new JScrollPane(resenaTA);
 		resenaSP.setBorder(null);
-				
+
 		// Añadimos componentes al panel de datos
-		
+
 		resenaTA.addFocusListener(new FocusAdapter() {
 
 			@Override
 			public void focusGained(FocusEvent e) {
-				
+
 				if (resenaTA.getText().equals("Escriba su reseña aqui...")) {
-					
+
 					resenaTA.setText("");
 					resenaTA.setForeground(Color.BLACK);
-					
+
 				}
-				
+
 			}
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				
+
 				if (resenaTA.getText().equals("")) {
-					
+
 					resenaTA.setText("Escriba su reseña aqui...");
 					resenaTA.setForeground(Color.GRAY);
-					
+
 				}
-			
+
 			}
-		
+
 		});
-		
+
 		MiButton guardarResB = new MiButton("Guardar reseña");
 		guardarResB.setBackground(new Color(50, 50, 50));
 		guardarResB.setForeground(Color.WHITE);
 		guardarResB.setFont(Main.FUENTE.deriveFont(Font.BOLD, 18f));
 		guardarResB.setAlignmentX(Component.CENTER_ALIGNMENT);
 		guardarResB.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-		
-		guardarResB.addActionListener((e) -> {
-			
-			Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
-			
-			if (!resenaTA.getText().equals("Escriba su reseña aqui...") && !resenaTA.getText().equals("")) {
-			
-				if (idRva != -1 && this.resena == null) {
-					
-					Resena resenaFinal = new Resena(-1, cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0], panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
-					
-					int idR = GestorDB.guardarNuevaResena(alojamiento.getClass(), idRva, resenaFinal);
-					
-					if (idR != -1) {
-					
-						alojamiento.getResenas().add(resenaFinal);
-					
-					}
-					
-					this.resena = new Resena(idR, cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0], panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());;
-					
-					Container parent = this.getParent();
-					
-					for (Component c : parent.getComponents()) {
-						
-						if (c instanceof PanelAlojamiento) {
-		                    PanelAlojamiento otroPanel = (PanelAlojamiento) c;
-		                    
-		                    if (otroPanel.alojamiento.getId() == this.alojamiento.getId() &&
-		                        otroPanel.alojamiento.getClass().equals(this.alojamiento.getClass())) {
-		                        
-		                        otroPanel.alojamiento = this.alojamiento;
-		                        
-		                        otroPanel.actualizarResenas();
 
-		                        otroPanel.resenasB.setEnabled(true);
-		                    }
-		                }
-						
+		guardarResB.addActionListener((e) -> {
+
+			Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
+
+			if (!resenaTA.getText().equals("Escriba su reseña aqui...") && !resenaTA.getText().equals("")) {
+
+				if (idRva != -1 && this.resena == null) {
+
+					Resena resenaFinal = new Resena(-1,
+							cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0],
+							panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
+
+					int idR = GestorDB.guardarNuevaResena(alojamiento.getClass(), idRva, resenaFinal);
+
+					if (idR != -1) {
+
+						alojamiento.getResenas().add(resenaFinal);
+
 					}
-					
-					this.resena = resenaFinal; 
-			        resenasB.setEnabled(true);
-			        actualizarResenas();
-					
+
+					this.resena = new Resena(idR, cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0],
+							panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
+					;
+
+					Container parent = this.getParent();
+
+					for (Component c : parent.getComponents()) {
+
+						if (c instanceof PanelAlojamiento) {
+							PanelAlojamiento otroPanel = (PanelAlojamiento) c;
+
+							if (otroPanel.alojamiento.getId() == this.alojamiento.getId()
+									&& otroPanel.alojamiento.getClass().equals(this.alojamiento.getClass())) {
+
+								otroPanel.alojamiento = this.alojamiento;
+
+								otroPanel.actualizarResenas();
+
+								otroPanel.resenasB.setEnabled(true);
+							}
+						}
+
+					}
+
+					this.resena = resenaFinal;
+					resenasB.setEnabled(true);
+					actualizarResenas();
+
 				} else {
-					
-					Resena resenaFinal = new Resena(this.resena.getId(), cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0], panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
-					
+
+					Resena resenaFinal = new Resena(this.resena.getId(),
+							cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0],
+							panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
+
 					boolean resenaActualizada = GestorDB.actualizarResena(resenaFinal);
-					
+
 					if (resenaActualizada) {
-					
+
 						List<Resena> resenasAlojamiento = alojamiento.getResenas();
-						
+
 						for (int i = 0; i < resenasAlojamiento.size(); i++) {
-							
-						    if (resenasAlojamiento.get(i).getId() == resenaFinal.getId()) {
-						    	
-						        resenasAlojamiento.set(i, resenaFinal); 
-						        break; 
-						        
-						    }
-						    
+
+							if (resenasAlojamiento.get(i).getId() == resenaFinal.getId()) {
+
+								resenasAlojamiento.set(i, resenaFinal);
+								break;
+
+							}
+
 						}
-					
+
 						Container parent = this.getParent();
-						
+
 						for (Component c : parent.getComponents()) {
-							
+
 							if (c instanceof PanelAlojamiento) {
-			                    PanelAlojamiento otroPanel = (PanelAlojamiento) c;
-			                    
-			                    if (otroPanel.alojamiento.getId() == this.alojamiento.getId() &&
-			                        otroPanel.alojamiento.getClass().equals(this.alojamiento.getClass())) {
-			                        
-			                        otroPanel.alojamiento = this.alojamiento;
-			                        
-			                        otroPanel.actualizarResenas();
-			                        
-			                    }
-			                }
-							
+								PanelAlojamiento otroPanel = (PanelAlojamiento) c;
+
+								if (otroPanel.alojamiento.getId() == this.alojamiento.getId()
+										&& otroPanel.alojamiento.getClass().equals(this.alojamiento.getClass())) {
+
+									otroPanel.alojamiento = this.alojamiento;
+
+									otroPanel.actualizarResenas();
+
+								}
+							}
+
 						}
-						
-						this.resena = resenaFinal; 
-				        resenasB.setEnabled(true);
-				        actualizarResenas();
-						
+
+						this.resena = resenaFinal;
+						resenasB.setEnabled(true);
+						actualizarResenas();
+
 					}
-					
+
 				}
-			
+
 			}
 		});
-		
+
 		// Añadimos los componentes al panel
-		
+
 		panelDejarResena.add(panelSelectorResena, BorderLayout.NORTH);
 		panelDejarResena.add(resenaSP, BorderLayout.CENTER);
 		panelDejarResena.add(guardarResB, BorderLayout.SOUTH);
-		
+
 		// Añadimos los componentes de la derecha
 
-		panelDerecha.add(Box.createVerticalStrut(modo == MODO_RESERVAR || (modo == MODO_RESERVAR && LocalDate.now().isBefore(fechaFin))? 25 : 5));
+		panelDerecha.add(Box.createVerticalStrut(
+				modo == MODO_RESERVAR || (modo == MODO_CANCELAR_O_DEJARRESENA && LocalDate.now().isBefore(fechaFin))
+						? 25
+						: 5));
 		panelDerecha.add(perYNocL);
 		panelDerecha.add(precioL);
-		panelDerecha.add(Box.createVerticalStrut(modo == MODO_RESERVAR || (modo == MODO_RESERVAR && LocalDate.now().isBefore(fechaFin))? 30 : 15));
+		panelDerecha.add(Box.createVerticalStrut(
+				modo == MODO_RESERVAR || (modo == MODO_CANCELAR_O_DEJARRESENA && LocalDate.now().isBefore(fechaFin))
+						? 30
+						: 15));
 		panelDerecha.add(resenasB);
-		panelDerecha.add(Box.createVerticalStrut(modo == MODO_RESERVAR || (modo == MODO_RESERVAR && LocalDate.now().isBefore(fechaFin))? 20 : 15));
+		panelDerecha.add(Box.createVerticalStrut(
+				modo == MODO_RESERVAR || (modo == MODO_CANCELAR_O_DEJARRESENA && LocalDate.now().isBefore(fechaFin))
+						? 20
+						: 15));
 
 		if (modo == MODO_RESERVAR) {
 
@@ -514,30 +544,55 @@ public class PanelAlojamiento extends JPanel {
 	}
 
 	// Función que actualiza la progressBar de reseñas cuando se añade una
-	
+
 	public void actualizarResenas() {
-		
+
 		double notaMedia = alojamiento.calcularNotaMedia();
-		
+
 		notaL.setText(String.format("%.1f ", notaMedia));
 		ratingPB.setValue((int) (notaMedia * 100));
-		
+
 		revalidate();
 		repaint();
-		
+
 	}
-	
+
+	// Función para cargar el resto de imágenes en segundo plano (para una carga de alojamientos más rapida al principio solo se carga 1 imagen y luego se carga el resto)
+
+	public void cargarImagenesRestantes() {
+
+		Thread hiloCargaImagenes = new Thread(() -> {
+
+			List<BufferedImage> nuevasImagenes = GestorDB.getRestoImagenesAlojamiento(alojamiento.getClass(), alojamiento.getId());
+
+			if (nuevasImagenes != null && !nuevasImagenes.isEmpty()) {
+
+				alojamiento.getImagenes().addAll(nuevasImagenes);
+
+				SwingUtilities.invokeLater(() -> {
+					panelImagen.getImagenes().addAll(nuevasImagenes);
+					panelImagen.revalidate();
+					panelImagen.repaint();
+				});
+
+			}
+
+		});
+
+		hiloCargaImagenes.start();
+
+	}
+
 	// Función que envía un mensaje que notifica al usuario de la reserva
 
-	public void enviarMensajeReserva(Alojamiento alojamiento, LocalDate fechaInicio, LocalDate fechaFin,
-			int nPersonas) {
+	public void enviarMensajeReserva(Alojamiento alojamiento, LocalDate fechaInicio, LocalDate fechaFin, int nPersonas) {
 
 		Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
 
 		int nNoches = (int) ChronoUnit.DAYS.between(fechaInicio, fechaFin);
 
 		// Enviamos el mensaje al correoElectronico del cliente con la sesion iniciada
-		// (Lo ponemos en formato HTML para que quede más bonito)
+		// (Lo ponemos en formato HTML para que quede más bonito) - Cuerpo HTML diseñado por Gemini
 
 		String asunto = "DeustoTrips - Reserva de alojamiento: " + alojamiento.getNombre();
 
@@ -590,7 +645,7 @@ public class PanelAlojamiento extends JPanel {
 		int nNoches = (int) ChronoUnit.DAYS.between(fechaInicio, fechaFin);
 
 		// Enviamos el mensaje al correoElectronico del cliente con la sesion iniciada
-		// (Lo ponemos en formato HTML para que quede más bonito)
+		// (Lo ponemos en formato HTML para que quede más bonito) - Cuerpo HTML diseñado por Gemini
 
 		String asunto = "DeustoTrips - Cancelación de reserva: " + alojamiento.getNombre();
 

@@ -46,6 +46,8 @@ public class MiSpinnerPersonas extends JSpinner {
 		
 		spinnerTextField.setEditable(true);
 		
+		// Para que se pueda cambiar el valor con los números del teclado
+		
 		spinnerTextField.addKeyListener(new KeyAdapter() {
 
 			@Override

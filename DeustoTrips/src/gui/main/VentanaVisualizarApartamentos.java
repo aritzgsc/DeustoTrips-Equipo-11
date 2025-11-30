@@ -24,6 +24,8 @@ import gui.util.MiTablaResumenApartamentos;
 import gui.util.PanelEditarApartamento;
 import main.Main;
 
+// Ventana que nos permite visualizar todos los apartamentos poseidos por un usuario (por el usuario con la sesión iniciada)
+
 public class VentanaVisualizarApartamentos extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -35,7 +37,7 @@ public class VentanaVisualizarApartamentos extends JFrame {
 		// Configuración de la ventana
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setMinimumSize(new Dimension(1100, 800));
+		setMinimumSize(new Dimension(1120, 800));
 		setLocationRelativeTo(VentanaPrincipal.getVentanaPrincipal());
 		setTitle("Mis apartamentos");
 				
@@ -46,7 +48,7 @@ public class VentanaVisualizarApartamentos extends JFrame {
 		JPanel panelApartamentos = new JPanel();
 		panelApartamentos.setLayout(new BoxLayout(panelApartamentos, BoxLayout.Y_AXIS));
 		
-		Map<Apartamento, Double> apartamentos = GestorDB.getApartamentos(PanelVolverRegistrarseIniciarSesion.getCliente());
+		Map<Apartamento, Double> apartamentos = GestorDB.getApartamentos();
 		
 		Set<Apartamento> apartamentosKeySet = new TreeSet<Apartamento>(new Comparator<Apartamento>() {
 
@@ -175,7 +177,7 @@ public class VentanaVisualizarApartamentos extends JFrame {
 		add(scrollPaneApartamentos, BorderLayout.CENTER);
 		add(botonResumen, BorderLayout.SOUTH);
 		
-		// Hacemos visible la ventana si hay apartamentos
+		// Hacemos visible la ventana
 		
 		if (apartamentos.isEmpty()) {
 			dispose();

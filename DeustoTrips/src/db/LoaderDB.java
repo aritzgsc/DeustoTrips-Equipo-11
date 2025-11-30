@@ -149,8 +149,8 @@ public class LoaderDB {
 		String sql = "INSERT INTO IMAGEN_DESTINO (ISO_CODE, BANDERA) VALUES(?, ?)";
 
 		try (Connection conn = DriverManager.getConnection(CONNECTION_STRING);
-				PreparedStatement pstmt = conn.prepareStatement(sql);
-				InputStream inputStream = URI.create(urlString).toURL().openStream();) {
+			 PreparedStatement pstmt = conn.prepareStatement(sql);
+		 	 InputStream inputStream = URI.create(urlString).toURL().openStream();) {
 
 			// Convertimos la imagen de la web a bytes en memoria
 
@@ -258,7 +258,7 @@ public class LoaderDB {
 		String sql = "INSERT INTO DESTINO (ID_D, NOM_D, LAT_D, LON_D, ID_TD, ISO_CODE) VALUES (?, ?, ?, ?, ?, ?);";
 
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
-				PreparedStatement pstmt = con.prepareStatement(sql)) {
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
 			for (String iso : paisesPorISO.keySet()) {
 
@@ -363,7 +363,7 @@ public class LoaderDB {
 		String sql = "INSERT INTO DESTINO (ID_D, NOM_D, LAT_D, LON_D, ID_TD, ISO_CODE, ID_D_PADRE) VALUES (?, ?, ?, ?, ?, ?, ?);";
 
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
-				PreparedStatement pstmt = con.prepareStatement(sql)) {
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
 			for (String iso : ciudadesPorISO.keySet()) {
 
@@ -452,10 +452,7 @@ public class LoaderDB {
 
 								int distanciaTexto = Utilidades.distanciaLevenshtein(ciudad.getNombre(), campos[10]);
 
-								boolean seContienen = Utilidades.normalizar(ciudad.getNombre())
-										.contains(Utilidades.normalizar(campos[10]))
-										|| Utilidades.normalizar(campos[10])
-												.contains(Utilidades.normalizar(ciudad.getNombre()));
+								boolean seContienen = Utilidades.normalizar(ciudad.getNombre()).contains(Utilidades.normalizar(campos[10])) || Utilidades.normalizar(campos[10]).contains(Utilidades.normalizar(ciudad.getNombre()));
 
 								if (distanciaTexto < 5 || (seContienen && distanciaTexto < 7)) {
 
@@ -494,9 +491,7 @@ public class LoaderDB {
 
 							if (ciudadAeropuerto != null) {
 
-								Aeropuerto aeropuerto = new Aeropuerto(300000 + nLinea, ciudadAeropuerto,
-										campos[3] + " [" + campos[13] + "]", Double.parseDouble(campos[4]),
-										Double.parseDouble(campos[5]));
+								Aeropuerto aeropuerto = new Aeropuerto(300000 + nLinea, ciudadAeropuerto, campos[3] + " [" + campos[13] + "]", Double.parseDouble(campos[4]), Double.parseDouble(campos[5]));
 
 								if (aeropuertosPorISO.get(campos[8]) == null) {
 
@@ -539,7 +534,7 @@ public class LoaderDB {
 		String sql = "INSERT INTO DESTINO (ID_D, NOM_D, LAT_D, LON_D, ID_TD, ISO_CODE, ID_D_PADRE) VALUES (?, ?, ?, ?, ?, ?, ?);";
 
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
-				PreparedStatement pstmt = con.prepareStatement(sql)) {
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
 			for (String iso : aeropuertosPorISO.keySet()) {
 
@@ -556,8 +551,7 @@ public class LoaderDB {
 					int rowCount = pstmt.executeUpdate();
 					if (rowCount > 0) {
 
-						System.out.println(
-								"¡Aeropuerto " + iso + " (" + aeropuerto.getNombre() + ") guardado con éxito!");
+						System.out.println("¡Aeropuerto " + iso + " (" + aeropuerto.getNombre() + ") guardado con éxito!");
 
 					}
 
@@ -625,9 +619,7 @@ public class LoaderDB {
 
 	}
 
-	// Cargamos los Hoteles en la BD a partir de los JSON que recibimos de la
-	// función de arriba para ello vamos a utilizar una función auxiliar que procesa
-	// los hoteles por nosotros
+	// Cargamos los Hoteles en la BD a partir de los JSON que recibimos de la función de arriba para ello vamos a utilizar una función auxiliar que procesa los hoteles por nosotros
 
 	public static void cargarHotelesEnDB() {
 
@@ -678,8 +670,9 @@ public class LoaderDB {
 
 	}
 
-	public static void cargarHotelEnDB(Connection con, PreparedStatement pstmtInsertHotel,
-			PreparedStatement pstmtInsertImagen, Hotel hotel) {
+	// Función para cargar un único hotel en la BD
+	
+	public static void cargarHotelEnDB(Connection con, PreparedStatement pstmtInsertHotel, PreparedStatement pstmtInsertImagen, Hotel hotel) {
 
 		try {
 
@@ -708,11 +701,11 @@ public class LoaderDB {
 							pstmtInsertImagen.setBytes(1, imagenBytes);
 							pstmtInsertImagen.setInt(2, rsHotelId.getInt(1));
 
-							pstmtInsertImagen.addBatch();
+							pstmtInsertImagen.addBatch();		// Para que no se vayan metiendo una a una y se metan de golpe abajo
 
 						}
 
-						pstmtInsertImagen.executeBatch();
+						pstmtInsertImagen.executeBatch();		// Aquí se meten todas las imágenes en la BD de golpe
 
 					}
 
@@ -723,14 +716,13 @@ public class LoaderDB {
 		} catch (Exception e) {
 
 			System.err.println("Error al cargar el hotel en la BD");
-//			e.printStackTrace();
+			e.printStackTrace();
 
 		}
 
 	}
 
-	// Creamos la clase madre (cada una de estas representará un hotel completo (de
-	// información que nos interesa) contenido en cada JSON)
+	// Creamos la clase madre (cada una de estas representará un hotel completo (de información que nos interesa) contenido en cada JSON)
 
 	private static class HotelGiata {
 
@@ -742,8 +734,7 @@ public class LoaderDB {
 
 	}
 
-	// Creamos las subclases de la clase madre con los nombres tal y como vienen en
-	// el JSON
+	// Creamos las subclases de la clase madre con los nombres tal y como vienen en el JSON
 
 	private static class NombreHotelGiata {
 		String value;
@@ -777,8 +768,7 @@ public class LoaderDB {
 		String para;
 	}
 
-	// Función para procesar el Hotel (Hecha con ayuda de Gemini para la parte de
-	// Gson y la descripción)
+	// Función para procesar el Hotel (Hecha con ayuda de Gemini para la parte de Gson y la descripción)
 
 	public static Hotel procesarHotel(String urlHotelJSON) {
 
@@ -868,7 +858,7 @@ public class LoaderDB {
 
 			if (hotelGiata.country != null) {
 
-				ciudadesPosibles = GestorDB.getCiudades(hotelGiata.country.code);
+				ciudadesPosibles = GestorDB.getCiudadesPais(hotelGiata.country.code);
 
 			} else {
 				return null;
@@ -990,14 +980,12 @@ public class LoaderDB {
 			double precio = 30 + (Math.random() * 270);
 			precio = Math.round(precio * 100.0) / 100.0;
 
-			// Creamos el hotel
+			// Creamos el hotel con los datos que hemos recibido / creado
 
-			if (nombre != null && direccion != null && ciudad != null && descripcion != null && imagenes != null
-					&& !imagenes.isEmpty()) {
+			if (nombre != null && direccion != null && ciudad != null && descripcion != null && imagenes != null && !imagenes.isEmpty()) {
 
 				System.out.println("Hotel " + nombre + " creado correctamente (" + ciudad.toString() + ")");
-				return new Hotel(-1, nombre, direccion, ciudad, descripcion, null, imagenes, habitaciones, maxPerHab,
-						precio);
+				return new Hotel(-1, nombre, direccion, ciudad, descripcion, null, imagenes, habitaciones, maxPerHab, precio);
 
 			} else {
 				return null;
@@ -1014,11 +1002,11 @@ public class LoaderDB {
 
 	// A partir de aqui mucho hecho con GEMINI
 	
-	// Configuración de Gemini
+	// Configuración de Gemini API
 	
     private static final String GEMINI_API_KEY = "AIzaSyAU6MIieGck3vrgpPIMZ7GfUsizWfxG48g"; 
     
-    // Modelo rápido y eficiente.
+    // Modelo rápido y eficiente
     
     private static final String GEMINI_MODEL = "gemini-2.0-flash"; 
 
@@ -1029,7 +1017,8 @@ public class LoaderDB {
     static class GeminiCandidate { GeminiContent content; }
 
     private static String generarResumenGemini(String textoCompleto) {
-        if (textoCompleto == null || textoCompleto.trim().isEmpty()) return "Sin descripción.";
+        
+    	if (textoCompleto == null || textoCompleto.trim().isEmpty()) return "Sin descripción.";
 
         // Seguridad básica
         
@@ -1042,9 +1031,10 @@ public class LoaderDB {
         } catch (Exception e) {
             // Si falla algo (ej. 500 server error), resumen simple
         	
-            System.err.println("   [Fallo IA] " + e.getMessage());
+            System.err.println("[Fallo IA] " + e.getMessage());
             return resumenSimple(textoCompleto);
         }
+        
     }
 
     private static String llamarGemini(String textoOriginal) throws Exception {
@@ -1059,7 +1049,7 @@ public class LoaderDB {
         String textoLimpio = textoOriginal.replace("\"", "'").replace("\n", " ");
         if (textoLimpio.length() > 5000) textoLimpio = textoLimpio.substring(0, 5000); 
 
-        // Prompt de Copywriter
+        // Prompt para buenas respuestas
         
         String prompt = "Actúa como un experto copywriter de viajes. Escribe un resumen comercial y atractivo de este hotel en ESPAÑOL. " +
                         "Máximo 60 palabras. Destaca SOLO: ubicación, instalaciones principales y ambiente. " +
@@ -1114,6 +1104,8 @@ public class LoaderDB {
         return resumenSimple(textoOriginal); 
     }
 
+    // Resumen simple si falla Gemini
+    
 	private static String resumenSimple(String texto) {
 		String[] palabras = texto.split("\\s+");
 		int limite = 60;
@@ -1134,4 +1126,6 @@ public class LoaderDB {
 		return r.append("...").toString().trim();
 	}
 
+	// FIN Cargar hoteles
+	
 }

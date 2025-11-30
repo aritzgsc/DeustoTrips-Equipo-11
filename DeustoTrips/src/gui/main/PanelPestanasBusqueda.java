@@ -136,6 +136,8 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		
 	}
 	
+	// Función que nos lleva al punto de inicio de la aplicación
+	
 	public static void resetAll() {
 		
 		panelPestanasBusqueda.setSelectedIndex(0);
@@ -143,6 +145,8 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		panelAlojamientos.resetAll();
 		panelViajes.resetAll();
 		panelViajeAlojamiento.resetAll();
+		
+		PanelResultadosBusqueda.borrarBusqueda();
 		
 	}
 	

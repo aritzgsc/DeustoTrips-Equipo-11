@@ -196,7 +196,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 		
 		// Código aleatorio generado
 		////
-		// Enviamos el código al correoElectronico especificado
+		// Enviamos el código al correoElectronico especificado - Cuerpo HTML diseñado por Gemini
 		
 		String asunto = "DeustoTrips - Código de Verificación";
 		

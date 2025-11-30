@@ -11,7 +11,7 @@ import javax.swing.SwingUtilities;
 import gui.main.VentanaPrincipal;
 import main.Main;
 
-// Clase para normalizar el tipo de JTextField utilizado en todo el proyecto
+// Normalización de JTextField
 
 public class MiTextField extends JTextField {
 

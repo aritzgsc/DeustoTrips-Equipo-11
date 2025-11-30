@@ -26,6 +26,7 @@ import javax.swing.border.MatteBorder;
 import com.toedter.calendar.JCalendar;
 import com.toedter.calendar.JDateChooser;
 
+import gui.main.filtros.FiltroPrecio;
 import gui.util.editores.MiComboBoxEditor;
 import gui.util.uis.MiComboBoxUI;
 import main.Main;
@@ -43,7 +44,7 @@ public class MiSelectorFecha extends JDateChooser {
 	private JDateChooser selectorFecha;					// Lo sacamos para poder obtener su tamaño para ponerle al calendar el mismo
 	
 	private JTextField selectorFechaTextField;			// Lo sacamos para usarlo en la función resetAll()
-	private String placeholder;						// Lo sacamos para usarlo en la función resetAll()
+	private String placeholder;							// Lo sacamos para usarlo en la función resetAll()
 	
 	public MiSelectorFecha(String placeholder) {
 		
@@ -99,7 +100,10 @@ public class MiSelectorFecha extends JDateChooser {
 		
 		addPropertyChangeListener("date", (e) -> {
 			selectorFechaTextField.setToolTipText(getDate() != null? DateFormat.getDateInstance(DateFormat.MEDIUM).format(getDate()) : null);
+			FiltroPrecio.calcularPrecioMaximo();
 		});
+		
+		
 		
 		// FIN Personalización del JTextField del JDateChooser
 		////
@@ -165,9 +169,8 @@ public class MiSelectorFecha extends JDateChooser {
 				
 				comboBoxCalendario.setEditable(true);			// Hacemos esto para que se vea el Componente de Editor bien
 				comboBoxCalendario.setEditor(editorComboBoxCalendario);
-		
+				
 				JTextField componenteEditorComboBoxCalendario = (JTextField) editorComboBoxCalendario.getEditorComponent();
-				componenteEditorComboBoxCalendario.setFont(componenteEditorComboBoxCalendario.getFont().deriveFont(13f));
 				
 				// Le establecemos un MouseListener para que se despliegue el popUp aunque hagamos click en el texto
 				
@@ -187,6 +190,8 @@ public class MiSelectorFecha extends JDateChooser {
 				JSpinner spinnerCalendario = (JSpinner) calendario.getYearChooser().getSpinner();
 				spinnerCalendario.setBorder(Main.DEFAULT_LINE_BORDER);
 		
+				spinnerCalendario.addChangeListener((e1) -> estilizarDias(calendario));
+				
 				// Personalización del textField del spinner
 				
 				JTextField editorSpinnerCalendario = (JTextField) spinnerCalendario.getEditor();
@@ -236,6 +241,8 @@ public class MiSelectorFecha extends JDateChooser {
 		}
 			
 	}
+	
+	// FIN Método para dar estilo a los días del calendario
 	////
 	// Método que nos permite resetear la fecha establecida si la hay
 	

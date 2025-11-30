@@ -42,6 +42,8 @@ public class PanelResultadosBusqueda extends JScrollPane {
 		
 	}
 	
+	// Función para borrar las búsquedas realizadas (también cambia el tamaño de la ventana)
+	
 	public static void borrarBusqueda() {
 		
 		panelResultados = new JPanel();
@@ -51,10 +53,15 @@ public class PanelResultadosBusqueda extends JScrollPane {
 		
 		panelResultadosBusqueda.setPreferredSize(new Dimension(0, 0));
 		
-		VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 500));
-		
 		if (VentanaPrincipal.getVentanaPrincipal().getSize().equals(VentanaPrincipal.getVentanaPrincipal().getMinimumSize())) {
-			VentanaPrincipal.getVentanaPrincipal().setSize(new Dimension(1440, 500));		
+			
+			VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 500));
+			VentanaPrincipal.getVentanaPrincipal().setSize(new Dimension(1440, 500));	
+			
+		} else {
+			
+			VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 500));
+			
 		}
 		
 		VentanaPrincipal.getVentanaPrincipal().revalidate();
@@ -62,7 +69,9 @@ public class PanelResultadosBusqueda extends JScrollPane {
 		
 	}
 	
-	public static void anadirAlojamientoEncontrado(Alojamiento alojamientoEncontrado, LocalDate fechaEntrada, LocalDate fechaSalida, int nPersonas) {
+	// Función para añadir un alojamiento (en forma de PanelAlojamiento) a las búsquedas realizadas (también cambia el tamaño de la ventana)
+	
+	public static PanelAlojamiento anadirAlojamientoEncontrado(Alojamiento alojamientoEncontrado, LocalDate fechaEntrada, LocalDate fechaSalida, int nPersonas) {
 		
 		// Guardamos la posición original de la scrollbar
 		
@@ -76,9 +85,9 @@ public class PanelResultadosBusqueda extends JScrollPane {
 		
 		panelResultados.add(panelAlojamiento);
 		
-		panelResultadosBusqueda.setPreferredSize(new Dimension(0, Math.min(400, 380 * panelResultados.getComponents().length)));
+		panelResultadosBusqueda.setPreferredSize(new Dimension(0, 400));
 		
-		VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 500 + Math.min(500, 380 * panelResultados.getComponents().length)));
+		VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 900));
 		
 		panelResultadosBusqueda.revalidate();
 		panelResultadosBusqueda.repaint();
@@ -89,6 +98,10 @@ public class PanelResultadosBusqueda extends JScrollPane {
 		// Reestablecemos la posicion inicial 
 		
 		SwingUtilities.invokeLater(() -> panelResultadosBusqueda.getVerticalScrollBar().setValue(posicionInicial));
+		
+		// Devolvemos el panel para jugar con el en el botón buscar
+		
+		return panelAlojamiento;
 		
 	}
 	

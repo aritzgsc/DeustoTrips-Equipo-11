@@ -12,6 +12,8 @@ import javax.swing.JScrollPane;
 import db.GestorDB;
 import gui.util.PanelAlojamiento;
 
+// Ventana que nos permite visualizar todas las reservas de un usuario (el usuario con la sesión iniciada)
+
 public class VentanaVisualizarReservas extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -28,6 +30,8 @@ public class VentanaVisualizarReservas extends JFrame {
 		// FIN Configuración de la ventana
 		////
 		// Panel que contendrá todos los apartamentos
+		
+		// TODO Modificar esto para que acepte viajes (cuando esté hecha esa parte)
 		
 		JPanel panelAlojamientos = new JPanel();
 		panelAlojamientos.setLayout(new BoxLayout(panelAlojamientos, BoxLayout.Y_AXIS));

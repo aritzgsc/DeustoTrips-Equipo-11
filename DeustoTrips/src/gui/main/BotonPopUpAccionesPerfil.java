@@ -41,8 +41,8 @@ public class BotonPopUpAccionesPerfil extends MiButton {
 			MiMenuItem cerrarSesion = new MiMenuItem("Cerrar sesión", getWidth(), 40);
 			
 			modificarCuenta.addActionListener((e1) -> new VentanaModificarCuenta());
-//			visualizarReservas.addActionListener((e1) -> new VentanaVisualizarReservas());
-			visualizarApartamentos.addActionListener((e1) -> new VentanaVisualizarApartamentos());
+			visualizarReservas.addActionListener((e1) -> new Thread(() -> new VentanaVisualizarReservas()).start());				// Lo llamamos en un hilo aparte porque es muy costoso
+			visualizarApartamentos.addActionListener((e1) -> new Thread(() -> new VentanaVisualizarApartamentos()).start());		// Lo llamamos en un hilo aparte porque es muy costoso
 			cerrarSesion.addActionListener((e1) -> PanelVolverRegistrarseIniciarSesion.cerrarSesion());
 			
 			// FIN Creación de los componentes del popupMenu

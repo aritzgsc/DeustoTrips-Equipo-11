@@ -77,6 +77,8 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 		
 	}
 	
+	// Función para iniciar sesión y tener las acciones de cliente disponibles para tu cuenta
+	
 	public static void iniciarSesion(Cliente nuevoCliente) {
 		
 		if (!sesionIniciada) {
@@ -97,6 +99,8 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 		
 	}
 	
+	// Función para cerrar sesión
+	
 	public static void cerrarSesion() {
 		
 		if (sesionIniciada) {
@@ -115,6 +119,8 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 		}
 		
 	}
+	
+	// Getters y setters útiles
 	
 	public static Cliente getCliente() {
 		return cliente;

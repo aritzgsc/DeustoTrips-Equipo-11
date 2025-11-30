@@ -40,6 +40,8 @@ import gui.util.MiButton;
 import gui.util.uis.MiComboBoxUI;
 import main.Main;
 
+//No extendemos DefaultCellEditor porque JCalendar no puede entonces nos hacemos nuestro propio editor "de 0"
+
 public class MiEditorCalendario extends AbstractCellEditor implements TableCellEditor {
 
 	private static final long serialVersionUID = 1L;

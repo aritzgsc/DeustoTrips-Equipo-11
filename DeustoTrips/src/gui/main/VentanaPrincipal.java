@@ -2,8 +2,10 @@ package gui.main;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.File;
+import java.io.IOException;
 
-import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -24,9 +26,14 @@ public final class VentanaPrincipal extends JFrame {
 		// Configuración de la ventana
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setMinimumSize(new Dimension(1440, 600));								// Para que si se minimiza se quede con ese tamaño
+		setMinimumSize(new Dimension(1440, 500));								// Para que si se quita el maximizado se quede con ese tamaño
 		setLocationRelativeTo(null);
-		setIconImage(new ImageIcon("resources/images/logo.jpg").getImage());
+		try {
+			setIconImage(ImageIO.read(new File("resources/images/logo.jpg")));
+		} catch (IOException e) {
+			System.err.println("Error al cargar el logo");
+//			e.printStackTrace();
+		}
 		setExtendedState(MAXIMIZED_BOTH);
 		setTitle(Main.NOMBRE_APP);
 		
@@ -48,7 +55,8 @@ public final class VentanaPrincipal extends JFrame {
 		////
 		// Panel abajo -- Resultados de búsqueda
 		
-			// TODO Clases de alojamientos, medios de transporte, etc... (Necesario al menos diseñar BD antes para tener claro como queremos hacerlo)
+		PanelResultadosBusqueda panelAbajo = new PanelResultadosBusqueda();
+		add(panelAbajo, BorderLayout.SOUTH);
 		
 		// FIN Panel abajo -- Resultados de búsqueda
 		////
