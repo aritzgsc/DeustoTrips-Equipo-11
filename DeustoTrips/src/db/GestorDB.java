@@ -31,6 +31,7 @@ import domain.Hotel;
 import domain.Pais;
 import domain.Resena;
 import gui.main.PanelVolverRegistrarseIniciarSesion;
+import gui.util.PanelAlojamiento;
 
 // Clase que contiene todos los métodos que utilizan la BD
 
@@ -545,6 +546,75 @@ public class GestorDB {
 
 	}
 
+	public static Alojamiento getAlojamiento(Class<? extends Alojamiento> clase, int idAlojamiento) {
+
+		Alojamiento alojamiento = null;
+
+		String sqlSelect = "";
+
+		if (clase.equals(Apartamento.class)) {
+
+			sqlSelect = """
+					SELECT NOM_AP, DIR_AP, DESC_AP, PRECIO_NP_AP, CAP_MAX_AP, EMAIL_CLI, ID_D
+					FROM APARTAMENTO
+					WHERE ID_AP = ?;
+					""";
+
+		} else if (clase.equals(Hotel.class)) {
+
+			sqlSelect = """
+					SELECT NOM_H, DIR_H, DESC_H, NUM_HABS, CAP_MAX_HAB, PRECIO_NHAB_H, ID_D
+					FROM HOTEL
+					WHERE ID_H = ?;
+					""";
+
+		}
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmt = con.prepareStatement(sqlSelect)) {
+
+			pstmt.setInt(1, idAlojamiento);
+
+			ResultSet rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+
+				List<BufferedImage> imagenesAlojamiento = new ArrayList<BufferedImage>();
+				
+				if (clase.equals(Apartamento.class)) {
+
+					imagenesAlojamiento = getImagenesAlojamiento(Apartamento.class, idAlojamiento);
+					
+					alojamiento = new Apartamento(idAlojamiento, rs.getString("NOM_AP"), rs.getString("DIR_AP"),
+							(Ciudad) getDestino(rs.getInt("ID_D")), rs.getString("DESC_AP"),
+							getResenasAlojamiento(Apartamento.class, idAlojamiento),
+							imagenesAlojamiento, rs.getDouble("PRECIO_NP_AP"),
+							rs.getInt("CAP_MAX_AP"), rs.getString("EMAIL_CLI"));
+
+				} else if (clase.equals(Hotel.class)) {
+
+					imagenesAlojamiento = getImagenesAlojamiento(Hotel.class, idAlojamiento);
+					
+					alojamiento = new Hotel(idAlojamiento, rs.getString("NOM_H"), rs.getString("DIR_H"),
+							(Ciudad) getDestino(rs.getInt("ID_D")), rs.getString("DESC_H"),
+							getResenasAlojamiento(Hotel.class, idAlojamiento),
+							imagenesAlojamiento, rs.getInt("NUM_HABS"),
+							rs.getInt("CAP_MAX_HAB"), rs.getDouble("PRECIO_NHAB_H"));
+
+				}
+				
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al cargar el alojamiento");
+
+		}
+
+		return alojamiento;
+
+	}
+	
 	public static List<BufferedImage> getImagenesAlojamiento(Class<? extends Alojamiento> clase, int idAlojamiento) {
 
 		List<BufferedImage> imagenesAlojamiento = new ArrayList<BufferedImage>();
@@ -999,6 +1069,108 @@ public class GestorDB {
 
 	}
 
+	public static List<PanelAlojamiento> getReservasAlojamientos() {
+
+		List<PanelAlojamiento> reservasAlojamientos = new ArrayList<PanelAlojamiento>();
+
+		Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
+
+		String sqlSelectRvaAP = """
+				SELECT ID_RVA_AP, F_INI_RVA, F_FIN_RVA, N_PER, P_RVA_AP, ID_AP, ID_R
+				FROM RESERVA_AP
+				WHERE EMAIL_CLI = ?;
+				""";
+
+		String sqlSelectRvaH = """
+				SELECT ID_RVA_H, F_INI_RVA, F_FIN_RVA, N_HAB, P_RVA_H, ID_H, ID_R
+				FROM RESERVA_H
+				WHERE EMAIL_CLI = ?;
+				""";
+
+		String sqlSelectResena = """
+				SELECT ID_R, ESTRELLAS_R, MENSAJE_R, FECHA_R
+				FROM RESENA
+				WHERE ID_R = ?;
+				""";
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+				PreparedStatement pstmtSelectRvaAP = con.prepareStatement(sqlSelectRvaAP);
+				PreparedStatement pstmtSelectRvaH = con.prepareStatement(sqlSelectRvaH);
+				PreparedStatement pstmtSelectResena = con.prepareStatement(sqlSelectResena)) {
+
+			pstmtSelectRvaAP.setString(1, cliente.getCorreo());
+
+			ResultSet rsRvaAP = pstmtSelectRvaAP.executeQuery();
+
+			while (rsRvaAP.next()) {
+
+				pstmtSelectResena.setInt(1, rsRvaAP.getInt("ID_R"));
+
+				ResultSet rsResena = pstmtSelectResena.executeQuery();
+
+				Resena resena = null;
+
+				if (rsResena.next()) {
+
+					resena = new Resena(rsResena.getInt("ID_R"),
+							cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0],
+							rsResena.getDouble("ESTRELLAS_R"), rsResena.getString("MENSAJE_R"),
+							LocalDate.parse(rsResena.getString("FECHA_R")));
+
+				}
+
+				PanelAlojamiento panelAlojamiento = new PanelAlojamiento(
+						getAlojamiento(Apartamento.class, rsRvaAP.getInt("ID_AP")), rsRvaAP.getInt("N_PER"),
+						LocalDate.parse(rsRvaAP.getString("F_INI_RVA")),
+						LocalDate.parse(rsRvaAP.getString("F_FIN_RVA")), rsRvaAP.getDouble("P_RVA_AP"),
+						rsRvaAP.getInt("ID_RVA_AP"), resena, PanelAlojamiento.MODO_CANCELAR_O_DEJARRESENA);
+
+				reservasAlojamientos.add(panelAlojamiento);
+
+			}
+
+			pstmtSelectRvaH.setString(1, cliente.getCorreo());
+
+			ResultSet rsRvaH = pstmtSelectRvaH.executeQuery();
+
+			while (rsRvaH.next()) {
+
+				pstmtSelectResena.setInt(1, rsRvaH.getInt("ID_R"));
+
+				ResultSet rsResena = pstmtSelectResena.executeQuery();
+
+				Resena resena = null;
+
+				if (rsResena.next()) {
+
+					resena = new Resena(rsResena.getInt("ID_R"),
+							cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0],
+							rsResena.getDouble("ESTRELLAS_R"), rsResena.getString("MENSAJE_R"),
+							LocalDate.parse(rsResena.getString("FECHA_R")));
+
+				}
+
+				PanelAlojamiento panelAlojamiento = new PanelAlojamiento(
+						getAlojamiento(Hotel.class, rsRvaH.getInt("ID_H")), rsRvaH.getInt("N_HAB"),
+						LocalDate.parse(rsRvaH.getString("F_INI_RVA")), LocalDate.parse(rsRvaH.getString("F_FIN_RVA")),
+						rsRvaH.getDouble("P_RVA_H"), rsRvaH.getInt("ID_RVA_H"), resena,
+						PanelAlojamiento.MODO_CANCELAR_O_DEJARRESENA);
+
+				reservasAlojamientos.add(panelAlojamiento);
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al cargar las reservas de alojamientos");
+			e.printStackTrace();
+
+		}
+
+		return reservasAlojamientos;
+
+	}
+	
 	public static Map<LocalDate, LocalDate> getFechasReservas(Apartamento apartamento) {
 
 		Map<LocalDate, LocalDate> fechasReservas = new HashMap<LocalDate, LocalDate>();
