@@ -1720,9 +1720,9 @@ public class GestorDB {
 	// Funciónes para reservar viajes
 	
 	public static boolean crearReservaViajeCompleto (List<Viaje> viajeCompleto, LocalDate fecha, int nPersonas, double precio) {			// Viaje completo de Ida
-			
+		
 		boolean reservaCreadaCorrectamente = true;
-			
+		
 		String sql = """
 					 INSERT INTO VINCULO_RESERVAS_V (EMAIL_CLI, PRECIO_TOTAL, F_COMPRA, N_VIAJES_IDA)
 					 VALUES (?, ?, ?, ?)
@@ -1751,32 +1751,101 @@ public class GestorDB {
 						reservaCreadaCorrectamente = reservaCreadaCorrectamente && crearReservaViaje(con, idRvaVin, viaje, fecha, nPersonas, precio);
 
 						if (!reservaCreadaCorrectamente) break;
-							
-					}
 						
+					}
+					
 				}
-					
-			}
 				
+			}
+			
 			if (reservaCreadaCorrectamente) {
-				
+			
 				con.commit();
-				
+			
 			} else {
-					
+				
 				con.rollback();
-					
+				
 			}
-				
+			
 		} catch (SQLException e) {
-				
+			
 			System.err.println("Error al realizar la reserva del viaje");
 			e.printStackTrace();
-				
+			
 		}
-			
+		
 		return reservaCreadaCorrectamente;
+		
+	}
+	
+	public static boolean crearReservaViajeCompleto (List<Viaje> viajeCompletoIda, List<Viaje> viajeCompletoVuelta, LocalDate fechaIda, LocalDate fechaVuelta, int nPersonas, double precio) {			// Viaje completo de Ida y Vuelta
+		
+		boolean reservaCreadaCorrectamente = true;
+		
+		String sql = """
+					 INSERT INTO VINCULO_RESERVAS_V (EMAIL_CLI, PRECIO_TOTAL, F_COMPRA, N_VIAJES_IDA, N_VIAJES_VUELTA)
+					 VALUES (?, ?, ?, ?, ?)
+					 """;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			
+			con.setAutoCommit(false);
+			
+			pstmt.setString(1, PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo());
+			pstmt.setDouble(2, Viaje.calcularPrecioTotal(viajeCompletoIda, nPersonas) + Viaje.calcularPrecioTotal(viajeCompletoVuelta, nPersonas));
+			pstmt.setString(3, LocalDate.now().toString());
+			pstmt.setInt(4, viajeCompletoIda.size());
+			pstmt.setInt(5, viajeCompletoVuelta.size());
+			
+			pstmt.executeUpdate();
+			
+			try (ResultSet rs = pstmt.getGeneratedKeys()) {
+				
+				if (rs.next()) {
+					
+					int idRvaVin = rs.getInt(1);
+					
+					for (Viaje viaje : viajeCompletoIda) {
+						
+						reservaCreadaCorrectamente = reservaCreadaCorrectamente && crearReservaViaje(con, idRvaVin, viaje, fechaIda, nPersonas, precio);
+						
+						if (!reservaCreadaCorrectamente) break;
+						
+					}
+					
+					for (Viaje viaje : viajeCompletoVuelta) {
+						
+						reservaCreadaCorrectamente = reservaCreadaCorrectamente && crearReservaViaje(con, idRvaVin, viaje, fechaVuelta, nPersonas, precio);
+					
+						if (!reservaCreadaCorrectamente) break;
+						
+					}
+					
+				}
+				
+			}
+			
+			if (reservaCreadaCorrectamente) {
+			
+				con.commit();
+			
+			} else {
+				
+				con.rollback();
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al realizar la reserva del viaje");
+			e.printStackTrace();
+			
+		}
+		
+		return reservaCreadaCorrectamente;
+		
 	}
 	
 	public static boolean crearReservaViaje (Connection con, int idRvaVin, Viaje viaje, LocalDate fecha, int nPersonas, double precio) {			// Usado para reservar UN unico viaje (un tramo)
