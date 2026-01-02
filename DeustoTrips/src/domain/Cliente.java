@@ -1,5 +1,8 @@
 package domain;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+
 // Usuario con los datos que se guardan en la BD
 
 public class Cliente {
@@ -8,13 +11,39 @@ public class Cliente {
 	private String nombre;
 	private String apellidos;
 	private String contrasena;
+	private Color color;
+	private BufferedImage imagen;
 	
-	public Cliente(String correo, String nombre, String apellidos, String contrasena) {
+	public Cliente(String correo, String nombre, String apellidos, String contrasena, Color color, BufferedImage imagen) {
+		
+		this.correo = correo;
+		this.nombre = nombre;
+		this.apellidos = apellidos;
+		this.contrasena = contrasena;
+		this.color = color;
+		this.imagen = imagen;
+		
+	}
+	
+	public Cliente(String correo, String nombre, String apellidos, String contrasena, Color color) {
 	
 		this.correo = correo;
 		this.nombre = nombre;
 		this.apellidos = apellidos;
 		this.contrasena = contrasena;
+		this.color = color;
+		this.imagen = null;
+		
+	}
+	
+	public Cliente(String correo, String nombre, String apellidos) {
+		
+		this.correo = correo;
+		this.nombre = nombre;
+		this.apellidos = apellidos;
+		this.contrasena = null;
+		this.color = null;
+		this.imagen = null;
 		
 	}
 
@@ -48,6 +77,22 @@ public class Cliente {
 
 	public void setContrasena(String contrasena) {
 		this.contrasena = contrasena;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+	public BufferedImage getImagen() {
+		return imagen;
+	}
+
+	public void setImagen(BufferedImage imagen) {
+		this.imagen = imagen;
 	}
 	
 }

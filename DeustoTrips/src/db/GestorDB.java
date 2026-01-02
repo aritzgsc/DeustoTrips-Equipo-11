@@ -1,5 +1,6 @@
 package db;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -424,8 +425,8 @@ public class GestorDB {
 
 		String sql = """
  					 INSERT INTO
-					 CLIENTE (EMAIL_CLI, NOM_CLI, AP_CLI, CONTR_CLI)
-					 VALUES (?, ?, ?, ?);
+					 CLIENTE (EMAIL_CLI, NOM_CLI, AP_CLI, CONTR_CLI, COLOR_CLI)
+					 VALUES (?, ?, ?, ?, ?);
 					 """;
 
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
@@ -435,7 +436,8 @@ public class GestorDB {
 			pstmt.setString(2, cliente.getNombre().trim());
 			pstmt.setString(3, cliente.getApellidos().trim());
 			pstmt.setString(4, PasswordSecurity.hashPassword(cliente.getContrasena().trim()));
-
+			pstmt.setInt(5, cliente.getColor().getRGB());
+			
 			int rowCount = pstmt.executeUpdate();
 
 			if (rowCount > 0) {
@@ -467,17 +469,37 @@ public class GestorDB {
 
 		String sql = """
 					 UPDATE CLIENTE
-					 SET NOM_CLI = ?, AP_CLI = ?, CONTR_CLI = ?
+					 SET NOM_CLI = ?, AP_CLI = ?, CONTR_CLI = ?, IMAGEN_CLI = ?
 					 WHERE EMAIL_CLI = ?
 					 """;
 
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
+			byte[] imagenBytes = null;
+			
+			if (cliente.getImagen() != null) {
+			
+				try {
+				
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ImageIO.write(cliente.getImagen(), "png", baos);
+				imagenBytes = baos.toByteArray();
+			
+				} catch (IOException e) {
+					
+					System.err.println("Error al guardar la imágen del usuario en la BD");
+					e.printStackTrace();
+					
+				}
+				
+			}
+			
 			pstmt.setString(1, cliente.getNombre().trim());
 			pstmt.setString(2, cliente.getApellidos().trim());
 			pstmt.setString(3, PasswordSecurity.hashPassword(cliente.getContrasena().trim()));
-			pstmt.setString(4, cliente.getCorreo().trim());
+			pstmt.setBytes(4, imagenBytes);
+			pstmt.setString(5, cliente.getCorreo().trim());
 
 			int rowCount = pstmt.executeUpdate();
 
@@ -574,8 +596,30 @@ public class GestorDB {
 
 					String nombre = rs.getString("NOM_CLI");
 					String apellidos = rs.getString("AP_CLI");
+					Color color = new Color(rs.getInt("COLOR_CLI"));
+					
+					byte[] imagenBytes = rs.getBytes("IMAGEN_CLI");
 
-					PanelVolverRegistrarseIniciarSesion.iniciarSesion(new Cliente(correoElectronico.trim(), nombre.trim(), apellidos.trim(), contrasena.trim()));
+					BufferedImage imagen = null;
+					
+					if (imagenBytes != null) {
+						
+						try {
+	
+							ByteArrayInputStream bais = new ByteArrayInputStream(imagenBytes);
+	
+							imagen = ImageIO.read(bais);
+	
+						} catch (IOException e) {
+	
+							System.err.println("Error al cargar la imagen del usuario");
+							e.printStackTrace();
+	
+						}
+					
+					}
+						
+					PanelVolverRegistrarseIniciarSesion.iniciarSesion(new Cliente(correoElectronico.trim(), nombre.trim(), apellidos.trim(), contrasena.trim(), color, imagen));
 
 					sesionIniciadaCorrectamente = true;
 
@@ -734,9 +778,9 @@ public class GestorDB {
 		if (clase.equals(Apartamento.class)) {
 
 			sqlSelect = """
-						SELECT NOM_AP, DIR_AP, DESC_AP, PRECIO_NP_AP, CAP_MAX_AP, EMAIL_CLI, ID_D
-						FROM APARTAMENTO
-						WHERE ID_AP = ?;
+						SELECT NOM_AP, DIR_AP, DESC_AP, PRECIO_NP_AP, CAP_MAX_AP, AP.EMAIL_CLI, NOM_CLI, AP_CLI, ID_D
+						FROM APARTAMENTO AP, CLIENTE CLI
+						WHERE ID_AP = ? AND AP.EMAIL_CLI = CLI.EMAIL_CLI;
 						""";
 
 		} else if (clase.equals(Hotel.class)) {
@@ -765,7 +809,7 @@ public class GestorDB {
 
 				if (clase.equals(Apartamento.class)) {
 
-					alojamiento = new Apartamento(idAlojamiento, rs.getString("NOM_AP"), rs.getString("DIR_AP"), (Ciudad) getDestino(rs.getInt("ID_D")), rs.getString("DESC_AP"), getResenasAlojamiento(Apartamento.class, idAlojamiento), imagenesAlojamiento, rs.getDouble("PRECIO_NP_AP"), rs.getInt("CAP_MAX_AP"), rs.getString("EMAIL_CLI"));
+					alojamiento = new Apartamento(idAlojamiento, rs.getString("NOM_AP"), rs.getString("DIR_AP"), (Ciudad) getDestino(rs.getInt("ID_D")), rs.getString("DESC_AP"), getResenasAlojamiento(Apartamento.class, idAlojamiento), imagenesAlojamiento, rs.getDouble("PRECIO_NP_AP"), rs.getInt("CAP_MAX_AP"), new Cliente(rs.getString("EMAIL_CLI"), rs.getString("NOM_CLI"), rs.getString("AP_CLI")));
 
 				} else if (clase.equals(Hotel.class)) {
 
@@ -1399,9 +1443,9 @@ public class GestorDB {
 		Map<Apartamento, Double> dineroGenPorApartamento = new HashMap<Apartamento, Double>();
 
 		String sqlSelectApartamentos = """
-									   SELECT *
-									   FROM APARTAMENTO
-									   WHERE EMAIL_CLI = ?;
+									   SELECT AP.*, NOM_CLI, AP_CLI
+									   FROM APARTAMENTO AP, CLIENTE CLI
+									   WHERE AP.EMAIL_CLI = ? AND AP.EMAIL_CLI = CLI.EMAIL_CLI;
 									   """;
 
 		String sqlSelectReservas = """
@@ -1432,9 +1476,9 @@ public class GestorDB {
 
 				double precioNPA = rsAP.getDouble("PRECIO_NP_AP");
 				int capMaxA = rsAP.getInt("CAP_MAX_AP");
-				String correoPropA = rsAP.getString("EMAIL_CLI");
+				Cliente propietarioA = new Cliente(rsAP.getString("EMAIL_CLI"), rsAP.getString("NOM_CLI"), rsAP.getString("AP_CLI"));
 
-				Apartamento apartamento = new Apartamento(idA, nombreA, dirA, ciudadA, descripcionA, resenasA, imagenesA, precioNPA, capMaxA, correoPropA);
+				Apartamento apartamento = new Apartamento(idA, nombreA, dirA, ciudadA, descripcionA, resenasA, imagenesA, precioNPA, capMaxA, propietarioA);
 
 				// FIN Creacion del apartamento
 

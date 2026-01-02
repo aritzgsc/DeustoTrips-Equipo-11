@@ -6,7 +6,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -41,6 +44,13 @@ public class VentanaConfirmarRegistro extends JDialog {
 		setLocationRelativeTo(VentanaRegistrarse.getVentanaRegistrarse());
 		setResizable(false);
 		setTitle("Confirmar registro");
+		
+		try {
+			setIconImage(ImageIO.read(new File("resources/images/logo.jpg")));
+		} catch (IOException e) {
+			System.err.println("Error al cargar el logo");
+			e.printStackTrace();
+		}
 		
 		// FIN Configuración de la ventana emergente
 		////
@@ -96,7 +106,7 @@ public class VentanaConfirmarRegistro extends JDialog {
 				
 				confirmado = true;
 				
-				boolean usuarioRegistradoCorrectamente = GestorDB.registrarUsuario(new Cliente(correoElectronico, nombre, apellidos, contrasena));
+				boolean usuarioRegistradoCorrectamente = GestorDB.registrarUsuario(new Cliente(correoElectronico, nombre, apellidos, contrasena, Color.decode(Main.COLORES_PERFIL[(int) (Math.random() * Main.COLORES_PERFIL.length)])));
 				
 				if (usuarioRegistradoCorrectamente) {
 					
@@ -155,7 +165,7 @@ public class VentanaConfirmarRegistro extends JDialog {
 		String asunto = "DeustoTrips - Código de registro";
 		
 		String cuerpoHTML = String.format("""
-							              <div style="text-align: center; font-family: 'Comic Sans MS', cursive; color: #333;">
+							              <div style="text-align: center; font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', sans-serif; color: #333;">
 							                 
 							                 <h1 style="color: #2980b9;">¡Hola! 👋</h1>
 							                 <h2 style="color: #2c3e50;">Bienvenido a DeustoTrips 🚀</h2>

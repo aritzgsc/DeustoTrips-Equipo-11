@@ -11,15 +11,15 @@ public class Apartamento extends Alojamiento {
 	private int id;
 	private double precioNP;
 	private int capacidadMax;
-	private String correoPropietario;
+	private Cliente propietario;
 	
-	public Apartamento(int id, String nombre, String direccion, Ciudad ciudad, String descripcion, List<Resena> resenas, List<BufferedImage> imagenes, double precioNP, int capacidadMax, String correoPropietario) {
+	public Apartamento(int id, String nombre, String direccion, Ciudad ciudad, String descripcion, List<Resena> resenas, List<BufferedImage> imagenes, double precioNP, int capacidadMax, Cliente propietario) {
 		
 		super(nombre, direccion, ciudad, descripcion, resenas, imagenes);
 		this.id = id;
 		this.precioNP = precioNP;
 		this.capacidadMax = capacidadMax;
-		this.correoPropietario = correoPropietario;
+		this.propietario = propietario;
 		
 	}
 
@@ -39,8 +39,8 @@ public class Apartamento extends Alojamiento {
 		this.capacidadMax = capacidadMax;
 	}
 
-	public String getCorreoPropietario() {
-		return correoPropietario;
+	public Cliente getPropietario() {
+		return propietario;
 	}
 
 	@Override

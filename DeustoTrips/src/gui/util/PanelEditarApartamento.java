@@ -75,7 +75,7 @@ public class PanelEditarApartamento extends JPanel {
 		////
 		// Panel de la imágen
 		
-		selectorImagen = new MiSelectorImagenes(apartamento.getImagenes(), true);
+		selectorImagen = new MiSelectorImagenes(apartamento.getImagenes(), 300, 300, true, true, false);
 		
 		// FIN Panel de la imágen
 		////

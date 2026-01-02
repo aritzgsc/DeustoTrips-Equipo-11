@@ -11,8 +11,11 @@ import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -57,6 +60,13 @@ public class VentanaRegistrarApartamento extends JFrame {
 		setLocationRelativeTo(VentanaPrincipal.getVentanaPrincipal());
 		setTitle("Registrar apartamento");
 		
+		try {
+			setIconImage(ImageIO.read(new File("resources/images/logo.jpg")));
+		} catch (IOException e) {
+			System.err.println("Error al cargar el logo");
+			e.printStackTrace();
+		}
+		
 		// Panel de contenido (como la clase extiende JFrame hacemos esto para actuar sobre el panel como un panel y luego lo metemos a la ventana)
 		
 		JPanel contentPane = new JPanel(new BorderLayout(10, 10));
@@ -77,7 +87,7 @@ public class VentanaRegistrarApartamento extends JFrame {
 				
 		// Panel de la imágen
 			
-		selectorImagenes = new MiSelectorImagenes(new ArrayList<BufferedImage>(), true);
+		selectorImagenes = new MiSelectorImagenes(new ArrayList<BufferedImage>(), 300, 300, true, true, false);
 		
 		// FIN Panel de la imágen
 		////

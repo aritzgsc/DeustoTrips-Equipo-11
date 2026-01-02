@@ -2,6 +2,7 @@ package gui.main;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
@@ -9,98 +10,99 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import gui.main.filtros.FiltroPrecio;
+import gui.util.uis.MiTabbedPaneUI;
 import main.Main;
 
-// Panel que contiene todas las pestañas de búsqueda (Alojamientos, Viajes y Viaje + Alojamiento)
+// Panel que contiene todas las pestañas de búsqueda (Alojamientos, Viajes y Viaje + Alojamiento) - Parte de la interfaz gráfica diseñada por GEMINI
 
 public class PanelPestanasBusqueda extends JTabbedPane {
 
 	private static final long serialVersionUID = 1L;
-
-	private static PanelPestanasBusqueda panelPestanasBusqueda;			// Usados en PanelVolverRegistrarseIniciarSesion (para resetear todos los valores de los tabs y seleccionar el inicial (Alojamientos))
+		
+	// Referencias estáticas
 	
+	private static PanelPestanasBusqueda panelPestanasBusqueda;
 	private static PanelAlojamientos panelAlojamientos;
 	private static PanelViajes panelViajes;
-	private static PanelViajeAlojamiento panelViajeAlojamiento;
-	
+
 	public PanelPestanasBusqueda() {
 		
-		panelPestanasBusqueda = this;									// Le damos el valor a la variable nada más crear la instancia 
+		panelPestanasBusqueda = this;
+		
+		// Aplicamos la interfaz gráfica creada por gemini para cambiar el estilo del panel
+
+		setUI(new MiTabbedPaneUI());
 		
 		// Configuración del panel
 		
-		setBorder(new EmptyBorder(5, 20, 5, 20));
-		setPreferredSize(new Dimension(1400, 450));
+		setBorder(new EmptyBorder(10, 10, 10, 10)); 
+		setPreferredSize(new Dimension(1400, 480));
 		setFocusable(false);
+		setBackground(MiTabbedPaneUI.COLOR_FONDO_APP); 
 		
 		// FIN Configuración del panel
 		////
-		// Panel Alojamientos
-
-		// Creación del panel y lo añadimos como panel de una nueva ventana
+		// Añadimos las pestañas
+		
+		// Pestaña de alojamientos
 		
 		panelAlojamientos = new PanelAlojamientos();
-		
 		addTab("Alojamientos", panelAlojamientos);
-		
-		// FIN Creación del panel y lo añadimos como panel de una nueva ventana
-		////
-		// Creamos el componente personalizado
-		
-		JLabel alojamientosTab = new JLabel("Alojamientos");
-		alojamientosTab.setPreferredSize(new Dimension(128, 50));
-		alojamientosTab.setFont(Main.FUENTE.deriveFont(15.f));
-		alojamientosTab.setHorizontalAlignment(SwingUtilities.CENTER);
-		setTabComponentAt(0, alojamientosTab);
-		
-		// FIN Creamos el compontente personalizado
-		// FIN Panel Alojamientos
-		////
-		// Panel Viajes
-		
-		// Creación del panel y lo añadimos como panel de una nueva ventana
+		setTabComponentAt(0, crearCabeceraTab("Alojamientos", 140));
+
+		// Pestaña de viajes
 		
 		panelViajes = new PanelViajes();
-		
 		addTab("Viajes", panelViajes);
+		setTabComponentAt(1, crearCabeceraTab("Viajes", 100));
 		
-		// FIN Creación del panel y lo añadimos como panel de una nueva ventana
-		////
-		// Creamos el componente personalizado
+		// Evento para detectar cambios de selección y actualizar la interfaz gráfica
 		
-		JLabel viajesTab = new JLabel("Viajes");
-		viajesTab.setPreferredSize(new Dimension(85, 50));
-		viajesTab.setFont(Main.FUENTE.deriveFont(15.f));
-		viajesTab.setHorizontalAlignment(SwingUtilities.CENTER);
-		setTabComponentAt(1, viajesTab);
+		addChangeListener((e) -> {
+			actualizarEstiloTextoTabs();
+			FiltroPrecio.calcularPrecioMaximo();
+		});
 		
-		// FIN Creamos el compontente personalizado
-		// FIN Panel Viajes
-		////
-		// Panel Viaje + Alojamiento
+		setSelectedIndex(0);
+		actualizarEstiloTextoTabs();
+	}
+	
+	// Métodos de diseño
+	
+	private JLabel crearCabeceraTab(String titulo, int ancho) {
 		
-		// Creación del panel y lo añadimos como panel de una nueva ventana
+		JLabel label = new JLabel(titulo);
+		label.setPreferredSize(new Dimension(ancho, 40));
+		label.setFont(Main.FUENTE.deriveFont(15.f)); 
+		label.setHorizontalAlignment(SwingUtilities.CENTER);
+		label.setOpaque(false); 
+		return label;
 		
-		panelViajeAlojamiento = new PanelViajeAlojamiento();
+	}
+	
+	private void actualizarEstiloTextoTabs() {
 		
-		addTab("Viaje + Alojamiento", panelViajeAlojamiento);
-		
-		// FIN Creación del panel y lo añadimos como panel de una nueva ventana
-		////
-		// Creamos el componente personalizado
-		
-		JLabel viajeAlojamientoTab = new JLabel("Viaje + Alojamiento");
-		viajeAlojamientoTab.setPreferredSize(new Dimension(180, 50));
-		viajeAlojamientoTab.setFont(Main.FUENTE.deriveFont(15.f));
-		viajeAlojamientoTab.setHorizontalAlignment(SwingUtilities.CENTER);
-		setTabComponentAt(2, viajeAlojamientoTab);
-		
-		// FIN Creamos el compontente personalizado
-		// FIN Panel Viaje + Alojamiento
-		
-		addChangeListener((e) -> FiltroPrecio.calcularPrecioMaximo());
-		
-		setSelectedIndex(0);		// Seleccionamos el primer elemento como "Inicio" (Alojamientos)
+		for (int i = 0; i < getTabCount(); i++) {
+			
+			Component c = getTabComponentAt(i);
+			
+			if (c instanceof JLabel) {
+				
+				JLabel label = (JLabel) c;
+				
+				if (i == getSelectedIndex()) {
+					
+					label.setForeground(MiTabbedPaneUI.COLOR_TEXTO_SELECCIONADO);
+					label.setFont(Main.FUENTE.deriveFont(Font.BOLD, 15.f));
+					
+				} else {
+					
+					label.setForeground(MiTabbedPaneUI.COLOR_TEXTO_NORMAL);
+					label.setFont(Main.FUENTE.deriveFont(Font.PLAIN, 15.f));
+					
+				}
+			}
+		}
 		
 	}
 	
@@ -115,8 +117,6 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 			return ((PanelAlojamientos) panelSeleccionado).setError();
 		} else if (panelSeleccionado instanceof PanelViajes) {
 			return ((PanelViajes) panelSeleccionado).setError();
-		} else if (panelSeleccionado instanceof PanelViajeAlojamiento) {
-			return ((PanelViajeAlojamiento) panelSeleccionado).setError();
 		} else {
 			return null;
 		}
@@ -130,8 +130,6 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 			((PanelAlojamientos) panelSeleccionado).setError(error);
 		} else if (panelSeleccionado instanceof PanelViajes) {
 			((PanelViajes) panelSeleccionado).setError(error);
-		} else if (panelSeleccionado instanceof PanelViajeAlojamiento) {
-			((PanelViajeAlojamiento) panelSeleccionado).setError(error);
 		}
 		
 	}
@@ -144,7 +142,6 @@ public class PanelPestanasBusqueda extends JTabbedPane {
 		
 		panelAlojamientos.resetAll();
 		panelViajes.resetAll();
-		panelViajeAlojamiento.resetAll();
 		
 		PanelResultadosBusqueda.borrarBusqueda();
 		

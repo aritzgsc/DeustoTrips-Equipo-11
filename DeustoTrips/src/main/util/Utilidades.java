@@ -1,5 +1,6 @@
 package main.util;
 
+import java.awt.Color;
 import java.text.Normalizer;
 
 import domain.Destino;
@@ -116,5 +117,24 @@ public class Utilidades {
 	}
 
 	// FIN Funciones para comparar strings
+	////
+	// Función que devuelve el color de contraste para un color de fondo (devuelve blanco o negro dependiendo del color que reciba la funcion)
+	// Recomendada por GEMINI
+	
+	public static Color getContrastColor(Color background) {
+        // Obtenemos los componentes RGB
+        int r = background.getRed();
+        int g = background.getGreen();
+        int b = background.getBlue();
+
+        // Fórmula estándar de luminancia (NTSC)
+        // El ojo humano es más sensible al verde, por eso se multiplica por 0.587
+        double luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+
+        // Si la luminancia es alta (> 128), el fondo es claro -> Ponemos texto NEGRO
+        // Si es baja, el fondo es oscuro -> Ponemos texto BLANCO
+        
+        return (luminance > 128) ? Color.BLACK : Color.WHITE;
+    }
 	
 }

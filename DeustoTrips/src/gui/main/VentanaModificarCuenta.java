@@ -6,7 +6,13 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -17,6 +23,7 @@ import db.GestorDB;
 import domain.Cliente;
 import gui.util.MiButton;
 import gui.util.MiPasswordField;
+import gui.util.MiSelectorImagenes;
 import gui.util.MiTextField;
 import main.Main;
 
@@ -31,10 +38,17 @@ public class VentanaModificarCuenta extends JFrame {
 		// Configuración de la ventana
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setSize(540, 500);
+		setSize(540, 650);
 		setLocationRelativeTo(VentanaPrincipal.getVentanaPrincipal());
 		setResizable(false);
 		setTitle("Modificar cuenta");
+		
+		try {
+			setIconImage(ImageIO.read(new File("resources/images/logo.jpg")));
+		} catch (IOException e) {
+			System.err.println("Error al cargar el logo");
+			e.printStackTrace();
+		}
 		
 		// FIN Configuración de la ventana
 		////
@@ -49,28 +63,37 @@ public class VentanaModificarCuenta extends JFrame {
 		////
 		// Panel campos (Contendrá todos los campos)
 		
-		JPanel panelCampos = new JPanel(new GridLayout(3, 1, 0, 10));
+		JPanel panelCampos = new JPanel(new GridLayout(4, 1, 0, 10));
 		panelCampos.setBorder(new EmptyBorder(0, 20, 20, 20));
 		
+		// Panel imagen del usuario
+		
+		JPanel imagenP = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		imagenP.setBorder(new EmptyBorder(10, 0, 10, 0));
+		
+		MiSelectorImagenes selectorImagen = new MiSelectorImagenes(new ArrayList<BufferedImage>(Arrays.asList(cliente.getImagen())), 100, 100, true, false, true);
+		imagenP.add(selectorImagen);
+		
+		// FIN Panel imagen del usuario
 		// Panel Nombre y Apellidos (Los juntamos en un mismo JPanel para que estén ambos campos uno al lado del otro)
 		
-		JPanel nombreYApellidos = new JPanel(new GridLayout(2, 2, 10, 0));
+		JPanel nombreYApellidosP = new JPanel(new GridLayout(2, 2, 10, 0));
 		
 		JLabel nombreL = new JLabel("Nombre:");
 		nombreL.setFont(Main.FUENTE);
-		nombreYApellidos.add(nombreL);
+		nombreYApellidosP.add(nombreL);
 		
 		JLabel apellidosL = new JLabel("Apellidos:");
 		apellidosL.setFont(Main.FUENTE);
-		nombreYApellidos.add(apellidosL);
+		nombreYApellidosP.add(apellidosL);
 		
 		MiTextField nombreTF = new MiTextField();
 		nombreTF.setText(cliente.getNombre());
-		nombreYApellidos.add(nombreTF);
+		nombreYApellidosP.add(nombreTF);
 		
 		MiTextField apellidosTF = new MiTextField();
 		apellidosTF.setText(cliente.getApellidos());
-		nombreYApellidos.add(apellidosTF);
+		nombreYApellidosP.add(apellidosTF);
 		
 		// FIN Panel Nombre y Apellidos
 		////
@@ -107,7 +130,8 @@ public class VentanaModificarCuenta extends JFrame {
 		////
 		// Añadimos todos los campos al panel correspondiente
 		
-		panelCampos.add(nombreYApellidos);
+		panelCampos.add(imagenP);
+		panelCampos.add(nombreYApellidosP);
 		panelCampos.add(correoElectronicoP);
 		panelCampos.add(contrasenaP);
 		
@@ -134,7 +158,7 @@ public class VentanaModificarCuenta extends JFrame {
 		confirmarReg.addActionListener(e -> {
 			if (getError(nombreTF.getText(), apellidosTF.getText(), contrasenaPF).equals("<html><p align=\"center\"></p></html>")) {
 
-				boolean datosCambiadosCorrectamente = GestorDB.cambiarDatosUsuario(new Cliente(cliente.getCorreo(), nombreTF.getText(), apellidosTF.getText(), contrasenaPF.getPassword()));
+				boolean datosCambiadosCorrectamente = GestorDB.cambiarDatosUsuario(new Cliente(cliente.getCorreo(), nombreTF.getText(), apellidosTF.getText(), contrasenaPF.getPassword(), cliente.getColor(), selectorImagen.getImagenes().isEmpty()? null : selectorImagen.getImagenes().get(0)));
 				
 				if (datosCambiadosCorrectamente) {
 				

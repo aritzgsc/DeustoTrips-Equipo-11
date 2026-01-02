@@ -1,15 +1,19 @@
 package gui.main;
 
-import java.awt.Image;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Insets;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
 
-import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 
 import domain.Cliente;
 import gui.util.MiButton;
 import gui.util.MiMenuItem;
+import gui.util.MiSelectorImagenes;
 import main.Main;
 
 public class BotonPopUpAccionesPerfil extends MiButton {
@@ -18,11 +22,22 @@ public class BotonPopUpAccionesPerfil extends MiButton {
 
 	public BotonPopUpAccionesPerfil(Cliente cliente) {
 		
-		setText(cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0]); 		// El botón será el nombre y el primer apellido del que haya iniciado sesión
-		setHorizontalTextPosition(SwingConstants.LEFT);
-		setHorizontalAlignment(SwingConstants.RIGHT);
+		setMargin(new Insets(0, 0, 0, 0));
+		setLayout(new BorderLayout(0, 0));
 		
-		SwingUtilities.invokeLater(() -> setIcon(new ImageIcon(new ImageIcon("resources/images/icono_imagen.jpg").getImage().getScaledInstance(45, 45, Image.SCALE_SMOOTH))));		// El icono del boton será simplemente el icono de la aplicación TODO - CAMBIAR SI ES POSIBLE HACER OTRA COSA (BANDERA/FOTO DE PERFIL DE GOOGLE)
+		String nombreMostrar = cliente.getNombre() + " ";
+		
+		for (String inicialAp : cliente.getApellidos().split(" ")) {
+			nombreMostrar += inicialAp.charAt(0);
+		}
+		
+		JLabel nombre = new JLabel(nombreMostrar);
+		nombre.setHorizontalAlignment(JLabel.CENTER);
+		nombre.setBackground(Color.WHITE);
+		nombre.setFont(Main.FUENTE);
+		
+		add(nombre);
+		add(new MiSelectorImagenes(new ArrayList<BufferedImage>(Arrays.asList(cliente.getImagen())), 64, 64, false, false, true), BorderLayout.EAST);
 		
 		addActionListener((e) -> {
 			
