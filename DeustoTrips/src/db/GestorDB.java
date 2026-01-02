@@ -31,6 +31,7 @@ import domain.Destino;
 import domain.Hotel;
 import domain.Pais;
 import domain.Resena;
+import domain.Viaje;
 import gui.main.PanelPestanasBusqueda;
 import gui.main.PanelVolverRegistrarseIniciarSesion;
 import gui.util.PanelAlojamiento;
@@ -1715,5 +1716,162 @@ public class GestorDB {
 	}
 
 	// FIN Función para conseguir las fechas de las reservas de un apartamento
+	////
+	// Funciónes para reservar viajes
+	
+	public static boolean crearReservaViajeCompleto (List<Viaje> viajeCompleto, LocalDate fecha, int nPersonas, double precio) {			// Viaje completo de Ida
+			
+		boolean reservaCreadaCorrectamente = true;
+			
+		String sql = """
+					 INSERT INTO VINCULO_RESERVAS_V (EMAIL_CLI, PRECIO_TOTAL, F_COMPRA, N_VIAJES_IDA)
+					 VALUES (?, ?, ?, ?)
+					 """;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			
+			con.setAutoCommit(false);
+			
+			pstmt.setString(1, PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo());
+			pstmt.setDouble(2, Viaje.calcularPrecioTotal(viajeCompleto, nPersonas));
+			pstmt.setString(3, LocalDate.now().toString());
+			pstmt.setInt(4, viajeCompleto.size());
+			
+			pstmt.executeUpdate();
+			
+			try (ResultSet rs = pstmt.getGeneratedKeys()) {
+				
+				if (rs.next()) {
+					
+					int idRvaVin = rs.getInt(1);
+					
+					for (Viaje viaje : viajeCompleto) {
+						
+						reservaCreadaCorrectamente = reservaCreadaCorrectamente && crearReservaViaje(con, idRvaVin, viaje, fecha, nPersonas, precio);
+
+						if (!reservaCreadaCorrectamente) break;
+							
+					}
+						
+				}
+					
+			}
+				
+			if (reservaCreadaCorrectamente) {
+				
+				con.commit();
+				
+			} else {
+					
+				con.rollback();
+					
+			}
+				
+		} catch (SQLException e) {
+				
+			System.err.println("Error al realizar la reserva del viaje");
+			e.printStackTrace();
+				
+		}
+			
+		return reservaCreadaCorrectamente;
+			
+	}
+	
+	public static boolean crearReservaViaje (Connection con, int idRvaVin, Viaje viaje, LocalDate fecha, int nPersonas, double precio) {			// Usado para reservar UN unico viaje (un tramo)
+		
+		boolean reservaCreadaCorrectamente = false;
+		
+		String sqlSelect = """
+						   SELECT COALESCE(SUM(N_PER), 0) AS PLAZAS_RESERVADAS
+						   FROM RESERVA_V RVA_V
+						   WHERE F_RVA_V = ? AND
+								 ID_V = ?;
+						   """;
+		
+		String sqlInsert = """
+						   INSERT INTO RESERVA_V (F_RVA_V, N_PER, ID_V, ID_RVA_VIN)
+						   VALUES (?, ?, ?, ?);
+						   """;
+		
+		try (PreparedStatement pstmtSelect = con.prepareStatement(sqlSelect);
+			 PreparedStatement pstmtInsert = con.prepareStatement(sqlInsert)) {
+			
+			pstmtSelect.setString(1, fecha.toString());
+			pstmtSelect.setInt(2, viaje.getId());
+			
+			ResultSet rs = pstmtSelect.executeQuery();
+			
+			if (rs.next()) {
+				
+				if (viaje.getNPlazas() >= rs.getInt("PLAZAS_RESERVADAS") + nPersonas) {
+					
+					pstmtInsert.setString(1, fecha.toString());
+					pstmtInsert.setInt(2, nPersonas);
+					pstmtInsert.setInt(3, viaje.getId());
+					pstmtInsert.setInt(4, idRvaVin);
+					
+					int rowCount = pstmtInsert.executeUpdate();
+					
+					if (rowCount > 0) {
+						
+						reservaCreadaCorrectamente = true;
+						
+					}
+					
+				}
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al realizar la reserva del viaje");
+			e.printStackTrace();
+			
+		}
+		
+		return reservaCreadaCorrectamente;
+		
+	}
+	
+	// FIN Funciónes para reservar viajes
+	////
+	// Función para cancelar un viaje completo
+	
+	public static boolean cancelarReservaViaje(int idRvaVin) {
+		
+		boolean reservaCanceladaCorrectamente = false;
+		
+		String sql = """
+					 DELETE FROM VINCULO_RESERVAS_V
+					 WHERE ID_RVA_VIN = ?
+					 """;
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING + "&foreign_keys=on");
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			pstmt.setInt(1, idRvaVin);
+			
+			int rowCount = pstmt.executeUpdate();
+			
+			if (rowCount > 0) {
+				
+				reservaCanceladaCorrectamente = true;
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al cancelar la reserva del viaje");
+			e.printStackTrace();
+			
+		}
+		
+		return reservaCanceladaCorrectamente;
+		
+	}
+	
+	// FIN Función para cancelar un viaje completo
 	
 }

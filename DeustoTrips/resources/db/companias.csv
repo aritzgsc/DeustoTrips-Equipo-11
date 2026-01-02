@@ -1,0 +1,301 @@
+TIPO,NOMBRE,ISO_PAIS,FACTOR,URL_LOGO
+1,Ryanair,GLOB,0.50,https://www.google.com/s2/favicons?domain=ryanair.com&sz=128
+1,EasyJet,GLOB,0.60,https://www.google.com/s2/favicons?domain=easyjet.com&sz=128
+1,Wizz Air,GLOB,0.50,https://www.google.com/s2/favicons?domain=wizzair.com&sz=128
+1,Emirates,GLOB,1.50,https://www.google.com/s2/favicons?domain=emirates.com&sz=128
+1,Qatar Airways,GLOB,1.50,https://www.google.com/s2/favicons?domain=qatarairways.com&sz=128
+1,Etihad,GLOB,1.40,https://www.google.com/s2/favicons?domain=etihad.com&sz=128
+1,Turkish Airlines,GLOB,1.20,https://www.google.com/s2/favicons?domain=turkishairlines.com&sz=128
+1,United Airlines,GLOB,1.10,https://www.google.com/s2/favicons?domain=united.com&sz=128
+1,Delta,GLOB,1.20,https://www.google.com/s2/favicons?domain=delta.com&sz=128
+1,American Airlines,GLOB,1.10,https://www.google.com/s2/favicons?domain=aa.com&sz=128
+1,Lufthansa,GLOB,1.30,https://www.google.com/s2/favicons?domain=lufthansa.com&sz=128
+1,Air France,GLOB,1.20,https://www.google.com/s2/favicons?domain=airfrance.com&sz=128
+1,KLM,GLOB,1.20,https://www.google.com/s2/favicons?domain=klm.com&sz=128
+1,British Airways,GLOB,1.30,https://www.google.com/s2/favicons?domain=britishairways.com&sz=128
+1,LATAM,GLOB,1.10,https://www.google.com/s2/favicons?domain=latamairlines.com&sz=128
+1,AirAsia,GLOB,0.50,https://www.google.com/s2/favicons?domain=airasia.com&sz=128
+1,Iberia,ES,1.20,https://www.google.com/s2/favicons?domain=iberia.com&sz=128
+1,Air Europa,ES,1.00,https://www.google.com/s2/favicons?domain=aireuropa.com&sz=128
+1,Vueling,ES,0.80,https://www.google.com/s2/favicons?domain=vueling.com&sz=128
+1,Volotea,ES,0.70,https://www.google.com/s2/favicons?domain=volotea.com&sz=128
+1,Binter,ES,1.00,https://www.google.com/s2/favicons?domain=bintercanarias.com&sz=128
+1,Iberia Express,ES,0.80,https://www.google.com/s2/favicons?domain=iberiaexpress.com&sz=128
+1,Air Nostrum,ES,0.90,https://www.google.com/s2/favicons?domain=airnostrum.es&sz=128
+1,Canaryfly,ES,0.70,https://www.google.com/s2/favicons?domain=canaryfly.es&sz=128
+1,Plus Ultra,ES,0.90,https://www.google.com/s2/favicons?domain=plusultra.com&sz=128
+1,Wamos Air,ES,0.90,https://www.google.com/s2/favicons?domain=wamosair.com&sz=128
+1,AlbaStar,ES,0.80,https://www.google.com/s2/favicons?domain=albastar.es&sz=128
+1,TAP Portugal,PT,1.00,https://www.google.com/s2/favicons?domain=flytap.com&sz=128
+1,SATA Azores,PT,1.10,https://www.google.com/s2/favicons?domain=azoresairlines.pt&sz=128
+1,ITA Airways,IT,1.10,https://www.google.com/s2/favicons?domain=ita-airways.com&sz=128
+1,Neos,IT,0.90,https://www.google.com/s2/favicons?domain=neosair.it&sz=128
+1,Air Dolomiti,IT,1.00,https://www.google.com/s2/favicons?domain=airdolomiti.eu&sz=128
+1,Aegean Airlines,GR,1.00,https://www.google.com/s2/favicons?domain=aegeanair.com&sz=128
+1,Olympic Air,GR,0.90,https://www.google.com/s2/favicons?domain=olympicair.com&sz=128
+1,Sky Express,GR,0.80,https://www.google.com/s2/favicons?domain=skyexpress.gr&sz=128
+1,SAS,SE,1.20,https://www.google.com/s2/favicons?domain=flysas.com&sz=128
+1,Norwegian,NO,0.70,https://www.google.com/s2/favicons?domain=norwegian.com&sz=128
+1,Finnair,FI,1.20,https://www.google.com/s2/favicons?domain=finnair.com&sz=128
+1,Icelandair,IS,1.10,https://www.google.com/s2/favicons?domain=icelandair.com&sz=128
+1,Play,IS,0.60,https://www.google.com/s2/favicons?domain=flyplay.com&sz=128
+1,Aer Lingus,IE,1.00,https://www.google.com/s2/favicons?domain=aerlingus.com&sz=128
+1,Swiss,CH,1.40,https://www.google.com/s2/favicons?domain=swiss.com&sz=128
+1,Edelweiss,CH,1.10,https://www.google.com/s2/favicons?domain=flyedelweiss.com&sz=128
+1,Austrian Airlines,AT,1.10,https://www.google.com/s2/favicons?domain=austrian.com&sz=128
+1,Brussels Airlines,BE,1.10,https://www.google.com/s2/favicons?domain=brusselsairlines.com&sz=128
+1,TUI fly,DE,0.80,https://www.google.com/s2/favicons?domain=tui.com&sz=128
+1,Condor,DE,0.90,https://www.google.com/s2/favicons?domain=condor.com&sz=128
+1,Eurowings,DE,0.80,https://www.google.com/s2/favicons?domain=eurowings.com&sz=128
+1,LOT Polish,PL,1.00,https://www.google.com/s2/favicons?domain=lot.com&sz=128
+1,Smartwings,CZ,0.80,https://www.google.com/s2/favicons?domain=smartwings.com&sz=128
+1,Czech Airlines,CZ,1.00,https://www.google.com/s2/favicons?domain=csa.cz&sz=128
+1,Croatia Airlines,HR,1.00,https://www.google.com/s2/favicons?domain=croatiaairlines.com&sz=128
+1,Air Serbia,RS,0.90,https://www.google.com/s2/favicons?domain=airserbia.com&sz=128
+1,Tarom,RO,0.90,https://www.google.com/s2/favicons?domain=tarom.ro&sz=128
+1,Bulgaria Air,BG,0.80,https://www.google.com/s2/favicons?domain=air.bg&sz=128
+1,Air Baltic,LV,1.00,https://www.google.com/s2/favicons?domain=airbaltic.com&sz=128
+1,Luxair,LU,1.30,https://www.google.com/s2/favicons?domain=luxair.lu&sz=128
+1,Air Malta,MT,1.00,https://www.google.com/s2/favicons?domain=airmalta.com&sz=128
+1,Southwest,US,0.90,https://www.google.com/s2/favicons?domain=southwest.com&sz=128
+1,JetBlue,US,1.00,https://www.google.com/s2/favicons?domain=jetblue.com&sz=128
+1,Spirit,US,0.50,https://www.google.com/s2/favicons?domain=spirit.com&sz=128
+1,Frontier,US,0.60,https://www.google.com/s2/favicons?domain=flyfrontier.com&sz=128
+1,Alaska Airlines,US,1.00,https://www.google.com/s2/favicons?domain=alaskaair.com&sz=128
+1,Hawaiian Airlines,US,1.20,https://www.google.com/s2/favicons?domain=hawaiianairlines.com&sz=128
+1,Air Canada,CA,1.10,https://www.google.com/s2/favicons?domain=aircanada.com&sz=128
+1,WestJet,CA,0.90,https://www.google.com/s2/favicons?domain=westjet.com&sz=128
+1,Porter,CA,1.00,https://www.google.com/s2/favicons?domain=flyporter.com&sz=128
+1,Air Transat,CA,0.90,https://www.google.com/s2/favicons?domain=airtransat.com&sz=128
+1,Aeromexico,MX,1.00,https://www.google.com/s2/favicons?domain=aeromexico.com&sz=128
+1,Volaris,MX,0.70,https://www.google.com/s2/favicons?domain=volaris.com&sz=128
+1,Viva Aerobus,MX,0.60,https://www.google.com/s2/favicons?domain=vivaaerobus.com&sz=128
+1,Avianca,CO,0.90,https://www.google.com/s2/favicons?domain=avianca.com&sz=128
+1,Copa Airlines,PA,1.10,https://www.google.com/s2/favicons?domain=copaair.com&sz=128
+1,Aerolineas Argentinas,AR,1.00,https://www.google.com/s2/favicons?domain=aerolineas.com.ar&sz=128
+1,Flybondi,AR,0.60,https://www.google.com/s2/favicons?domain=flybondi.com&sz=128
+1,GOL,BR,0.80,https://www.google.com/s2/favicons?domain=voegol.com.br&sz=128
+1,Azul,BR,0.90,https://www.google.com/s2/favicons?domain=voeazul.com.br&sz=128
+1,Sky Airline,CL,0.70,https://www.google.com/s2/favicons?domain=skyairline.com&sz=128
+1,JetSmart,CL,0.60,https://www.google.com/s2/favicons?domain=jetsmart.com&sz=128
+1,Boliviana de Aviacion,BO,0.80,https://www.google.com/s2/favicons?domain=boa.bo&sz=128
+1,Singapore Airlines,SG,1.60,https://www.google.com/s2/favicons?domain=singaporeair.com&sz=128
+1,Scoot,SG,0.70,https://www.google.com/s2/favicons?domain=flyscoot.com&sz=128
+1,Cathay Pacific,HK,1.40,https://www.google.com/s2/favicons?domain=cathaypacific.com&sz=128
+1,ANA,JP,1.50,https://www.google.com/s2/favicons?domain=ana.co.jp&sz=128
+1,Japan Airlines,JP,1.50,https://www.google.com/s2/favicons?domain=jal.com&sz=128
+1,Peach,JP,0.70,https://www.google.com/s2/favicons?domain=flypeach.com&sz=128
+1,Korean Air,KR,1.30,https://www.google.com/s2/favicons?domain=koreanair.com&sz=128
+1,Asiana,KR,1.20,https://www.google.com/s2/favicons?domain=flyasiana.com&sz=128
+1,China Southern,CN,1.00,https://www.google.com/s2/favicons?domain=csair.com&sz=128
+1,China Eastern,CN,1.00,https://www.google.com/s2/favicons?domain=ceair.com&sz=128
+1,Air China,CN,1.00,https://www.google.com/s2/favicons?domain=airchina.com.cn&sz=128
+1,Hainan Airlines,CN,1.10,https://www.google.com/s2/favicons?domain=hainanairlines.com&sz=128
+1,EVA Air,TW,1.20,https://www.google.com/s2/favicons?domain=evaair.com&sz=128
+1,China Airlines,TW,1.10,https://www.google.com/s2/favicons?domain=china-airlines.com&sz=128
+1,Thai Airways,TH,1.10,https://www.google.com/s2/favicons?domain=thaiairways.com&sz=128
+1,Bangkok Airways,TH,1.20,https://www.google.com/s2/favicons?domain=bangkokair.com&sz=128
+1,Vietnam Airlines,VN,0.90,https://www.google.com/s2/favicons?domain=vietnamairlines.com&sz=128
+1,VietJet Air,VN,0.60,https://www.google.com/s2/favicons?domain=vietjetair.com&sz=128
+1,Garuda Indonesia,ID,1.00,https://www.google.com/s2/favicons?domain=garuda-indonesia.com&sz=128
+1,Lion Air,ID,0.60,https://www.google.com/s2/favicons?domain=lionair.co.id&sz=128
+1,Malaysia Airlines,MY,1.00,https://www.google.com/s2/favicons?domain=malaysiaairlines.com&sz=128
+1,Philippine Airlines,PH,1.00,https://www.google.com/s2/favicons?domain=philippineairlines.com&sz=128
+1,Cebu Pacific,PH,0.70,https://www.google.com/s2/favicons?domain=cebupacificair.com&sz=128
+1,IndiGo,IN,0.60,https://www.google.com/s2/favicons?domain=goindigo.in&sz=128
+1,Air India,IN,1.00,https://www.google.com/s2/favicons?domain=airindia.com&sz=128
+1,SpiceJet,IN,0.60,https://www.google.com/s2/favicons?domain=spicejet.com&sz=128
+1,Vistara,IN,1.20,https://www.google.com/s2/favicons?domain=airvistara.com&sz=128
+1,Saudia,SA,1.10,https://www.google.com/s2/favicons?domain=saudia.com&sz=128
+1,Flynas,SA,0.70,https://www.google.com/s2/favicons?domain=flynas.com&sz=128
+1,Oman Air,OM,1.20,https://www.google.com/s2/favicons?domain=omanair.com&sz=128
+1,Gulf Air,BH,1.10,https://www.google.com/s2/favicons?domain=gulfair.com&sz=128
+1,Kuwait Airways,KW,1.00,https://www.google.com/s2/favicons?domain=kuwaitairways.com&sz=128
+1,Royal Jordanian,JO,1.00,https://www.google.com/s2/favicons?domain=rj.com&sz=128
+1,El Al,IL,1.20,https://www.google.com/s2/favicons?domain=elal.com&sz=128
+1,Qantas,AU,1.30,https://www.google.com/s2/favicons?domain=qantas.com&sz=128
+1,Virgin Australia,AU,1.00,https://www.google.com/s2/favicons?domain=virginaustralia.com&sz=128
+1,Jetstar,AU,0.60,https://www.google.com/s2/favicons?domain=jetstar.com&sz=128
+1,Air New Zealand,NZ,1.30,https://www.google.com/s2/favicons?domain=airnewzealand.com&sz=128
+1,Ethiopian Airlines,ET,1.00,https://www.google.com/s2/favicons?domain=ethiopianairlines.com&sz=128
+1,Royal Air Maroc,MA,1.00,https://www.google.com/s2/favicons?domain=royalairmaroc.com&sz=128
+1,EgyptAir,EG,0.90,https://www.google.com/s2/favicons?domain=egyptair.com&sz=128
+1,Kenya Airways,KE,1.00,https://www.google.com/s2/favicons?domain=kenya-airways.com&sz=128
+1,South African Airways,ZA,1.10,https://www.google.com/s2/favicons?domain=flysaa.com&sz=128
+1,RwandAir,RW,1.00,https://www.google.com/s2/favicons?domain=rwandair.com&sz=128
+1,Tunisair,TN,0.80,https://www.google.com/s2/favicons?domain=tunisair.com&sz=128
+1,Air Algerie,DZ,0.80,https://www.google.com/s2/favicons?domain=airalgerie.dz&sz=128
+2,Renfe,ES,1.00,https://www.google.com/s2/favicons?domain=renfe.com&sz=128
+2,Ave,ES,1.30,https://www.google.com/s2/favicons?domain=renfe.com&sz=128
+2,Avlo,ES,0.70,https://www.google.com/s2/favicons?domain=renfe.com&sz=128
+2,Ouigo,ES,0.60,https://www.google.com/s2/favicons?domain=ouigo.com&sz=128
+2,Iryo,ES,0.90,https://www.google.com/s2/favicons?domain=iryo.eu&sz=128
+2,Alvia,ES,1.10,https://www.google.com/s2/favicons?domain=renfe.com&sz=128
+2,Avant,ES,1.00,https://www.google.com/s2/favicons?domain=renfe.com&sz=128
+2,Media Distancia,ES,0.80,https://www.google.com/s2/favicons?domain=renfe.com&sz=128
+2,Cercanias,ES,0.50,https://www.google.com/s2/favicons?domain=renfe.com&sz=128
+2,Feve,ES,0.60,https://www.google.com/s2/favicons?domain=renfe.com&sz=128
+2,Euskotren,ES,0.60,https://www.google.com/s2/favicons?domain=euskotren.eus&sz=128
+2,FGC,ES,0.60,https://www.google.com/s2/favicons?domain=fgc.cat&sz=128
+2,SNCF,FR,1.10,https://www.google.com/s2/favicons?domain=sncf.com&sz=128
+2,TGV InOui,FR,1.40,https://www.google.com/s2/favicons?domain=sncf-connect.com&sz=128
+2,Ouigo France,FR,0.70,https://www.google.com/s2/favicons?domain=ouigo.com&sz=128
+2,Eurostar,GB,1.80,https://www.google.com/s2/favicons?domain=eurostar.com&sz=128
+2,Thalys,BE,1.60,https://www.google.com/s2/favicons?domain=eurostar.com&sz=128
+2,Deutsche Bahn,DE,1.20,https://www.google.com/s2/favicons?domain=bahn.de&sz=128
+2,ICE,DE,1.40,https://www.google.com/s2/favicons?domain=bahn.de&sz=128
+2,Flixtrain,DE,0.60,https://www.google.com/s2/favicons?domain=flixbus.com&sz=128
+2,Trenitalia,IT,1.00,https://www.google.com/s2/favicons?domain=trenitalia.com&sz=128
+2,Frecciarossa,IT,1.30,https://www.google.com/s2/favicons?domain=trenitalia.com&sz=128
+2,Italo,IT,1.10,https://www.google.com/s2/favicons?domain=italotreno.it&sz=128
+2,SBB,CH,1.60,https://www.google.com/s2/favicons?domain=sbb.ch&sz=128
+2,OBB,AT,1.10,https://www.google.com/s2/favicons?domain=oebb.at&sz=128
+2,Railjet,AT,1.20,https://www.google.com/s2/favicons?domain=oebb.at&sz=128
+2,Nightjet,AT,1.30,https://www.google.com/s2/favicons?domain=nightjet.com&sz=128
+2,Westbahn,AT,0.80,https://www.google.com/s2/favicons?domain=westbahn.at&sz=128
+2,NS,NL,1.10,https://www.google.com/s2/favicons?domain=ns.nl&sz=128
+2,NMBS/SNCB,BE,1.00,https://www.google.com/s2/favicons?domain=belgiantrain.be&sz=128
+2,DSB,DK,1.30,https://www.google.com/s2/favicons?domain=dsb.dk&sz=128
+2,SJ,SE,1.20,https://www.google.com/s2/favicons?domain=sj.se&sz=128
+2,Vy,NO,1.30,https://www.google.com/s2/favicons?domain=vy.no&sz=128
+2,VR,FI,1.20,https://www.google.com/s2/favicons?domain=vr.fi&sz=128
+2,CP,PT,0.80,https://www.google.com/s2/favicons?domain=cp.pt&sz=128
+2,Alfa Pendular,PT,1.10,https://www.google.com/s2/favicons?domain=cp.pt&sz=128
+2,PKP Intercity,PL,0.80,https://www.google.com/s2/favicons?domain=intercity.pl&sz=128
+2,Ceske Drahy,CZ,0.70,https://www.google.com/s2/favicons?domain=cd.cz&sz=128
+2,RegioJet,CZ,0.70,https://www.google.com/s2/favicons?domain=regiojet.com&sz=128
+2,Leo Express,CZ,0.60,https://www.google.com/s2/favicons?domain=leoexpress.com&sz=128
+2,MAV,HU,0.70,https://www.google.com/s2/favicons?domain=mavcsoport.hu&sz=128
+2,CFR,RO,0.60,https://www.google.com/s2/favicons?domain=cfrcalatori.ro&sz=128
+2,OSE,GR,0.80,https://www.google.com/s2/favicons?domain=hellenictrain.gr&sz=128
+2,Hellenic Train,GR,0.80,https://www.google.com/s2/favicons?domain=hellenictrain.gr&sz=128
+2,TCDD,TR,0.70,https://www.google.com/s2/favicons?domain=tcdd.gov.tr&sz=128
+2,YHT,TR,1.00,https://www.google.com/s2/favicons?domain=tcddtasimacilik.gov.tr&sz=128
+2,LNER,GB,1.20,https://www.google.com/s2/favicons?domain=lner.co.uk&sz=128
+2,GWR,GB,1.10,https://www.google.com/s2/favicons?domain=gwr.com&sz=128
+2,Avanti West Coast,GB,1.30,https://www.google.com/s2/favicons?domain=avantiwestcoast.co.uk&sz=128
+2,ScotRail,GB,1.00,https://www.google.com/s2/favicons?domain=scotrail.co.uk&sz=128
+2,CrossCountry,GB,1.10,https://www.google.com/s2/favicons?domain=crosscountrytrains.co.uk&sz=128
+2,Northern,GB,0.80,https://www.google.com/s2/favicons?domain=northernrailway.co.uk&sz=128
+2,TransPennine,GB,0.90,https://www.google.com/s2/favicons?domain=tpexpress.co.uk&sz=128
+2,Amtrak,US,1.40,https://www.google.com/s2/favicons?domain=amtrak.com&sz=128
+2,Acela,US,1.80,https://www.google.com/s2/favicons?domain=amtrak.com&sz=128
+2,Brightline,US,1.50,https://www.google.com/s2/favicons?domain=gobrightline.com&sz=128
+2,Via Rail,CA,1.30,https://www.google.com/s2/favicons?domain=viarail.ca&sz=128
+2,Rocky Mountaineer,CA,2.50,https://www.google.com/s2/favicons?domain=rockymountaineer.com&sz=128
+2,JR East,JP,1.10,https://www.google.com/s2/favicons?domain=jreast.co.jp&sz=128
+2,JR Central,JP,1.20,https://www.google.com/s2/favicons?domain=english.jr-central.co.jp&sz=128
+2,JR West,JP,1.10,https://www.google.com/s2/favicons?domain=westjr.co.jp&sz=128
+2,Shinkansen,JP,1.50,https://www.google.com/s2/favicons?domain=japanrailpass.net&sz=128
+2,China Railway,CN,0.60,https://www.google.com/s2/favicons?domain=12306.cn&sz=128
+2,CRH,CN,0.90,https://www.google.com/s2/favicons?domain=12306.cn&sz=128
+2,Korail,KR,0.90,https://www.google.com/s2/favicons?domain=letskorail.com&sz=128
+2,KTX,KR,1.10,https://www.google.com/s2/favicons?domain=letskorail.com&sz=128
+2,THSR,TW,1.10,https://www.google.com/s2/favicons?domain=thsrc.com.tw&sz=128
+2,Indian Railways,IN,0.40,https://www.google.com/s2/favicons?domain=indianrail.gov.in&sz=128
+2,Vande Bharat,IN,0.80,https://www.google.com/s2/favicons?domain=indianrail.gov.in&sz=128
+2,KTM,MY,0.60,https://www.google.com/s2/favicons?domain=ktmb.com.my&sz=128
+2,SAR,SA,1.20,https://www.google.com/s2/favicons?domain=sar.com.sa&sz=128
+2,Haramain,SA,1.50,https://www.google.com/s2/favicons?domain=hhr.sa&sz=128
+2,ONCF,MA,0.70,https://www.google.com/s2/favicons?domain=oncf.ma&sz=128
+2,Al Boraq,MA,1.10,https://www.google.com/s2/favicons?domain=oncf.ma&sz=128
+3,Alsa,ES,1.00,https://www.google.com/s2/favicons?domain=alsa.es&sz=128
+3,Alsa Supra,ES,1.30,https://www.google.com/s2/favicons?domain=alsa.es&sz=128
+3,Avanza,ES,0.90,https://www.google.com/s2/favicons?domain=avanzabus.com&sz=128
+3,Socibus,ES,0.80,https://www.google.com/s2/favicons?domain=socibus.es&sz=128
+3,Monbus,ES,0.80,https://www.google.com/s2/favicons?domain=monbus.es&sz=128
+3,Hife,ES,0.90,https://www.google.com/s2/favicons?domain=hife.es&sz=128
+3,Damas,ES,0.80,https://www.google.com/s2/favicons?domain=damas-sa.es&sz=128
+3,Vibasa,ES,0.90,https://www.google.com/s2/favicons?domain=monbus.es&sz=128
+3,Lycar,ES,0.70,https://www.google.com/s2/favicons?domain=lycar.es&sz=128
+3,Jimenez Dorado,ES,0.80,https://www.google.com/s2/favicons?domain=jimenezdorado.com&sz=128
+3,Samar,ES,0.70,https://www.google.com/s2/favicons?domain=samar.es&sz=128
+3,La Sepulvedana,ES,0.80,https://www.google.com/s2/favicons?domain=lasepulvedana.es&sz=128
+3,Teisa,ES,0.80,https://www.google.com/s2/favicons?domain=teisa-bus.com&sz=128
+3,Moventis,ES,0.90,https://www.google.com/s2/favicons?domain=moventis.es&sz=128
+3,Bilman Bus,ES,0.90,https://www.google.com/s2/favicons?domain=bilmanbus.es&sz=128
+3,Interbus,ES,0.80,https://www.google.com/s2/favicons?domain=interbus.es&sz=128
+3,Arriva Spain,ES,0.80,https://www.google.com/s2/favicons?domain=arriva.es&sz=128
+3,FlixBus,DE,0.70,https://www.google.com/s2/favicons?domain=flixbus.com&sz=128
+3,BlaBlaBus,FR,0.60,https://www.google.com/s2/favicons?domain=blablacar.es&sz=128
+3,Eurolines,BE,0.80,https://www.google.com/s2/favicons?domain=eurolines.de&sz=128
+3,RegioJet Bus,CZ,0.90,https://www.google.com/s2/favicons?domain=regiojet.com&sz=128
+3,Leo Express Bus,CZ,0.80,https://www.google.com/s2/favicons?domain=leoexpress.com&sz=128
+3,Student Agency,CZ,0.70,https://www.google.com/s2/favicons?domain=studentagency.eu&sz=128
+3,Sindbad,PL,0.80,https://www.google.com/s2/favicons?domain=sindbad.pl&sz=128
+3,Lux Express,EE,1.10,https://www.google.com/s2/favicons?domain=luxexpress.eu&sz=128
+3,Ecolines,LV,0.80,https://www.google.com/s2/favicons?domain=ecolines.net&sz=128
+3,Itabus,IT,0.70,https://www.google.com/s2/favicons?domain=itabus.it&sz=128
+3,Marino Bus,IT,0.90,https://www.google.com/s2/favicons?domain=marinobus.it&sz=128
+3,Rede Expressos,PT,0.90,https://www.google.com/s2/favicons?domain=rede-expressos.pt&sz=128
+3,Eva Transportes,PT,0.80,https://www.google.com/s2/favicons?domain=eva-bus.com&sz=128
+3,National Express,GB,1.00,https://www.google.com/s2/favicons?domain=nationalexpress.com&sz=128
+3,Megabus,GB,0.50,https://www.google.com/s2/favicons?domain=megabus.com&sz=128
+3,Stagecoach,GB,0.80,https://www.google.com/s2/favicons?domain=stagecoachbus.com&sz=128
+3,Citylink,GB,0.90,https://www.google.com/s2/favicons?domain=citylink.co.uk&sz=128
+3,Bus Eireann,IE,0.90,https://www.google.com/s2/favicons?domain=buseireann.ie&sz=128
+3,Croatia Bus,HR,0.80,https://www.google.com/s2/favicons?domain=croatiabus.hr&sz=128
+3,Kamil Koc,TR,0.90,https://www.google.com/s2/favicons?domain=kamilkoc.com.tr&sz=128
+3,Pamukkale,TR,1.00,https://www.google.com/s2/favicons?domain=pamukkale.com.tr&sz=128
+3,Metro Turizm,TR,0.80,https://www.google.com/s2/favicons?domain=metroturizm.com.tr&sz=128
+3,Greyhound,US,0.80,https://www.google.com/s2/favicons?domain=greyhound.com&sz=128
+3,Megabus USA,US,0.60,https://www.google.com/s2/favicons?domain=us.megabus.com&sz=128
+3,BoltBus,US,0.70,https://www.google.com/s2/favicons?domain=boltbus.com&sz=128
+3,Coach USA,US,0.90,https://www.google.com/s2/favicons?domain=coachusa.com&sz=128
+3,Peter Pan,US,0.80,https://www.google.com/s2/favicons?domain=peterpanbus.com&sz=128
+3,Trailways,US,0.90,https://www.google.com/s2/favicons?domain=trailways.com&sz=128
+3,Jefferson Lines,US,0.80,https://www.google.com/s2/favicons?domain=jeffersonlines.com&sz=128
+3,Red Arrow,CA,1.20,https://www.google.com/s2/favicons?domain=redarrow.ca&sz=128
+3,Rider Express,CA,0.80,https://www.google.com/s2/favicons?domain=riderexpress.ca&sz=128
+3,ADO,MX,1.00,https://www.google.com/s2/favicons?domain=ado.com.mx&sz=128
+3,ADO Platino,MX,1.40,https://www.google.com/s2/favicons?domain=ado.com.mx&sz=128
+3,ADO GL,MX,1.20,https://www.google.com/s2/favicons?domain=ado.com.mx&sz=128
+3,OCC,MX,0.80,https://www.google.com/s2/favicons?domain=ado.com.mx&sz=128
+3,Estrella de Oro,MX,0.90,https://www.google.com/s2/favicons?domain=estrelladeoro.com.mx&sz=128
+3,Primera Plus,MX,1.10,https://www.google.com/s2/favicons?domain=primeraplus.com.mx&sz=128
+3,ETN,MX,1.30,https://www.google.com/s2/favicons?domain=etn.com.mx&sz=128
+3,Turistar,MX,1.30,https://www.google.com/s2/favicons?domain=etn.com.mx&sz=128
+3,Futura,MX,0.90,https://www.google.com/s2/favicons?domain=futura.com.mx&sz=128
+3,Chihuahuenses,MX,0.80,https://www.google.com/s2/favicons?domain=chihuahuenses.com.mx&sz=128
+3,Cruz del Sur,PE,1.30,https://www.google.com/s2/favicons?domain=cruzdelsur.com.pe&sz=128
+3,Civa,PE,0.90,https://www.google.com/s2/favicons?domain=civa.com.pe&sz=128
+3,Oltursa,PE,1.10,https://www.google.com/s2/favicons?domain=oltursa.pe&sz=128
+3,Movil Bus,PE,0.90,https://www.google.com/s2/favicons?domain=movilbus.pe&sz=128
+3,Turbus,CL,1.00,https://www.google.com/s2/favicons?domain=turbus.cl&sz=128
+3,Pullman Bus,CL,0.90,https://www.google.com/s2/favicons?domain=pullmanbus.cl&sz=128
+3,Condor Bus,CL,0.80,https://www.google.com/s2/favicons?domain=condorbus.cl&sz=128
+3,EME Bus,CL,1.10,https://www.google.com/s2/favicons?domain=emebus.cl&sz=128
+3,Flecha Bus,AR,1.00,https://www.google.com/s2/favicons?domain=flechabus.com.ar&sz=128
+3,Via Bariloche,AR,1.10,https://www.google.com/s2/favicons?domain=viabariloche.com.ar&sz=128
+3,Chevallier,AR,1.00,https://www.google.com/s2/favicons?domain=nuevachevallier.com&sz=128
+3,Andesmar,AR,1.00,https://www.google.com/s2/favicons?domain=andesmar.com&sz=128
+3,Plusmar,AR,0.90,https://www.google.com/s2/favicons?domain=plusmar.com.ar&sz=128
+3,Urquiza,AR,0.90,https://www.google.com/s2/favicons?domain=generalurquiza.com.ar&sz=128
+3,Expreso Brasilia,CO,0.90,https://www.google.com/s2/favicons?domain=expresobrasilia.com&sz=128
+3,Copetran,CO,0.90,https://www.google.com/s2/favicons?domain=copetran.com&sz=128
+3,Bolivariano,CO,1.00,https://www.google.com/s2/favicons?domain=bolivariano.com.co&sz=128
+3,Berlinas,CO,1.10,https://www.google.com/s2/favicons?domain=berlinas.com&sz=128
+3,Itapemirim,BR,0.90,https://www.google.com/s2/favicons?domain=itapemirim.com.br&sz=128
+3,Cometa,BR,1.00,https://www.google.com/s2/favicons?domain=viacaocometa.com.br&sz=128
+3,1001,BR,1.00,https://www.google.com/s2/favicons?domain=autoviacao1001.com.br&sz=128
+3,Gontijo,BR,0.90,https://www.google.com/s2/favicons?domain=gontijo.com.br&sz=128
+3,Catarinense,BR,1.00,https://www.google.com/s2/favicons?domain=catarinense.com.br&sz=128
+3,Willer Express,JP,1.00,https://www.google.com/s2/favicons?domain=willerexpress.com&sz=128
+3,JR Bus,JP,1.10,https://www.google.com/s2/favicons?domain=jrbus-dreamgo.jp&sz=128
+3,Nihon Kotsu,JP,1.00,https://www.google.com/s2/favicons?domain=nihonkotsu.co.jp&sz=128
+3,Greyhound Australia,AU,1.00,https://www.google.com/s2/favicons?domain=greyhound.com.au&sz=128
+3,Murrays,AU,1.10,https://www.google.com/s2/favicons?domain=murrays.com.au&sz=128
+3,Firefly Express,AU,0.90,https://www.google.com/s2/favicons?domain=fireflyexpress.com.au&sz=128
+3,InterCity,NZ,1.00,https://www.google.com/s2/favicons?domain=intercity.co.nz&sz=128
+3,Nakhonchai Air,TH,1.10,https://www.google.com/s2/favicons?domain=nakhonchaiair.com&sz=128
+3,The Transport Co,TH,0.80,https://www.google.com/s2/favicons?domain=transport.co.th&sz=128
+3,Sombat Tour,TH,0.90,https://www.google.com/s2/favicons?domain=sombattour.com&sz=128
+3,Phuong Trang,VN,0.90,https://www.google.com/s2/favicons?domain=futabus.vn&sz=128
+3,Sinh Tourist,VN,0.80,https://www.google.com/s2/favicons?domain=thesinhtourist.vn&sz=128
+3,KSRTC,IN,0.70,https://www.google.com/s2/favicons?domain=ksrtc.in&sz=128
+3,MSRTC,IN,0.60,https://www.google.com/s2/favicons?domain=msrtc.gov.in&sz=128
+3,RedBus Operator,IN,0.80,https://www.google.com/s2/favicons?domain=redbus.in&sz=128
+3,CTM,MA,1.00,https://www.google.com/s2/favicons?domain=ctm.ma&sz=128
+3,Supratours,MA,0.90,https://www.google.com/s2/favicons?domain=supratours.ma&sz=128
+3,Intercape,ZA,1.10,https://www.google.com/s2/favicons?domain=intercape.co.za&sz=128
+3,Greyhound ZA,ZA,1.00,https://www.google.com/s2/favicons?domain=greyhound.co.za&sz=128
