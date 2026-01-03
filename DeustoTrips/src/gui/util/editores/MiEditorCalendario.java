@@ -6,17 +6,17 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +34,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellEditor;
 
+import com.toedter.calendar.IDateEvaluator;
 import com.toedter.calendar.JCalendar;
 
 import gui.util.MiButton;
@@ -149,26 +150,27 @@ public class MiEditorCalendario extends AbstractCellEditor implements TableCellE
 		
 		if (panelEditor.isShowing()) {
 			
+			generarListaDiasOcupados();
+			
 			// Creación y personalización del calendario
 			
 			jCalendar = new JCalendar();
 			jCalendar.setPreferredSize(new Dimension(245, 250));
+			jCalendar.setFont(Main.FUENTE.deriveFont(13f));
 			jCalendar.setDecorationBackgroundColor(Color.WHITE);
+			jCalendar.setWeekdayForeground(Color.BLACK);
 			jCalendar.setWeekOfYearVisible(false);
 			jCalendar.getDayChooser().setAlwaysFireDayProperty(false);
-			jCalendar.setFont(Main.FUENTE.deriveFont(13f));
-			jCalendar.setWeekdayForeground(Color.BLACK);
 			
-			jCalendar.addPropertyChangeListener("calendar", new PropertyChangeListener() {
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) {
-					// Solo pintamos si el popup existe y está visible
-					if (dialogoPopUp != null && dialogoPopUp.isVisible()) {
-						pintarDiasEnElCalendario();
-					}
-				}
-			});
-			
+			// Le añadimos nuestro evaluador. El calendario se encargará de pintar solo.
+	        jCalendar.getDayChooser().addDateEvaluator(new EvaluadorReservas());
+	        
+	        // Para evitar bugs visuales
+	        
+	        quitarActionListenersDias();
+	        
+	        jCalendar.addPropertyChangeListener("calendar", (e) -> quitarActionListenersDias());
+	        
 			// Personalización del comboBox
 			
 			JComboBox<?> comboBoxCalendario = (JComboBox<?>) jCalendar.getMonthChooser().getComboBox();		// Se pone así para que no lanze warnings aunque sabemos que va a ser de Strings
@@ -231,13 +233,14 @@ public class MiEditorCalendario extends AbstractCellEditor implements TableCellE
 			panelBorde.setBorder(Main.DEFAULT_LINE_BORDER);
 			panelBorde.add(jCalendar, BorderLayout.CENTER);
 			
+			// Hacemos lo siguiente para refrescar el calendario al abrirlo
+			
+			jCalendar.setCalendar(jCalendar.getCalendar());
+			
 			// Metemos el panel al dialogo
 			
 			dialogoPopUp.add(panelBorde);
 			dialogoPopUp.pack();
-			
-			generarListaDiasOcupados();
-			pintarDiasEnElCalendario();
 			
 			Point loc = panelEditor.getLocationOnScreen();
 			dialogoPopUp.setLocation(loc.x - 1, loc.y + panelEditor.getHeight());
@@ -255,10 +258,9 @@ public class MiEditorCalendario extends AbstractCellEditor implements TableCellE
 		
 		if (mapaReservasActual != null) {
 			
-			for (Map.Entry<LocalDate, LocalDate> entry : mapaReservasActual.entrySet()) {
+			for (LocalDate inicio : mapaReservasActual.keySet()) {
 				
-				LocalDate inicio = entry.getKey();
-				LocalDate fin = entry.getValue();
+				LocalDate fin = mapaReservasActual.get(inicio);
 				
 				long dias = ChronoUnit.DAYS.between(inicio, fin);
 				
@@ -271,40 +273,73 @@ public class MiEditorCalendario extends AbstractCellEditor implements TableCellE
 		
 	}
 	
-	private void pintarDiasEnElCalendario() {
+	private void quitarActionListenersDias() {
 		
 		JPanel panelDia = jCalendar.getDayChooser().getDayPanel();
-		Calendar calActual = jCalendar.getCalendar();
-		int mesActual = calActual.get(Calendar.MONTH) + 1; 
-		int anioActual = calActual.get(Calendar.YEAR);
 		
 		for (Component componente : panelDia.getComponents()) {
-			
+				
 			if (componente instanceof JButton) {
-				
+					
 				JButton botonDia = (JButton) componente;
-				
-				botonDia.setBackground(Color.WHITE);
-				botonDia.setForeground(Color.BLACK);
-				
-				try {
 					
-					int diaNumero = Integer.parseInt(botonDia.getText());
-					LocalDate fechaBoton = LocalDate.of(anioActual, mesActual, diaNumero);
-					
-					if (listaDiasOcupados.contains(fechaBoton)) {
-						
-						botonDia.setBackground(new Color(255, 140, 0)); 
-						botonDia.setForeground(Color.WHITE);
-						
-					}
-					
-				} catch (Exception ex) { }
+				botonDia.setFocusable(false);
 				
+				for (ActionListener al : botonDia.getActionListeners()) botonDia.removeActionListener(al);
+					
 			}
-			
+				
 		}
 		
+	}
+	
+	private class EvaluadorReservas implements IDateEvaluator {
+		
+		private boolean isToday = false;
+		private boolean isReservado = false;
+		
+	    @Override
+	    public boolean isSpecial(Date date) {
+	        // Convertimos el Date (viejo) de JCalendar a LocalDate (nuevo)
+	        LocalDate fechaCalendario = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+	        
+	        isToday = fechaCalendario.equals(LocalDate.now());
+	        
+	        // Si la lista contiene esta fecha, devolvemos TRUE
+	        isReservado =  listaDiasOcupados != null && listaDiasOcupados.contains(fechaCalendario);
+	        
+	        return true;
+	    }
+
+	    @Override
+	    public Color getSpecialBackroundColor() {
+	        return isReservado? new Color(255, 140, 0) : (isToday? Color.LIGHT_GRAY : Color.WHITE);
+	    }
+
+	    @Override
+	    public Color getSpecialForegroundColor() {
+	        return isReservado? Color.WHITE : Color.BLACK;
+	    }
+
+	    @Override
+	    public String getSpecialTooltip() {
+	        return isReservado? "Fecha reservada" : null;
+	    }
+	    
+	    @Override public boolean isInvalid(Date date) { 
+	    	return false; 
+	    }
+	    
+	    @Override public Color getInvalidBackroundColor() { 
+	    	return null;
+	    }
+	    @Override public Color getInvalidForegroundColor() { 
+	    	return null;
+	    }
+	    @Override public String getInvalidTooltip() { 
+	    	return null;
+	    }
+
 	}
 
 }

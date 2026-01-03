@@ -22,7 +22,6 @@ import com.jidesoft.swing.RangeSlider;				// Añadimos esta librería para crear
 
 import gui.main.PanelAlojamientos;
 import gui.main.PanelPestanasBusqueda;
-import gui.main.PanelViajeAlojamiento;
 import gui.main.PanelViajes;
 import gui.util.MiTextField;
 import main.Main;
@@ -278,17 +277,6 @@ public class FiltroPrecio extends JPanel {
 			}
 			
 			return 1000 * ((PanelViajes) panelSeleccionado).getNPersonas() * (((PanelViajes) panelSeleccionado).getTipo().equals("Ida")? 1 : 2);
-			
-		} else if (panelSeleccionado instanceof PanelViajeAlojamiento) {
-			
-			precioMaximo = 10000 * ((PanelViajeAlojamiento) panelSeleccionado).getNPersonas() * ((PanelViajeAlojamiento) panelSeleccionado).getNNoches() + 1000 * ((PanelViajeAlojamiento) panelSeleccionado).getNPersonas() * 2;
-			
-			for (FiltroPrecio filtroPrecio : misFiltrosPrecio) {
-				filtroPrecio.getRangeSlider().setMaximum(precioMaximo);
-				filtroPrecio.getMaximoTF().setText(Integer.toString(precioMaximo));
-			}
-			
-			return 10000 * ((PanelViajeAlojamiento) panelSeleccionado).getNPersonas() * ((PanelViajeAlojamiento) panelSeleccionado).getNNoches() + 1000 * ((PanelViajeAlojamiento) panelSeleccionado).getNPersonas() * 2;
 			
 		}
 		

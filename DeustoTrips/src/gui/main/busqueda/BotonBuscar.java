@@ -17,7 +17,6 @@ import domain.Destino;
 import gui.main.PanelAlojamientos;
 import gui.main.PanelPestanasBusqueda;
 import gui.main.PanelResultadosBusqueda;
-import gui.main.PanelViajeAlojamiento;
 import gui.main.PanelViajes;
 import gui.util.MiButton;
 import gui.util.PanelAlojamiento;
@@ -126,11 +125,7 @@ public class BotonBuscar extends MiButton {
 						
 						// TODO Interfaz viajes y cargar viajes a la BD
 						
-					} else if (panelSeleccionado instanceof PanelViajeAlojamiento) {
-						
-						// TODO Interfaz viajes y lógica
-						
-					}
+					} 
 				
 				});
 				

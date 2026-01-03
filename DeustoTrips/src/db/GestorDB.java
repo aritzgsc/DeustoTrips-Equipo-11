@@ -1676,6 +1676,43 @@ public class GestorDB {
 
 	// FIN Función para modificar apartamentos
 	////
+	// Función para borrar un apartamento
+	
+	public static boolean borrarApartamento(int idAp) {
+		
+		boolean apartamentoBorradoCorrectamente = false;
+		
+		String sql = """
+					 DELETE FROM APARTAMENTO
+					 WHERE ID_AP = ?
+					 """;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING + "&foreign_keys=on");
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			pstmt.setInt(1, idAp);
+			
+			int rowCount = pstmt.executeUpdate();
+			
+			if (rowCount > 0) {
+				
+				apartamentoBorradoCorrectamente = true;
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al eliminar el apartamento de la BD");
+			e.printStackTrace();
+			
+		}
+		
+		return apartamentoBorradoCorrectamente;
+		
+	}
+	
+	// FIN Función para borrar un apartamento
+	////
 	// Función para conseguir las fechas de las reservas de un apartamento 
 	
 	public static Map<LocalDate, LocalDate> getFechasReservasApartamento(Apartamento apartamento) {

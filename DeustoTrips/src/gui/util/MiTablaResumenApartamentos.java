@@ -2,15 +2,24 @@ package gui.util;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.JTableHeader;
 
+import db.GestorDB;
 import domain.Apartamento;
 import gui.main.VentanaMostrarResenas;
 import gui.util.editores.MiEditorCalendario;
@@ -39,6 +48,9 @@ public class MiTablaResumenApartamentos extends JTable {
 		setShowVerticalLines(false);
 		setGridColor(new Color(230, 230, 230));
 		setBorder(Main.DEFAULT_LINE_BORDER);
+		setCellSelectionEnabled(false);
+		setColumnSelectionAllowed(false);
+		setRowSelectionAllowed(true);
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		getColumnModel().getColumn(0).setPreferredWidth(230); // Nombre
@@ -95,6 +107,55 @@ public class MiTablaResumenApartamentos extends JTable {
 				}
 			}
 
+		});
+		
+		addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				
+				if (e.getKeyCode() == KeyEvent.VK_DELETE && getSelectedRow() != -1) {
+					
+					Apartamento apartamentoSeleccionado = apartamentosListaOrdenada.get(getSelectedRow());
+					
+					MiButton botonSi = new MiButton("Si");
+					MiButton botonNo = new MiButton("No");
+
+					Object[] opciones = { botonSi, botonNo };
+
+					JLabel mensaje = new JLabel("¿Estás seguro de que quieres eliminar el apartamento " + apartamentoSeleccionado.getNombre() + "?");
+					mensaje.setFont(Main.FUENTE.deriveFont(16f));
+
+					JOptionPane pregunta = new JOptionPane(mensaje, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION, new ImageIcon(new ImageIcon("resources/images/icono_imagen.jpg").getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH)), opciones, botonSi);
+					pregunta.setValue(JOptionPane.NO_OPTION);
+					
+					botonSi.addActionListener((e1) -> pregunta.setValue(JOptionPane.YES_OPTION));
+					botonNo.addActionListener((e1) -> pregunta.setValue(JOptionPane.NO_OPTION));
+
+					JDialog dialog = pregunta.createDialog(MiTablaResumenApartamentos.this.getParent(), "Confirmación");
+					dialog.setVisible(true);
+
+					if ((int) pregunta.getValue() == JOptionPane.YES_OPTION) {
+
+						boolean apartamentoCorrectamenteEliminado = GestorDB.borrarApartamento(apartamentoSeleccionado.getId());
+
+						if (apartamentoCorrectamenteEliminado) {
+
+							apartamentosListaOrdenada.remove(apartamentoSeleccionado);
+							dineroGenPorApartamento.remove(apartamentoSeleccionado);
+
+							modelo.fireTableDataChanged();
+							
+							if (apartamentosListaOrdenada.isEmpty()) SwingUtilities.getWindowAncestor(MiTablaResumenApartamentos.this).dispose();
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
 		});
 		
 	}

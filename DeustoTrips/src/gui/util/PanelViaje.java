@@ -46,6 +46,7 @@ import domain.Viaje.TipoViaje;
 import gui.main.PanelPestanasBusqueda;
 import gui.main.PanelResultadosBusqueda;
 import gui.main.PanelVolverRegistrarseIniciarSesion;
+import gui.main.VentanaDetallesViaje;
 import gui.main.busqueda.BotonBuscar;
 import main.Main;
 import main.util.MailSender;
@@ -363,7 +364,7 @@ public class PanelViaje extends JPanel {
 		detallesB.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 		
 		detallesB.addActionListener(e -> {
-//			new VentanaDetallesViaje(viajesIda, fechaSalidaIda, nPersonas, modo);
+			new VentanaDetallesViaje(viajesIda, fechaSalidaIda, nPersonas, modo);
 		});
 		
 		MiButton reservarB = new MiButton("Reservar");
@@ -967,7 +968,7 @@ public class PanelViaje extends JPanel {
 		detallesIdaB.setPreferredSize(new Dimension(detallesIdaB.getPreferredSize().width, 60));
 		detallesIdaB.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 		detallesIdaB.addActionListener(e -> {
-//			new VentanaDetallesViaje(viajesIda, fechaSalidaIda, nPersonas, modo);
+			new VentanaDetallesViaje(viajesIda, fechaSalidaIda, nPersonas, modo);
 		});
 		
 		MiButton detallesVueltaB = new MiButton("Detalles Vuelta");
@@ -975,7 +976,7 @@ public class PanelViaje extends JPanel {
 		detallesVueltaB.setPreferredSize(new Dimension(detallesVueltaB.getPreferredSize().width, 60));
 		detallesVueltaB.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 		detallesVueltaB.addActionListener(e -> {
-//			new VentanaDetallesViaje(viajesVuelta, fechaSalidaVuelta, nPersonas, modo);
+			new VentanaDetallesViaje(viajesVuelta, fechaSalidaVuelta, nPersonas, modo);
 		});
 		
 		panelBotonesDetalles.add(detallesIdaB);
