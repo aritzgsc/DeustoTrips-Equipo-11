@@ -4,10 +4,19 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.border.LineBorder;
 
+import db.GestorDB;
+import domain.Aeropuerto;
+import domain.Compania;
+import domain.Destino;
 import gui.main.VentanaPrincipal;
+import gui.main.busqueda.MiSelectorDestino;
 
 // Clase con el método main y algunos genéricos útiles que utilizaremos en todo el proyecto para garantizar que el proyecto tenga un formato fácil de modificar
 
@@ -67,9 +76,40 @@ public class Main {
 		        
 	};
 	
+	public static Map<Integer, Destino> destinoPorIndice;
+	
+	public static Map<Integer, Compania> companiaPorIndice;
+	
+	public static Map<Integer, List<Aeropuerto>> aeropuertosPorIndiceCiudad;
+	
 	public static void main(String[] args) {
 		
 		new VentanaPrincipal();
+		
+		destinoPorIndice = new HashMap<Integer, Destino>();
+		
+		List<Destino> destinos = MiSelectorDestino.getTodosDestinos();
+		
+		for (Destino destino : destinos) {
+			if (!destinoPorIndice.containsKey(destino.getId())) destinoPorIndice.put(destino.getId(), destino);
+		}
+		
+		companiaPorIndice = new HashMap<Integer, Compania>();
+		
+		List<Compania> companias = GestorDB.getCompanias();
+		
+		for (Compania compania : companias) {
+			if (!companiaPorIndice.containsKey(compania.getId())) companiaPorIndice.put(compania.getId(), compania);
+		}
+		
+		aeropuertosPorIndiceCiudad = new HashMap<Integer, List<Aeropuerto>>();
+		
+		for (Destino destino : destinos) {
+			if (destino instanceof Aeropuerto) {
+				if (!aeropuertosPorIndiceCiudad.containsKey(((Aeropuerto) destino).getCiudad().getId())) aeropuertosPorIndiceCiudad.put(((Aeropuerto) destino).getCiudad().getId(), new ArrayList<Aeropuerto>());
+				aeropuertosPorIndiceCiudad.get(((Aeropuerto) destino).getCiudad().getId()).add((Aeropuerto) destino);
+			}
+		}
 		
 	}
 

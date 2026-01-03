@@ -27,14 +27,18 @@ import domain.Alojamiento;
 import domain.Apartamento;
 import domain.Ciudad;
 import domain.Cliente;
+import domain.Compania;
 import domain.Destino;
 import domain.Hotel;
 import domain.Pais;
 import domain.Resena;
 import domain.Viaje;
+import domain.Viaje.TipoViaje;
 import gui.main.PanelPestanasBusqueda;
 import gui.main.PanelVolverRegistrarseIniciarSesion;
+import gui.main.busqueda.MiSelectorDestino;
 import gui.util.PanelAlojamiento;
+import main.Main;
 
 // Clase que contiene todos los métodos que utilizan la BD
 
@@ -299,36 +303,25 @@ public class GestorDB {
 
 	// FIN Función recursiva para obtener el destino a partir de su ID
 	////
-	// Función para obtener las ciudades de un país a partir de un código ISO (utilizado solamente para cargar datos en la BD)
-
-	public static List<Ciudad> getCiudadesPais(String isoCode) {
-
-		List<Ciudad> ciudadesPais = new ArrayList<Ciudad>();
-
+	// Funcion para obtener un país a partir de su codigo ISO (También con Global) (utilizado solamente para cargar datos en la BD)
+	
+	public static Pais getPais(String isoCode) {
+		
+		Pais pais = null;
+		
 		String sqlPais = """
 						 SELECT ID_D, NOM_D, LAT_D, LON_D, BANDERA 
 						 FROM DESTINO D, IMAGEN_DESTINO ID 
-						 WHERE ID_TD = 1 AND D.ISO_CODE = ID.ISO_CODE AND D.ISO_CODE = ?;
+						 WHERE (ID_TD = 0 OR ID_TD = 1) AND D.ISO_CODE = ID.ISO_CODE AND D.ISO_CODE = ?;
 						 """;
 		
-		String sqlCiudades = """
-							 SELECT * 
-							 FROM DESTINO 
-							 WHERE ID_TD = 2 AND ISO_CODE = ?;
-							 """;
-
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
-			 PreparedStatement pstmtPais = con.prepareStatement(sqlPais);
-			 PreparedStatement pstmtCiudades = con.prepareStatement(sqlCiudades)) {
-
-			pstmtPais.setString(1, isoCode);
-
-			ResultSet rsPais = pstmtPais.executeQuery();
-
-			// Recuperamos el país al que pertenecerán todas las ciudades posteriormente
+			 PreparedStatement pstmt = con.prepareStatement(sqlPais)) {
 			
-			Pais paisCiudades = null;
+			pstmt.setString(1, isoCode);
 
+			ResultSet rsPais = pstmt.executeQuery();
+			
 			if (rsPais.next()) {
 
 				ImageIcon bandera = null;
@@ -336,10 +329,15 @@ public class GestorDB {
 				try {
 
 					byte[] imagenBytes = rsPais.getBytes("BANDERA");
-					ByteArrayInputStream bais = new ByteArrayInputStream(imagenBytes);
+					
+					if (imagenBytes != null) {
+					
+						ByteArrayInputStream bais = new ByteArrayInputStream(imagenBytes);
+	
+						bandera = new ImageIcon(ImageIO.read(bais));
 
-					bandera = new ImageIcon(ImageIO.read(bais));
-
+					}
+					
 				} catch (IOException e) {
 
 					System.err.println("Error al cargar la bandera del país");
@@ -347,7 +345,42 @@ public class GestorDB {
 
 				}
 
-				paisCiudades = new Pais(rsPais.getInt("ID_D"), rsPais.getString("NOM_D"), rsPais.getDouble("LAT_D"), rsPais.getDouble("LON_D"), bandera);
+				pais = new Pais(rsPais.getInt("ID_D"), rsPais.getString("NOM_D"), rsPais.getDouble("LAT_D"), rsPais.getDouble("LON_D"), bandera);
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al cargar el país con codigo: " + isoCode);
+			
+		}
+		
+		return pais;
+		
+	}
+	
+	// FIN Funcion para obtener un país a partir de su codigo ISO
+	////
+	// Función para obtener las ciudades de un país a partir de un código ISO (utilizado solamente para cargar datos en la BD)
+
+	public static List<Ciudad> getCiudadesPais(String isoCode) {
+
+		List<Ciudad> ciudadesPais = new ArrayList<Ciudad>();
+		
+		String sql = """
+					 SELECT * 
+					 FROM DESTINO 
+					 WHERE ID_TD = 2 AND ISO_CODE = ?;
+					 """;
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmtCiudades = con.prepareStatement(sql)) {
+
+			// Recuperamos el país al que pertenecerán todas las ciudades posteriormente
+			
+			Pais paisCiudades = getPais(isoCode);
+
+			if (paisCiudades != null) {
 
 				pstmtCiudades.setString(1, isoCode);
 
@@ -377,6 +410,32 @@ public class GestorDB {
 	}
 
 	// Función para obtener las ciudades de un país a partir de un código ISO
+	////
+	// Función para obtener todos los aeropuertos de la BD
+
+	public static List<Aeropuerto> getAeropuertos() {
+		
+		List<Aeropuerto> aeropuertos = new ArrayList<Aeropuerto>();
+		
+		for (Destino aeropuerto : MiSelectorDestino.getTodosDestinos()) {
+			if (aeropuerto instanceof Aeropuerto) aeropuertos.add((Aeropuerto) aeropuerto);
+		}
+		
+		return aeropuertos;
+		
+	} 
+	
+	// Función para obtener todos los aeropuertos de la BD
+	////
+	// Función para saber si una ciudad tiene aeropuertos o no
+	
+	public static boolean tieneAeropuertos(Ciudad ciudad) {
+			
+		return Main.aeropuertosPorIndiceCiudad.get(ciudad.getId()) != null && !Main.aeropuertosPorIndiceCiudad.get(ciudad.getId()).isEmpty();
+			
+	}
+		
+	// Función para saber si una ciudad tiene aeropuertos o no
 	////
 	// Función para comprobar si un correo está registrado en la BD
 	
@@ -1753,6 +1812,62 @@ public class GestorDB {
 	}
 
 	// FIN Función para conseguir las fechas de las reservas de un apartamento
+	////
+	// Función para conseguir todas las compañías de viajes (Usado para cargar viajes en la BD y cargar el mapa de compañías por indice del Main)
+	
+	public static List<Compania> getCompanias() {
+		
+		List<Compania> companias = new ArrayList<Compania>();
+		
+		String sql = """
+					 SELECT *
+					 FROM COMPANIA;
+					 """;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				
+				int id = rs.getInt("ID_COMP");
+				String nombre = rs.getString("NOM_COMP");
+				double factorPrecio = rs.getDouble("FACTOR_PRECIO");
+				
+				byte[] logoBytes = rs.getBytes("LOGO_COMP");
+				
+				BufferedImage logo = null;
+				try {
+					
+					ByteArrayInputStream bais = new ByteArrayInputStream(logoBytes);
+					logo = ImageIO.read(bais);
+					
+				} catch (IOException e) {
+					
+					System.err.println("Error al cargar el logo de la compañía");
+					
+				}
+				
+				TipoViaje tipoViaje = TipoViaje.getTipoViaje(rs.getInt("ID_TV"));
+				Pais paisOrigen = (Pais) Main.destinoPorIndice.get(rs.getInt("ID_D"));
+				
+				companias.add(new Compania(id, nombre, factorPrecio, logo, tipoViaje, paisOrigen));
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al cargar las compañías de la BD");
+			e.printStackTrace();
+			
+		}
+		
+		return companias;
+		
+	}
+	
+	// FIN Función para conseguir todas las compañías de viajes
 	////
 	// Funciónes para reservar viajes
 	

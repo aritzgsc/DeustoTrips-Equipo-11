@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -19,7 +20,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,8 +37,13 @@ import com.google.gson.Gson;
 
 import domain.Aeropuerto;
 import domain.Ciudad;
+import domain.Compania;
+import domain.Destino;
 import domain.Hotel;
 import domain.Pais;
+import domain.Viaje;
+import domain.Viaje.DiaSemana;
+import domain.Viaje.TipoViaje;
 import main.util.Utilidades;
 
 // NO EJECUTAR VARIAS VECES (TENER CUIDADO CON COMO SE EJECUTA)
@@ -58,8 +66,40 @@ public class LoaderDB {
 		}
 	}
 
+	public static Map<Integer, Destino> destinoPorIndice;
+	
+	public static Map<Integer, Compania> companiaPorIndice;
+	
+	public static Map<Integer, List<Aeropuerto>> aeropuertosPorIndiceCiudad;
+	
 	public static void main(String[] args) {
-
+		
+		destinoPorIndice = new HashMap<Integer, Destino>();
+		
+		List<Destino> destinos = GestorDB.cargarDestinos();
+		destinos.add(GestorDB.getDestino(0));
+		
+		for (Destino destino : destinos) {
+			if (!destinoPorIndice.containsKey(destino.getId())) destinoPorIndice.put(destino.getId(), destino);
+		}
+		
+		companiaPorIndice = new HashMap<Integer, Compania>();
+		
+		List<Compania> companias = GestorDB.getCompanias();
+		
+		for (Compania compania : companias) {
+			if (!companiaPorIndice.containsKey(compania.getId())) companiaPorIndice.put(compania.getId(), compania);
+		}
+		
+		aeropuertosPorIndiceCiudad = new HashMap<Integer, List<Aeropuerto>>();
+		
+		for (Destino destino : destinos) {
+			if (destino instanceof Aeropuerto) {
+				if (!aeropuertosPorIndiceCiudad.containsKey(((Aeropuerto) destino).getCiudad().getId())) aeropuertosPorIndiceCiudad.put(((Aeropuerto) destino).getCiudad().getId(), new ArrayList<Aeropuerto>());
+				aeropuertosPorIndiceCiudad.get(((Aeropuerto) destino).getCiudad().getId()).add((Aeropuerto) destino);
+			}
+		}
+		
 		// Carga de DESTINOS
 
 		// Primero cargamos las banderas
@@ -84,6 +124,21 @@ public class LoaderDB {
 
 //		cargarHotelesEnDB();
 
+		// FIN Carga de HOTELES
+		////
+		// Carga de VIAJES (Itinerarios de viajes (suponemos que todas las semanas habrán los mismos viajes a las mismas horas))
+		
+		// Primero cargamos las compañías a partir del CSV que hemos creado con la otra clase
+		
+//		cargarCompaniasEnBD();
+		
+		// Luego cargamos todos los viajes
+		
+//		cargarViajesEnDB(false);												// Todas las ciudades
+//		cargarViajesEnDB(true);													// Ciudades grandes
+		
+		// FIN Carga de VIAJES
+		
 	}
 
 	// Cargar banderas en DB (cargarBanderasEnDB)
@@ -356,6 +411,70 @@ public class LoaderDB {
 
 	}
 
+	public static List<Ciudad> cargarCiudadesGrandesCSV() {
+
+		Map<String, Pais> paisesPorISO = cargarPaisesCSV();
+
+		List<Ciudad> ciudadesGrandes = new ArrayList<Ciudad>();
+
+		int nLinea = 0;
+
+		File fichero = new File("resources/db/cities15000.txt");
+
+		try (BufferedReader br = new BufferedReader(
+				new InputStreamReader(new FileInputStream(fichero), StandardCharsets.UTF_8))) {
+
+			String linea;
+			while ((linea = br.readLine()) != null) {
+
+				nLinea++;
+
+				try {
+
+					String[] campos = linea.split("\t");
+
+					if (campos.length > 14) {
+
+						int poblacion = 0;
+						
+						if (!campos[14].isEmpty()) poblacion = Integer.parseInt(campos[14]);
+						
+						if (poblacion > 200000) {
+						
+							Pais paisCiudad = paisesPorISO.get(campos[8]);
+	
+							if (paisCiudad != null) {
+	
+								Ciudad ciudad = new Ciudad(200000 + nLinea, paisCiudad, campos[1], Double.parseDouble(campos[4]), Double.parseDouble(campos[5]));
+	
+								ciudadesGrandes.add(ciudad);
+	
+							}
+							
+						}
+						
+					}
+
+				} catch (Exception e) {
+
+					System.err.println("Error al cargar ciudades desde CSV: (linea " + nLinea + ")");
+					e.printStackTrace();
+
+				}
+
+			}
+
+		} catch (Exception e) {
+
+			System.err.println("Error abriendo el archivo: " + e.getMessage());
+			e.printStackTrace();
+
+		}
+
+		return ciudadesGrandes;
+
+	}
+	
 	public static void cargarCiudadesEnDB() {
 
 		Map<String, Set<Ciudad>> ciudadesPorISO = cargarCiudadesCSV();
@@ -1127,5 +1246,415 @@ public class LoaderDB {
 	}
 
 	// FIN Cargar hoteles
+	////
+	// Cargar viajes
+	
+	public static List<Compania> cargarCompaniasCSV() {
+
+		List<Compania> companias = new ArrayList<Compania>();
+
+		int nLinea = 0;
+
+		try {
+
+			File fichero = new File("resources/db/companias.csv");
+			Scanner sc = new Scanner(fichero);
+
+			while (sc.hasNextLine()) {
+
+				nLinea++;
+
+				if (nLinea == 1) {
+					sc.nextLine();
+					continue; // Primera línea es para determinar el tipo de datos
+				}
+
+				String linea = sc.nextLine();
+				String[] campos = linea.split(",");
+
+				BufferedImage logo = null;
+				
+				try {
+				
+					InputStream inputStream = URI.create(campos[4]).toURL().openStream();				
+					logo = ImageIO.read(inputStream);
+				
+				} catch (IOException e) {
+					
+					System.err.println("Error al cargar la imagen (linea " + nLinea + ") ; Descargando logo sencillo");
+					
+					String safeName = campos[1].replace(" ", "+");
+					
+					InputStream inputStream = URI.create("https://ui-avatars.com/api/?name=" + safeName + "&background=random&color=fff&size=128&format=png").toURL().openStream();
+					logo = ImageIO.read(inputStream);
+					
+				}
+				
+				companias.add(new Compania(0, campos[1], Double.parseDouble(campos[3]), logo, TipoViaje.getTipoViaje(Integer.parseInt(campos[0])), GestorDB.getPais(campos[2])));
+				
+			}
+
+			sc.close();
+
+		} catch (Exception e) {
+
+			System.err.println("Error al cargar las companias desde CSV: (linea " + nLinea + ")");
+			e.printStackTrace();
+
+		}
+
+		return companias;
+
+	}
+	
+	public static void cargarCompaniasEnBD() {
+		
+		List<Compania> companias = cargarCompaniasCSV();
+		
+		String sql = """
+					 INSERT INTO COMPANIA (NOM_COMP, FACTOR_PRECIO, LOGO_COMP, ID_TV, ID_D)
+					 VALUES (?, ?, ?, ?, ?);
+					 """;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			for (Compania compania : companias) {
+				
+				byte[] logoBytes = null;
+				
+				try {
+					
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					ImageIO.write(compania.getLogo(), "png", baos);
+					logoBytes = baos.toByteArray();
+					
+				} catch (IOException e) {
+
+					System.err.println("Error al cargar la imagen en la BD");
+					e.printStackTrace();
+					
+				}
+				
+				pstmt.setString(1, compania.getNombre());
+				pstmt.setDouble(2, compania.getFactorPrecio());
+				pstmt.setBytes(3, logoBytes);
+				pstmt.setInt(4, compania.getTipoViaje().getId());
+				pstmt.setInt(5, compania.getPaisOrigen().getId());
+				
+				pstmt.addBatch();
+				
+			}
+			
+			pstmt.executeBatch();
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al cargar compañías en BD");
+			e.printStackTrace();
+			
+		}
+		
+	}
+	
+	private static final int MAX_DISTANCIA_BUS = 1200;
+    private static final int MAX_DISTANCIA_TREN = 2500;
+    private static final int MAX_DISTANCIA_AVION = 6000; // NO GLOBAL
+	
+	public static void cargarViajesEnDB(boolean soloCiudadesGrandes) {
+		
+		List<Destino> destinos = GestorDB.cargarDestinos();
+		
+		List<Ciudad> ciudadesGrandes = cargarCiudadesGrandesCSV();
+		
+		List<Ciudad> ciudades = new ArrayList<Ciudad>();
+		List<Aeropuerto> aeropuertos = new ArrayList<Aeropuerto>();
+		
+		for (Destino destino : destinos) {
+			if (destino instanceof Ciudad) {
+				
+				if (soloCiudadesGrandes) {
+					
+					for (Ciudad ciudad : ciudadesGrandes) {
+						
+						if (ciudad.getNombre().toLowerCase().equals(destino.getNombre().toLowerCase()) && ciudad.getNombrePais().toLowerCase().equals(destino.getNombrePais().toLowerCase())) {
+							
+							ciudades.add((Ciudad) destino);
+							break;
+							
+						}
+						
+					}
+				
+				} else {
+					
+					ciudades.add((Ciudad) destino);
+					
+				}
+				
+			}
+			if (destino instanceof Aeropuerto) {
+				
+				if (soloCiudadesGrandes) {
+					
+					for (Ciudad ciudad : ciudadesGrandes) {
+						
+						if (ciudad.getNombre().toLowerCase().equals(((Aeropuerto) destino).getCiudad().getNombre().toLowerCase()) && ciudad.getNombrePais().toLowerCase().equals(destino.getNombrePais().toLowerCase())) {
+							
+							aeropuertos.add((Aeropuerto) destino);
+							break;
+							
+						} 
+						
+					}
+					
+				} else {
+					
+					aeropuertos.add((Aeropuerto) destino);								
+					
+				}
+			}
+		}
+		
+		List<Compania> companias = GestorDB.getCompanias();
+		
+		String sql = """
+					 INSERT INTO VIAJE (HORA_V, PRECIO_P_V, NPLAZAS_V, ID_DS, ID_TV, ID_COMP, ID_D_ORIG, ID_D_DEST)
+					 VALUES (?, ?, ?, ?, ?, ?, ?, ?),
+					 		(?, ?, ?, ?, ?, ?, ?, ?);
+					 """;
+		
+		int inserciones = 0;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			for (DiaSemana diaSemana : DiaSemana.values()) {		// Iteramos por cada día de la semana (Todos los días tienen que tener viajes)
+				
+				for (Compania compania : companias) {				// También iteramos por cada compañía que existe (Todas las compañías tienen que tener viajes)
+					
+					// Una vez obtenida la lista de destinos origen comenzamos a crear los viajes 
+					// Crearemos cierto rango de viajes dependiendo del tipo de compañía (Si es global tendrá mayor rango)
+					// Tendremos en cuenta: -- La hora de salida será una hora aleatoria siempre múltiplo de 5 minutos
+					// 						-- El precio será calculado por una fórmula que tendrá en cuenta el tipo de viaje, el precio base por km del tipo de viaje y el factor multiplicativo de la compañía
+					// 						-- El destino origen será cualquiera de la lista filtrada
+					// 						-- El destino destino será cualquiera de la lista completa
+					//						-- Todos los viajes tendrán su rotacion (dependiendo de la hora a la que lleguen al destino) --> Madrid -> Londres => Londres -> Madrid
+					
+					if (compania.getTipoViaje() == TipoViaje.AVION) {																								// Si la compañía es de aviones
+						
+						List<Aeropuerto> aeropuertosOrigen = new ArrayList<Aeropuerto>();
+						
+						for (Aeropuerto aeropuerto : aeropuertos) {
+							if ((compania.getPaisOrigen().getId() == 0 || aeropuerto.getPais().equals(compania.getPaisOrigen()))) aeropuertosOrigen.add(aeropuerto);	// Utilizaremos una lista de aeropuertos (como origen) filtrada por el pais de origen (Si la compañía es global => ID del país de la comp = 0 todos los aeropuertos son válidos)
+						}
+						
+						if (aeropuertosOrigen.isEmpty()) {
+					        System.out.println("Saltando compañía " + compania.getId() + " (Sin aeropuertos compatibles)");
+					        continue; 
+					    }
+						
+						int minViajes = compania.getPaisOrigen().getId() == 0? 2000 + (int) (Math.random() * 2000) : 300 + (int) (Math.random() * 300);		// Compañía grande => 2000 - 4000 viajes ; Compañía mediana => 300 - 600 viajes
+						
+						while (minViajes > 0) {
+							
+							// Aeropuertos
+							
+							Aeropuerto aeropuertoOrigen = aeropuertosOrigen.get((int) (Math.random() * aeropuertosOrigen.size()));
+							Aeropuerto aeropuertoDestino = null;
+							
+							double distanciaKm = 0;
+							
+							int intentos = 0;
+							
+							do {
+							
+								aeropuertoDestino = aeropuertos.get((int) (Math.random() * aeropuertos.size()));
+							
+								distanciaKm = Utilidades.calcularDistancia(aeropuertoOrigen, aeropuertoDestino);
+								
+								intentos++;
+								
+							} while ((aeropuertoOrigen.equals(aeropuertoDestino) || (compania.getPaisOrigen().getId() != 0 && distanciaKm > MAX_DISTANCIA_AVION)) && intentos < 100);
+							
+							if (intentos >= 100) continue;
+							
+							// Nº de plazas
+							
+							int nPlazas = (int) (150 + (Math.random() * 200));													// Avion -> 150 - 350 plazas
+							
+							// Tiempos
+							
+							int hora = (int) (Math.random() * 24);
+							int minuto = ((int) (Math.random() * 12)) * 5;
+							
+							LocalTime horaSalida = LocalTime.of(hora, minuto);
+							
+							int minutosDuracion = (int) ((((distanciaKm * Utilidades.getFactorDesviacion(compania.getTipoViaje())) / Utilidades.getVelocidadMedia(compania.getTipoViaje())) * 60));	
+							
+							while (minutosDuracion % 5 != 0) minutosDuracion++;
+							
+							LocalTime horaSalidaVuelta = horaSalida.plusMinutes(minutosDuracion + Utilidades.getTiempoRotacion(compania.getTipoViaje()));
+							
+							DiaSemana diaSemanaVuelta = diaSemana.plusDays((int) ((horaSalida.getHour() * 60 + horaSalida.getMinute() + minutosDuracion + Utilidades.getTiempoRotacion(TipoViaje.AVION)) / (24 * 60)));
+							
+							// Precio
+							
+							double precioBase = distanciaKm * Utilidades.getPrecioBasePorKm(TipoViaje.AVION) * compania.getFactorPrecio();		
+							
+							double precioIda = Math.round((precioBase * (0.8 + 0.4 * Math.random())) * 100) / 100.0;			// Factor aleatorio +-20%
+							double precioVuelta = Math.round((precioBase * (0.8 + 0.4 * Math.random())) * 100) / 100.0;			// Factor aleatorio +-20%
+							
+							// Creamos los viajes
+							
+							Viaje ida = new Viaje(0, diaSemana, horaSalida, precioIda, nPlazas, TipoViaje.AVION, compania, aeropuertoOrigen, aeropuertoDestino);
+							Viaje vuelta = new Viaje(0, diaSemanaVuelta, horaSalidaVuelta, precioVuelta, nPlazas, TipoViaje.AVION, compania, aeropuertoDestino, aeropuertoOrigen);
+							
+							// Metemos los viajes a la BD
+							// Ida
+							
+							pstmt.setString(1, ida.getHora().toString());
+							pstmt.setDouble(2, ida.getPrecioPorP());
+							pstmt.setInt(3, ida.getNPlazas());
+							pstmt.setInt(4, ida.getDiaSemana().getId());
+							pstmt.setInt(5, ida.getTipoViaje().getId());
+							pstmt.setInt(6, ida.getCompania().getId());
+							pstmt.setInt(7, ida.getOrigen().getId());
+							pstmt.setInt(8, ida.getDestino().getId());					
+							pstmt.setString(9, vuelta.getHora().toString());
+							pstmt.setDouble(10, vuelta.getPrecioPorP());
+							pstmt.setInt(11, vuelta.getNPlazas());
+							pstmt.setInt(12, vuelta.getDiaSemana().getId());
+							pstmt.setInt(13, vuelta.getTipoViaje().getId());
+							pstmt.setInt(14, vuelta.getCompania().getId());
+							pstmt.setInt(15, vuelta.getOrigen().getId());
+							pstmt.setInt(16, vuelta.getDestino().getId());
+							
+							pstmt.addBatch();
+							
+							minViajes -= 2;
+							
+							inserciones += 2;
+							
+						}
+						
+					} else {																																		// Si la compañía es de otra cosa (autobuses o trenes)
+						
+						List<Ciudad> ciudadesOrigen = new ArrayList<Ciudad>();
+						
+						for (Ciudad ciudad : ciudades) {
+							if (compania.getPaisOrigen().getId() == 0 || ciudad.getPais().equals(compania.getPaisOrigen())) ciudadesOrigen.add(ciudad);				// Utilizaremos una lista de aeropuertos (como origen) filtrada por el pais de origen (Si la compañía es global => ID del país de la comp = 0 todos los aeropuertos son válidos)
+						}
+						
+						if (ciudadesOrigen.isEmpty()) {
+					        System.out.println("Saltando compañía " + compania.getId() + " (Sin aeropuertos compatibles)");
+					        continue; 
+					    }
+						
+						int minViajes = compania.getTipoViaje() == TipoViaje.TREN? 600 + (int) (Math.random() * 400) : 1000 + (int) (Math.random() * 1000);			// Compañía de trenes => 600 - 1000 viajes ; Compañía de autobuses => 1000 - 2000 viajes
+						
+						while (minViajes > 0) {
+							
+							// Ciudades
+							
+							Ciudad ciudadOrigen = ciudadesOrigen.get((int) (Math.random() * ciudadesOrigen.size()));
+							Ciudad ciudadDestino = null;
+							
+							double distanciaKm = 0;
+							
+							int intentos = 0;
+							
+							do {
+							
+								ciudadDestino = ciudades.get((int) (Math.random() * ciudades.size()));
+							
+								distanciaKm = Utilidades.calcularDistancia(ciudadOrigen, ciudadDestino);
+								
+								intentos++;
+								
+							} while ((ciudadOrigen.equals(ciudadDestino) || (compania.getTipoViaje() == TipoViaje.TREN && distanciaKm > MAX_DISTANCIA_TREN) || (compania.getTipoViaje() == TipoViaje.AUTOBUS && distanciaKm > MAX_DISTANCIA_BUS)) && intentos < 100);
+							
+							if (intentos >= 100) continue;
+							
+							// Nº de plazas
+							
+							int nPlazas = compania.getTipoViaje() == TipoViaje.TREN? (int) (300 + (Math.random() * 300)) : (int) (40 + (Math.random() * 20));			// Tren -> 300 - 600 plazas ; Bus -> 40 - 60 plazas
+							
+							// Tiempos
+							
+							int hora = (int) (Math.random() * 24);
+							int minuto = ((int) (Math.random() * 12)) * 5;
+							
+							LocalTime horaSalida = LocalTime.of(hora, minuto);
+							
+							int minutosDuracion = (int) ((((distanciaKm * Utilidades.getFactorDesviacion(compania.getTipoViaje())) / Utilidades.getVelocidadMedia(compania.getTipoViaje())) * 60));	
+							
+							while (minutosDuracion % 5 != 0) minutosDuracion++;
+							
+							LocalTime horaSalidaVuelta = horaSalida.plusMinutes(minutosDuracion + Utilidades.getTiempoRotacion(compania.getTipoViaje()));
+							
+							DiaSemana diaSemanaVuelta = diaSemana.plusDays((int) ((horaSalida.getHour() * 60 + horaSalida.getMinute() + minutosDuracion + Utilidades.getTiempoRotacion(compania.getTipoViaje())) / (24 * 60)));
+							
+							// Precio
+							
+							double precioBase = distanciaKm * Utilidades.getPrecioBasePorKm(compania.getTipoViaje()) * compania.getFactorPrecio();		
+							
+							double precioIda = Math.round((precioBase * (0.8 + 0.4 * Math.random())) * 100) / 100.0;			// Factor aleatorio +-20%
+							double precioVuelta = Math.round((precioBase * (0.8 + 0.4 * Math.random())) * 100) / 100.0;			// Factor aleatorio +-20%
+							
+							// Creamos los viajes
+							
+							Viaje ida = new Viaje(0, diaSemana, horaSalida, precioIda, nPlazas, compania.getTipoViaje(), compania, ciudadOrigen, ciudadDestino);
+							Viaje vuelta = new Viaje(0, diaSemanaVuelta, horaSalidaVuelta, precioVuelta, nPlazas, compania.getTipoViaje(), compania, ciudadDestino, ciudadOrigen);
+							
+							// Metemos los viajes a la BD
+							// Ida
+							
+							pstmt.setString(1, ida.getHora().toString());
+							pstmt.setDouble(2, ida.getPrecioPorP());
+							pstmt.setInt(3, ida.getNPlazas());
+							pstmt.setInt(4, ida.getDiaSemana().getId());
+							pstmt.setInt(5, ida.getTipoViaje().getId());
+							pstmt.setInt(6, ida.getCompania().getId());
+							pstmt.setInt(7, ida.getOrigen().getId());
+							pstmt.setInt(8, ida.getDestino().getId());					
+							pstmt.setString(9, vuelta.getHora().toString());
+							pstmt.setDouble(10, vuelta.getPrecioPorP());
+							pstmt.setInt(11, vuelta.getNPlazas());
+							pstmt.setInt(12, vuelta.getDiaSemana().getId());
+							pstmt.setInt(13, vuelta.getTipoViaje().getId());
+							pstmt.setInt(14, vuelta.getCompania().getId());
+							pstmt.setInt(15, vuelta.getOrigen().getId());
+							pstmt.setInt(16, vuelta.getDestino().getId());
+							
+							pstmt.addBatch();
+							
+							minViajes -= 2;
+							
+							inserciones += 2;
+							
+						}
+						
+					}
+					
+					pstmt.executeBatch();
+					
+					System.out.println("Viajes insertados: " + inserciones + " ; Compañía: " + compania.getId() + "/300 ; Día: " + (diaSemana.ordinal() + 1) + "/7");
+					
+				}
+				
+			}
+			
+			System.out.println("------------------");
+			System.out.println("Proceso terminado!");
+			System.out.println("------------------");
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al cargar viajes en BD");
+			
+		}
+		
+	}
 	
 }
