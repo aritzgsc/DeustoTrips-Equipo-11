@@ -2,13 +2,16 @@ package gui.main.filtros;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
+import domain.Viaje.TipoViaje;
+import gui.util.uis.IconoCheckbox;
 import main.Main;
 
 public class FiltroTipoViaje extends JPanel {
@@ -16,7 +19,8 @@ public class FiltroTipoViaje extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	private JCheckBox checkBoxTipo;
-	private ButtonGroup grupo;
+	private JCheckBox botonAvion;
+	private JCheckBox botonOtro;
 	private JPanel panelSelectorTipo;
 	
 	public FiltroTipoViaje() {
@@ -30,10 +34,11 @@ public class FiltroTipoViaje extends JPanel {
 		////
 		// Creación del botón que controlará si aparece o desaparece el filtro
 				
-		checkBoxTipo = new JCheckBox(" Tipo de viaje: ");
+		checkBoxTipo = new JCheckBox("\tTipo de viaje: ");
 		checkBoxTipo.setPreferredSize(new Dimension(200, 50));
 		checkBoxTipo.setBorder(Main.DEFAULT_LINE_BORDER);
 		checkBoxTipo.setFont(Main.FUENTE);
+		checkBoxTipo.setIcon(new IconoCheckbox());
 		checkBoxTipo.setFocusable(false);
 				
 		// FIN Creación del botón que controlará si parece o desaparece el filtro
@@ -61,27 +66,52 @@ public class FiltroTipoViaje extends JPanel {
 		panelSelectorTipo.setLayout(new BoxLayout(panelSelectorTipo, BoxLayout.Y_AXIS));
 		panelSelectorTipo.setVisible(false);
 		
-		JRadioButton botonAvion = new JRadioButton("Avión");
+		botonAvion = new JCheckBox("\tAvión");
+		botonAvion.setSelected(true);
 		botonAvion.setFocusable(false);
 		botonAvion.setFont(Main.FUENTE);
+		botonAvion.setIcon(new IconoCheckbox());
 		
-		JRadioButton botonTren = new JRadioButton("Tren");
-		botonTren.setFocusable(false);
-		botonTren.setFont(Main.FUENTE);
+		botonAvion.addActionListener((e) -> {
+			
+			if (!botonAvion.isSelected()) {
+				
+				botonAvion.setSelected(false);
+				botonOtro.setEnabled(false);
+				
+			} else {
+				
+				botonAvion.setSelected(true);
+				botonOtro.setEnabled(true);
+				
+			}
+			
+		});
 		
-		JRadioButton botonBus = new JRadioButton("Autobus");
-		botonBus.setFocusable(false);
-		botonBus.setFont(Main.FUENTE);
+		botonOtro = new JCheckBox("\tOtro");
+		botonOtro.setSelected(true);
+		botonOtro.setFocusable(false);
+		botonOtro.setFont(Main.FUENTE);
+		botonOtro.setIcon(new IconoCheckbox());
 		
-		grupo = new ButtonGroup();
-		
-		grupo.add(botonAvion);
-		grupo.add(botonTren);
-		grupo.add(botonBus);
+		botonOtro.addActionListener((e) -> {
+			
+			if (!botonOtro.isSelected()) {
+				
+				botonOtro.setSelected(false);
+				botonAvion.setEnabled(false);
+				
+			} else {
+				
+				botonOtro.setSelected(true);
+				botonAvion.setEnabled(true);
+				
+			}
+			
+		});
 		
 		panelSelectorTipo.add(botonAvion);
-		panelSelectorTipo.add(botonTren);
-		panelSelectorTipo.add(botonBus);
+		panelSelectorTipo.add(botonOtro);
 		
 		// Añadimos todo al panel principal
 		
@@ -91,13 +121,25 @@ public class FiltroTipoViaje extends JPanel {
 	}
 
 	public void resetAll() {
-		grupo.clearSelection();
+		botonAvion.setSelected(true);
+		botonOtro.setSelected(true);
 		checkBoxTipo.setSelected(false);
 		panelSelectorTipo.setVisible(false);
 	}
 	
+	public List<TipoViaje> getValues() {
+		
+		List<TipoViaje> valoresSeleccionados = new ArrayList<TipoViaje>();
+		
+		if (botonAvion.isSelected()) valoresSeleccionados.add(TipoViaje.AVION);
+		if (botonOtro.isSelected()) valoresSeleccionados.addAll(Arrays.asList(TipoViaje.TREN, TipoViaje.AUTOBUS));
+		
+		return valoresSeleccionados;
+		
+	}
+	
 	public boolean isEnabled() {
-		return checkBoxTipo.isEnabled();
+		return checkBoxTipo.isSelected();
 	}
 	
 }

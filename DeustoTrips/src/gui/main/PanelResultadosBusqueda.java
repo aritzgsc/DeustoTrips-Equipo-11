@@ -3,6 +3,7 @@ package gui.main;
 import java.awt.Dimension;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -12,7 +13,9 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
 import domain.Alojamiento;
+import domain.Viaje;
 import gui.util.PanelAlojamiento;
+import gui.util.PanelViaje;
 import main.Main;
 
 public class PanelResultadosBusqueda extends JScrollPane {
@@ -55,12 +58,12 @@ public class PanelResultadosBusqueda extends JScrollPane {
 		
 		if (VentanaPrincipal.getVentanaPrincipal().getSize().equals(VentanaPrincipal.getVentanaPrincipal().getMinimumSize())) {
 			
-			VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 500));
-			VentanaPrincipal.getVentanaPrincipal().setSize(new Dimension(1440, 500));	
+			VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 520));
+			VentanaPrincipal.getVentanaPrincipal().setSize(new Dimension(1440, 520));	
 			
 		} else {
 			
-			VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 500));
+			VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 520));
 			
 		}
 		
@@ -87,7 +90,7 @@ public class PanelResultadosBusqueda extends JScrollPane {
 		
 		panelResultadosBusqueda.setPreferredSize(new Dimension(0, 400));
 		
-		VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 900));
+		VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 920));
 		
 		panelResultadosBusqueda.revalidate();
 		panelResultadosBusqueda.repaint();
@@ -102,6 +105,46 @@ public class PanelResultadosBusqueda extends JScrollPane {
 		// Devolvemos el panel para jugar con el en el botón buscar
 		
 		return panelAlojamiento;
+		
+	}
+	
+	// Función para añadir un viaje (en forma de PanelViaje) a las búsquedas realizadas (también cambia el tamaño de la ventana)
+	
+	public static void anadirViajeEncontrado(List<Viaje> viajesIda, List<Viaje> viajesVuelta, LocalDate fechaSalidaIda, LocalDate fechaSalidaVuelta, int nPersonas) {
+		
+		// Guardamos la posición original de la scrollbar
+		
+		int posicionInicial = panelResultadosBusqueda.getVerticalScrollBar().getValue();
+		
+		// Añadimos el viaje
+		
+		PanelViaje panelViaje = null;
+		
+		if (viajesVuelta == null || viajesVuelta.isEmpty() || fechaSalidaVuelta == null) {
+			
+			panelViaje = new PanelViaje(0, viajesIda, fechaSalidaIda, nPersonas, PanelViaje.MODO_RESERVAR);
+			
+		} else {
+			
+			panelViaje = new PanelViaje(0, viajesIda, viajesVuelta, fechaSalidaIda, fechaSalidaVuelta, nPersonas, PanelViaje.MODO_RESERVAR);
+			
+		}
+		
+		panelResultados.add(panelViaje);
+		
+		panelResultadosBusqueda.setPreferredSize(new Dimension(0, 400));
+		
+		VentanaPrincipal.getVentanaPrincipal().setMinimumSize(new Dimension(1440, 920));
+		
+		panelResultadosBusqueda.revalidate();
+		panelResultadosBusqueda.repaint();
+		
+		VentanaPrincipal.getVentanaPrincipal().revalidate();
+		VentanaPrincipal.getVentanaPrincipal().repaint();
+		
+		// Reestablecemos la posicion inicial 
+		
+		SwingUtilities.invokeLater(() -> panelResultadosBusqueda.getVerticalScrollBar().setValue(posicionInicial));
 		
 	}
 	

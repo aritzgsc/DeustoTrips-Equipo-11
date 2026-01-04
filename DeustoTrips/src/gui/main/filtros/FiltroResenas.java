@@ -7,6 +7,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import gui.util.PanelSelectorResena;
+import gui.util.uis.IconoCheckbox;
 import main.Main;
 
 public class FiltroResenas extends JPanel {
@@ -31,6 +32,7 @@ public class FiltroResenas extends JPanel {
 		checkBoxResenas.setPreferredSize(new Dimension(200, 50));
 		checkBoxResenas.setBorder(Main.DEFAULT_LINE_BORDER);
 		checkBoxResenas.setFont(Main.FUENTE);
+		checkBoxResenas.setIcon(new IconoCheckbox());
 		checkBoxResenas.setFocusable(false);
 				
 		// FIN Creación del botón que controlará si parece o desaparece el filtro
@@ -75,7 +77,7 @@ public class FiltroResenas extends JPanel {
 	}
 	
 	public boolean isEnabled() {
-		return checkBoxResenas.isEnabled();
+		return checkBoxResenas.isSelected();
 	}
 	
 }

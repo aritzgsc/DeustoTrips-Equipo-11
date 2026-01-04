@@ -24,6 +24,7 @@ import gui.main.PanelAlojamientos;
 import gui.main.PanelPestanasBusqueda;
 import gui.main.PanelViajes;
 import gui.util.MiTextField;
+import gui.util.uis.IconoCheckbox;
 import main.Main;
 
 // Clase que contendrá el filtro de precio con un rango
@@ -60,6 +61,7 @@ public class FiltroPrecio extends JPanel {
 		checkBoxPrecio.setPreferredSize(new Dimension(100, 50));
 		checkBoxPrecio.setBorder(Main.DEFAULT_LINE_BORDER);
 		checkBoxPrecio.setFont(Main.FUENTE);
+		checkBoxPrecio.setIcon(new IconoCheckbox());
 		checkBoxPrecio.setFocusable(false);
 		
 		// FIN Creación del botón que controlará si parece o desaparece el filtro
@@ -269,17 +271,17 @@ public class FiltroPrecio extends JPanel {
 			
 		} else if (panelSeleccionado instanceof PanelViajes) {
 			
-			precioMaximo = 1000 * ((PanelViajes) panelSeleccionado).getNPersonas() * (((PanelViajes) panelSeleccionado).getTipo().equals("Ida")? 1 : 2);
+			precioMaximo = 5000 * ((PanelViajes) panelSeleccionado).getNPersonas() * (((PanelViajes) panelSeleccionado).getTipo().equals("Ida")? 1 : 2);
 			
 			for (FiltroPrecio filtroPrecio : misFiltrosPrecio) {
 				filtroPrecio.getRangeSlider().setMaximum(precioMaximo);
 				filtroPrecio.getMaximoTF().setText(Integer.toString(precioMaximo));
 			}
 			
-			return 1000 * ((PanelViajes) panelSeleccionado).getNPersonas() * (((PanelViajes) panelSeleccionado).getTipo().equals("Ida")? 1 : 2);
-			
-		}
+			return 5000 * ((PanelViajes) panelSeleccionado).getNPersonas() * (((PanelViajes) panelSeleccionado).getTipo().equals("Ida")? 1 : 2);
 		
+		}
+			
 		precioMaximo = 10000;
 		
 		for (FiltroPrecio filtroPrecio : misFiltrosPrecio) {
@@ -288,10 +290,11 @@ public class FiltroPrecio extends JPanel {
 		}
 		
 		return 10000;
+		
 	}
 	
 	public boolean isEnabled() {
-		return checkBoxPrecio.isEnabled();
+		return checkBoxPrecio.isSelected();
 	}
 	
 }

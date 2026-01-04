@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -50,7 +51,7 @@ public class PanelAlojamientos extends JPanel {
 		// FIN Configuración del panel principal
 		// Creación del contenedor del panel búsqueda y error
 		
-		JPanel panelBusquedaError = new JPanel(new GridLayout(2, 1, 10, 0));
+		JPanel panelBusquedaError = new JPanel(new GridLayout(2, 1, 0, 10));
 		
 		// FIN Creación del contenedor del panel búsqueda y error
 		////
@@ -144,6 +145,8 @@ public class PanelAlojamientos extends JPanel {
 				           ).replaceAll("(?<=, )Seleccione ", "").replaceAll(",(?=([^,]*$))", "").replaceAll(",(?=([^,]*$))", " y");
 		
 		error.setText(errorStr);
+		error.setForeground(Color.RED);
+		error.setFont(Main.FUENTE.deriveFont(Font.ITALIC));
 		
 		if (errorStr.equals("<html></html>")) {
 			return "";
@@ -156,9 +159,35 @@ public class PanelAlojamientos extends JPanel {
 	// Getters y setters para utilizarlos desde otras clases
 	
 	public void setError(String errorStr) {
+		
 		error.setText(errorStr);
+		error.setForeground(Color.RED);
+		error.setFont(Main.FUENTE.deriveFont(Font.ITALIC));
+		
 	}
 
+	// HTML de GEMINI
+	
+	public void setInfo(String infoStr) {
+
+		error.setForeground(Color.BLACK);
+		error.setFont(Main.FUENTE.deriveFont(Font.BOLD));
+
+		File gif = new File("resources/images/cargando.gif");
+		
+	    String html = "<html>"
+	                + "<table>"
+	                +   "<tr>"
+	                +     "<td><img src='" + gif.toURI().toString() + "' width='40' height='40'></td>"
+	                +     "<td style='padding-left: 5px;'>" + infoStr + "</td>"
+	                +   "</tr>"
+	                + "</table>"
+	                + "</html>";
+
+	    error.setText(html);
+	    
+	}
+	
 	public Destino getDestinoSeleccionado() {
 		return selectorDestino.getDestinoSeleccionado();
 	}

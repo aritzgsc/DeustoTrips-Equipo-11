@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,7 @@ import db.GestorDB;
 import domain.Aeropuerto;
 import domain.Compania;
 import domain.Destino;
+import domain.Viaje;
 import gui.main.VentanaPrincipal;
 import gui.main.busqueda.MiSelectorDestino;
 
@@ -23,8 +26,11 @@ import gui.main.busqueda.MiSelectorDestino;
 public class Main {
 	
 	public static final String NOMBRE_APP = "DeustoTrips";
+	
 	public static final Font FUENTE = new Font("Comic Sans MS", Font.PLAIN, 18);
+	
 	public static final LineBorder DEFAULT_LINE_BORDER = new LineBorder(new Color(0x7A8A99));
+	
 	public static final KeyAdapter ANTI_CARACTERES_RAROS = new KeyAdapter() {
 
 		@Override
@@ -32,7 +38,7 @@ public class Main {
 			
 			char c = e.getKeyChar();
 			
-			if (!Character.isDigit(c) && !Character.isAlphabetic(c) && !"@. ".contains(Character.toString(c))) {			// Solo permite números, letras, y los caracteres '.' y '@'
+			if (!Character.isDigit(c) && !Character.isAlphabetic(c) && !"_-@. ".contains(Character.toString(c))) {			// Solo permite números, letras, y los caracteres '.', '@', '-' y '_'
 				
 				e.consume();
 				
@@ -74,6 +80,92 @@ public class Main {
 	        "#B53471", // Rosa Berry Profundo
 	        "#833471"  // Ciruela
 		        
+	};
+	
+	public static Comparator<List<Viaje>> comparadorViajesCompletos = new Comparator<List<Viaje>>() {
+
+	    public static final double VALOR_HORA_VIAJE = 10; 
+
+	    public static final double PENALIZACION_ESCALA_AVION = 30; 
+	    public static final double PENALIZACION_ESCALA_BUS = 15;   
+	    public static final double PENALIZACION_ESCALA_TREN = 10;  
+	    
+	    public static final double PENALIZACION_HORA_EXTREMA = 25;
+	    
+	    public static final int HORA_LIMITE_MADRUGON = 8;
+	    public static final int HORA_LIMITE_NOCHE = 22;
+		
+	    private double calcularPuntuacion(List<Viaje> viajeCompleto) {
+	        
+	        // Puntuación base = Precio viaje 
+	    	
+	        double puntuacion = Viaje.calcularPrecioTotal(viajeCompleto, 1);
+	        
+	        // Penalización por duración
+	        
+	        double horasDuracion = Viaje.getDuracionTotalViaje(viajeCompleto) / 60.0;
+	        puntuacion += (horasDuracion * VALOR_HORA_VIAJE);
+	        
+	        // Penalización por tipo de escala
+	        
+	        for (int i = 1; i < viajeCompleto.size(); i++) {
+	            
+	            Viaje siguienteTramo = viajeCompleto.get(i);
+	            
+	            switch (siguienteTramo.getTipoViaje()) {
+	                case AVION:
+	                    puntuacion += PENALIZACION_ESCALA_AVION;
+	                    break;
+	                case TREN:
+	                    puntuacion += PENALIZACION_ESCALA_TREN;
+	                    break;
+	                case AUTOBUS:
+	                	puntuacion += PENALIZACION_ESCALA_BUS;
+	                    break;
+	                default:
+	                    puntuacion += 20;
+	                    break;
+	            }
+	        }
+	        
+	        // Penalización por malos horarios
+	        
+	        Viaje primerViaje = viajeCompleto.getFirst();
+	        Viaje ultimoViaje = viajeCompleto.getLast();
+	        LocalTime horaSalida = primerViaje.getHora();
+	        LocalTime horaLlegada = ultimoViaje.getHora().plusMinutes(ultimoViaje.getDuracion());
+
+	        // Madrugón -> Penalización (Mayor madrugón -> Mayor penalización)
+	        
+	        if (horaSalida.getHour() < HORA_LIMITE_MADRUGON) {
+	        	
+	            int horasAntes = HORA_LIMITE_MADRUGON - horaSalida.getHour();
+	            puntuacion += PENALIZACION_HORA_EXTREMA * (horasAntes / 4.0);
+	            
+	        }
+
+	        // Llegar muy tarde -> Penalización (Más tarde -> Más penalización)
+	        
+	        double horaLlegadaDecimal = horaLlegada.getHour() + (horaLlegada.getMinute() / 60.0);
+	        
+	        // Ajuste para horas de madrugada (las 01:00 deben contar como las 25:00 para la mate)
+	        if (horaLlegadaDecimal < 6.0) horaLlegadaDecimal += 24.0;
+
+	        if (horaLlegadaDecimal > HORA_LIMITE_NOCHE) {
+	        	
+	            double horasDespues = horaLlegadaDecimal - HORA_LIMITE_NOCHE;
+	            puntuacion += PENALIZACION_HORA_EXTREMA * (horasDespues / 4.0);
+	            
+	        }
+	        
+	        return puntuacion;
+	    }
+		
+		@Override
+		public int compare(List<Viaje> viaje1, List<Viaje> viaje2) {
+			return Double.compare(calcularPuntuacion(viaje1), calcularPuntuacion(viaje2));
+		}
+		
 	};
 	
 	public static Map<Integer, Destino> destinoPorIndice;

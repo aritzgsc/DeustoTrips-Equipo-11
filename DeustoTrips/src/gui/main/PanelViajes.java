@@ -4,8 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
@@ -14,7 +17,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import domain.Aeropuerto;
+import domain.Ciudad;
 import domain.Destino;
+import domain.Viaje.TipoViaje;
 import gui.main.busqueda.BotonBuscar;
 import gui.main.busqueda.MiSelectorFecha;
 import gui.main.busqueda.MiSelectorMultiplesDestinos;
@@ -52,7 +58,7 @@ public class PanelViajes extends JPanel {
 		// FIN Configuración del panel principal
 		// Creación del contenedor del panel búsqueda y error
 		
-		JPanel panelBusquedaError = new JPanel(new GridLayout(2, 1, 10, 0));
+		JPanel panelBusquedaError = new JPanel(new GridLayout(2, 1, 0, 10));
 		
 		// FIN Creación del contenedor del panel búsqueda y error
 		////
@@ -62,7 +68,7 @@ public class PanelViajes extends JPanel {
 		
 		// Creación de todos los componentes necesarios para la búsqueda
 		
-		selectorMultiplesDestinos = new MiSelectorMultiplesDestinos("Origen", "Destino", Destino.class);
+		selectorMultiplesDestinos = new MiSelectorMultiplesDestinos("Origen", "Destino", Ciudad.class, Aeropuerto.class);
 		selectorTipo = new MiSelectorTipo();
 		selectorFecha = new MiSelectorFecha("Fecha de ida");			
 		selectorFechas = new MiSelectorMultiplesFechas("Fecha de ida", "Fecha de vuelta", 0);			// Lo ponemos a 0 porque en un viaje no hay mínimo de tiempo (se puede ir y volver el mismo día)
@@ -170,6 +176,8 @@ public class PanelViajes extends JPanel {
 				).replaceAll("(?<=, )Seleccione ", "").replaceAll(",(?=([^,]*$))", "").replaceAll(",(?=([^,]*$))", " y");
 		
 		error.setText(errorStr);
+		error.setForeground(Color.RED);
+		error.setFont(Main.FUENTE.deriveFont(Font.ITALIC));
 		
 		if (errorStr.equals("<html></html>")) {
 			return "";
@@ -182,7 +190,33 @@ public class PanelViajes extends JPanel {
 	// Getters y setters para utilizarlos desde otras clases
 	
 	public void setError(String errorStr) {
+		
 		error.setText(errorStr);
+		error.setForeground(Color.RED);
+		error.setFont(Main.FUENTE.deriveFont(Font.ITALIC));
+		
+	}
+	
+	// HTML de GEMINI
+	
+	public void setInfo(String infoStr) {
+
+		error.setForeground(Color.BLACK);
+		error.setFont(Main.FUENTE.deriveFont(Font.BOLD));
+
+		File gif = new File("resources/images/cargando.gif");
+		
+	    String html = "<html>"
+	                + "<table>"
+	                +   "<tr>"
+	                +     "<td><img src='" + gif.toURI().toString() + "' width='40' height='40'></td>"
+	                +     "<td style='padding-left: 10px;'>" + infoStr + "</td>"
+	                +   "</tr>"
+	                + "</table>"
+	                + "</html>";
+
+	    error.setText(html);
+	    
 	}
 	
 	public Destino getOrigenSeleccionado() {
@@ -194,17 +228,32 @@ public class PanelViajes extends JPanel {
 	}
 	
 	public LocalDate getFechaIda() {
-		if (selectorFechas.getSelectorFecha1().getDate() == null) {
+		if (getTipo().equals("Ida")) {
+			if (selectorFecha.getDate() == null) {
+				return null;
+			} 
+			return LocalDate.ofInstant(selectorFecha.getDate().toInstant(), ZoneId.systemDefault());
+		} else if (getTipo().equals("Ida y Vuelta")) {
+			if (selectorFechas.getSelectorFecha1().getDate() == null) {
+				return null;
+			}
+			return LocalDate.ofInstant(selectorFechas.getSelectorFecha1().getDate().toInstant(), ZoneId.systemDefault());
+		} else {
 			return null;
 		}
-		return LocalDate.ofInstant(selectorFechas.getSelectorFecha1().getDate().toInstant(), ZoneId.systemDefault());
 	}
 	
 	public LocalDate getFechaVuelta() {
-		if (selectorFechas.getSelectorFecha2().getDate() == null) {
+		if (getTipo().equals("Ida")) {
+			return null;
+		} else if (getTipo().equals("Ida y Vuelta")) {
+			if (selectorFechas.getSelectorFecha2().getDate() == null) {
+				return null;
+			}
+			return LocalDate.ofInstant(selectorFechas.getSelectorFecha2().getDate().toInstant(), ZoneId.systemDefault());
+		} else {
 			return null;
 		}
-		return LocalDate.ofInstant(selectorFechas.getSelectorFecha2().getDate().toInstant(), ZoneId.systemDefault());
 	}
 	
 	public int getNPersonas() {
@@ -212,11 +261,15 @@ public class PanelViajes extends JPanel {
 	}
 	
 	public int getPrecioMin() {
-		return filtroPrecio.getLowValue();
+		return filtroPrecio.isEnabled()? filtroPrecio.getLowValue() : 0;
 	}
 	
 	public int getPrecioMax() {
-		return filtroPrecio.getHighValue();
+		return filtroPrecio.isEnabled()? filtroPrecio.getHighValue() : Integer.MAX_VALUE;
+	}
+	
+	public List<TipoViaje> getTiposViaje() {
+		return filtroTipoViaje.isEnabled()? filtroTipoViaje.getValues() : Arrays.asList(TipoViaje.values());
 	}
 	
 	public String getTipo() {
