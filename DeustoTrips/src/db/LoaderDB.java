@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -1652,6 +1653,385 @@ public class LoaderDB {
 		} catch (SQLException e) {
 			
 			System.err.println("Error al cargar viajes en BD");
+			
+		}
+		
+	}
+	
+	private static final int N_MAX_CIUDADES_CERCANAS = 5;
+	
+	public static void cargarViajesCiudadesSinAerACiudadesConAerCercanasEnDB() {
+		
+		List<Destino> destinos = GestorDB.cargarDestinos();
+		
+		Map<Pais, List<Compania>> companiasTerrestresPorPais = new HashMap<Pais, List<Compania>>();
+
+		for (Integer indice : companiaPorIndice.keySet()) {
+			
+			Compania compania = companiaPorIndice.get(indice);
+			
+			if (compania.getTipoViaje() == TipoViaje.AVION) continue;
+			
+			if (!companiasTerrestresPorPais.containsKey(compania.getPaisOrigen())) companiasTerrestresPorPais.put(compania.getPaisOrigen(), new ArrayList<Compania>());
+			
+			companiasTerrestresPorPais.get(compania.getPaisOrigen()).add(compania);
+			
+		}
+		
+		List<Ciudad> ciudadesSinAer = new ArrayList<Ciudad>();
+		List<Ciudad> ciudadesConAer = new ArrayList<Ciudad>();
+		
+		for (Destino destino : destinos) {
+			
+			if (destino instanceof Ciudad) {
+				
+				if (GestorDB.tieneAeropuertos((Ciudad) destino)) {
+					ciudadesConAer.add((Ciudad) destino);
+				} else {
+					ciudadesSinAer.add((Ciudad) destino);
+				}
+				
+			}
+			
+		}
+		
+		String sql = """
+					 INSERT INTO VIAJE (HORA_V, PRECIO_P_V, NPLAZAS_V, ID_DS, ID_TV, ID_COMP, ID_D_ORIG, ID_D_DEST)
+					 VALUES (?, ?, ?, ?, ?, ?, ?, ?),
+					 		(?, ?, ?, ?, ?, ?, ?, ?);
+					 """;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			int contadorCiudadesSinAer = 0;
+			
+			for (Ciudad ciudadSinAer : ciudadesSinAer) {
+			
+				contadorCiudadesSinAer++;
+				
+				List<Ciudad> ciudadesConAerCercanas = new ArrayList<Ciudad>();
+				
+				for (Ciudad ciudadConAer : ciudadesConAer) {
+					
+					if (Utilidades.calcularDistancia(ciudadSinAer, ciudadConAer) <= 200) ciudadesConAerCercanas.add(ciudadConAer);
+					
+				}
+				
+				ciudadesConAerCercanas.sort(new Comparator<Ciudad>() {
+
+					@Override
+					public int compare(Ciudad c1, Ciudad c2) {
+						return Double.compare(Utilidades.calcularDistancia(ciudadSinAer, c1), Utilidades.calcularDistancia(ciudadSinAer, c2));
+					}
+					
+				});
+				
+				ciudadesConAerCercanas = ciudadesConAerCercanas.subList(0, Math.min(N_MAX_CIUDADES_CERCANAS, ciudadesConAerCercanas.size()));
+				
+				for (Ciudad ciudadConAerCercana : ciudadesConAerCercanas) {
+					
+					for (DiaSemana diaSemana : DiaSemana.values()) {
+					
+						for (int i = 0; i < 2; i++) {
+							
+							// Distancia
+							
+							double distanciaKm = Utilidades.calcularDistancia(ciudadSinAer, ciudadConAerCercana);
+							
+							// Compañía
+							
+							Compania compania = null;
+							
+							if (companiasTerrestresPorPais.get(ciudadSinAer.getPais()) != null) {
+								
+								compania = companiasTerrestresPorPais.get(ciudadSinAer.getPais()).get((int) (Math.random() * companiasTerrestresPorPais.get(ciudadSinAer.getPais()).size()));
+								
+							} else {
+								
+								break;
+								
+							}
+							
+							// Nº de plazas
+							
+							int nPlazas = compania.getTipoViaje() == TipoViaje.TREN? (int) (300 + (Math.random() * 300)) : (int) (40 + (Math.random() * 20));			// Tren -> 300 - 600 plazas ; Bus -> 40 - 60 plazas
+							
+							// Tiempos
+							
+						    int hora = (i == 0) ? 6 : 15 + (int) (Math.random() * 4); // Variación de 4 horas
+						    int minuto = ((int) (Math.random() * 12)) * 5;
+						    
+						    LocalTime horaSalida = LocalTime.of(hora, minuto);
+							
+							int minutosDuracion = (int) ((((distanciaKm * Utilidades.getFactorDesviacion(compania.getTipoViaje())) / Utilidades.getVelocidadMedia(compania.getTipoViaje())) * 60));	
+							
+							while (minutosDuracion % 5 != 0) minutosDuracion++;
+							
+							LocalTime horaSalidaVuelta = horaSalida.plusMinutes(minutosDuracion + Utilidades.getTiempoRotacion(compania.getTipoViaje()));
+							
+							DiaSemana diaSemanaVuelta = diaSemana.plusDays((int) ((horaSalida.getHour() * 60 + horaSalida.getMinute() + minutosDuracion + Utilidades.getTiempoRotacion(compania.getTipoViaje())) / (24 * 60)));
+							
+							// Precio
+							
+							double precioBase = distanciaKm * Utilidades.getPrecioBasePorKm(compania.getTipoViaje()) * compania.getFactorPrecio();		
+							
+							double precioIda = Math.round((precioBase * (0.8 + 0.4 * Math.random())) * 100) / 100.0;			// Factor aleatorio +-20%
+							double precioVuelta = Math.round((precioBase * (0.8 + 0.4 * Math.random())) * 100) / 100.0;			// Factor aleatorio +-20%
+							
+							// Creamos los viajes
+							
+							Viaje ida = new Viaje(0, diaSemana, horaSalida, precioIda, nPlazas, compania.getTipoViaje(), compania, ciudadSinAer, ciudadConAerCercana);
+							Viaje vuelta = new Viaje(0, diaSemanaVuelta, horaSalidaVuelta, precioVuelta, nPlazas, compania.getTipoViaje(), compania, ciudadConAerCercana, ciudadSinAer);
+							
+							// Metemos los viajes a la BD
+							// Ida
+							
+							pstmt.setString(1, ida.getHora().toString());
+							pstmt.setDouble(2, ida.getPrecioPorP());
+							pstmt.setInt(3, ida.getNPlazas());
+							pstmt.setInt(4, ida.getDiaSemana().getId());
+							pstmt.setInt(5, ida.getTipoViaje().getId());
+							pstmt.setInt(6, ida.getCompania().getId());
+							pstmt.setInt(7, ida.getOrigen().getId());
+							pstmt.setInt(8, ida.getDestino().getId());					
+							pstmt.setString(9, vuelta.getHora().toString());
+							pstmt.setDouble(10, vuelta.getPrecioPorP());
+							pstmt.setInt(11, vuelta.getNPlazas());
+							pstmt.setInt(12, vuelta.getDiaSemana().getId());
+							pstmt.setInt(13, vuelta.getTipoViaje().getId());
+							pstmt.setInt(14, vuelta.getCompania().getId());
+							pstmt.setInt(15, vuelta.getOrigen().getId());
+							pstmt.setInt(16, vuelta.getDestino().getId());
+							
+							pstmt.addBatch();
+							
+						}
+					
+					}
+					
+				}
+
+				pstmt.executeBatch();
+				
+				System.out.println("Ciudades sin aeropuerto:" + contadorCiudadesSinAer + "/" + ciudadesSinAer.size());
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al cargar los viajes en la BD");
+			e.printStackTrace();
+			
+		}
+		
+	}
+	
+	public static final int N_MAX_CIUDADES_GRANDES_CERCANAS = 30;
+	
+	public static void cargarViajesCiudadesGrandesConAerACiudadesGrandesConAerCercanasEnDB() {
+		
+		List<Destino> destinos = GestorDB.cargarDestinos();
+		
+		Map<Pais, List<Compania>> companiasPorPais = new HashMap<Pais, List<Compania>>();
+
+		for (Integer indice : companiaPorIndice.keySet()) {
+			
+			Compania compania = companiaPorIndice.get(indice);
+			
+			if (!companiasPorPais.containsKey(compania.getPaisOrigen())) companiasPorPais.put(compania.getPaisOrigen(), new ArrayList<Compania>());
+			
+			companiasPorPais.get(compania.getPaisOrigen()).add(compania);
+			
+		}
+
+		List<Ciudad> ciudadesGrandes = cargarCiudadesGrandesCSV();
+		List<Ciudad> ciudadesConAer = new ArrayList<Ciudad>();
+		
+		for (Destino destino : destinos) {
+			
+			if (destino instanceof Ciudad && GestorDB.tieneAeropuertos((Ciudad) destino)) {
+				
+				for (Ciudad ciudad : ciudadesGrandes) {
+					
+					if (ciudad.getNombre().toLowerCase().equals(destino.getNombre().toLowerCase()) && ciudad.getNombrePais().toLowerCase().equals(destino.getNombrePais().toLowerCase())) {
+						
+						ciudadesConAer.add((Ciudad) destino);
+						break;
+						
+					} 
+					
+				}
+				
+			}
+			
+		}
+		
+		String sql = """
+					 INSERT INTO VIAJE (HORA_V, PRECIO_P_V, NPLAZAS_V, ID_DS, ID_TV, ID_COMP, ID_D_ORIG, ID_D_DEST)
+					 VALUES (?, ?, ?, ?, ?, ?, ?, ?),
+					 		(?, ?, ?, ?, ?, ?, ?, ?);
+					 """;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			int contadorCiudadesConAer = 0;
+			
+			for (Ciudad ciudadConAerOrig : ciudadesConAer) {
+			
+				contadorCiudadesConAer++;
+				
+				List<Ciudad> ciudadesConAerCercanas = new ArrayList<Ciudad>();
+				
+				for (Ciudad ciudadConAerDest : ciudadesConAer) {
+					
+					if (Utilidades.calcularDistancia(ciudadConAerOrig, ciudadConAerDest) <= 800 && !ciudadConAerOrig.equals(ciudadConAerDest)) ciudadesConAerCercanas.add(ciudadConAerDest);
+					
+				}
+				
+				ciudadesConAerCercanas.sort(new Comparator<Ciudad>() {
+
+					@Override
+					public int compare(Ciudad c1, Ciudad c2) {
+						return Double.compare(Utilidades.calcularDistancia(ciudadConAerOrig, c1), Utilidades.calcularDistancia(ciudadConAerOrig, c2));
+					}
+					
+				});
+				
+				ciudadesConAerCercanas = ciudadesConAerCercanas.subList(0, Math.min(N_MAX_CIUDADES_GRANDES_CERCANAS, ciudadesConAerCercanas.size()));
+				
+				for (Ciudad ciudadConAerCercana : ciudadesConAerCercanas) {
+					
+					for (DiaSemana diaSemana : DiaSemana.values()) {
+					
+						for (int i = 0; i < 2; i++) {
+							
+							// Distancia
+							
+							double distanciaKm = Utilidades.calcularDistancia(ciudadConAerOrig, ciudadConAerCercana);
+							
+							// Compañía
+							
+							Compania compania = null;
+							
+							int intentos = 0;
+							
+							if (companiasPorPais.get(ciudadConAerOrig.getPais()) != null) {
+							
+								if (distanciaKm < 250) {
+									
+									do {
+										
+										compania = companiasPorPais.get(ciudadConAerOrig.getPais()).get((int) (Math.random() * companiasPorPais.get(ciudadConAerOrig.getPais()).size()));
+										intentos++;
+										
+									} while ((compania == null || (compania != null && compania.getTipoViaje() == TipoViaje.AVION)) && intentos < 100);
+									
+								} else {
+									
+									do {
+										
+										compania = companiasPorPais.get(ciudadConAerOrig.getPais()).get((int) (Math.random() * companiasPorPais.get(ciudadConAerOrig.getPais()).size()));
+										intentos++;
+										
+									} while (compania == null && intentos < 100);
+									
+								}
+							
+							} else {
+								
+								Pais global = new Pais(0, "Global", 0, 0);
+								
+								if (distanciaKm > 250) {
+									
+									do {
+										
+										compania = companiasPorPais.get(global).get((int) (Math.random() * companiasPorPais.get(global).size()));
+										intentos++;
+										
+									} while (compania == null && intentos < 100);
+									
+								}
+								
+							}
+							
+							if (intentos >= 100 || compania == null) continue;
+							
+							// Origen y destino
+							
+							Destino origen = compania.getTipoViaje() != TipoViaje.AVION? ciudadConAerOrig : aeropuertosPorIndiceCiudad.get(ciudadConAerOrig.getId()).get((int) (Math.random() * aeropuertosPorIndiceCiudad.get(ciudadConAerOrig.getId()).size()));
+							Destino destino = compania.getTipoViaje() != TipoViaje.AVION? ciudadConAerCercana : aeropuertosPorIndiceCiudad.get(ciudadConAerCercana.getId()).get((int) (Math.random() * aeropuertosPorIndiceCiudad.get(ciudadConAerCercana.getId()).size()));
+							
+							// Nº de plazas
+							
+							int nPlazas = compania.getTipoViaje() == TipoViaje.AVION? (int) (150 + (Math.random() * 200)) : compania.getTipoViaje() == TipoViaje.TREN? (int) (300 + (Math.random() * 300)) : (int) (40 + (Math.random() * 20));			// Avion -> 150 - 350 plazas ; Tren -> 300 - 600 plazas ; Bus -> 40 - 60 plazas
+							
+							// Tiempos
+							
+						    int hora = ((i == 0) ? 6 : 15) + (int) (Math.random() * 4); // Variación de 4 horas
+						    int minuto = ((int) (Math.random() * 12)) * 5;
+						    
+						    LocalTime horaSalida = LocalTime.of(hora, minuto);
+							
+							int minutosDuracion = (int) ((((distanciaKm * Utilidades.getFactorDesviacion(compania.getTipoViaje())) / Utilidades.getVelocidadMedia(compania.getTipoViaje())) * 60));	
+							
+							while (minutosDuracion % 5 != 0) minutosDuracion++;
+							
+							LocalTime horaSalidaVuelta = horaSalida.plusMinutes(minutosDuracion + Utilidades.getTiempoRotacion(compania.getTipoViaje()));
+							
+							DiaSemana diaSemanaVuelta = diaSemana.plusDays((int) ((horaSalida.getHour() * 60 + horaSalida.getMinute() + minutosDuracion + Utilidades.getTiempoRotacion(compania.getTipoViaje())) / (24 * 60)));
+							
+							// Precio
+							
+							double precioBase = distanciaKm * Utilidades.getPrecioBasePorKm(compania.getTipoViaje()) * compania.getFactorPrecio();		
+							
+							double precioIda = Math.round((precioBase * (0.8 + 0.4 * Math.random())) * 100) / 100.0;			// Factor aleatorio +-20%
+							double precioVuelta = Math.round((precioBase * (0.8 + 0.4 * Math.random())) * 100) / 100.0;			// Factor aleatorio +-20%
+							
+							// Creamos los viajes
+							
+							Viaje ida = new Viaje(0, diaSemana, horaSalida, precioIda, nPlazas, compania.getTipoViaje(), compania, origen, destino);
+							Viaje vuelta = new Viaje(0, diaSemanaVuelta, horaSalidaVuelta, precioVuelta, nPlazas, compania.getTipoViaje(), compania, destino, origen);
+							
+							// Metemos los viajes a la BD
+							// Ida
+							
+							pstmt.setString(1, ida.getHora().toString());
+							pstmt.setDouble(2, ida.getPrecioPorP());
+							pstmt.setInt(3, ida.getNPlazas());
+							pstmt.setInt(4, ida.getDiaSemana().getId());
+							pstmt.setInt(5, ida.getTipoViaje().getId());
+							pstmt.setInt(6, ida.getCompania().getId());
+							pstmt.setInt(7, ida.getOrigen().getId());
+							pstmt.setInt(8, ida.getDestino().getId());					
+							pstmt.setString(9, vuelta.getHora().toString());
+							pstmt.setDouble(10, vuelta.getPrecioPorP());
+							pstmt.setInt(11, vuelta.getNPlazas());
+							pstmt.setInt(12, vuelta.getDiaSemana().getId());
+							pstmt.setInt(13, vuelta.getTipoViaje().getId());
+							pstmt.setInt(14, vuelta.getCompania().getId());
+							pstmt.setInt(15, vuelta.getOrigen().getId());
+							pstmt.setInt(16, vuelta.getDestino().getId());
+							
+							pstmt.addBatch();
+							
+						}
+					
+					}
+					
+				}
+
+				pstmt.executeBatch();
+				
+				System.out.println("Ciudades sin aeropuerto:" + contadorCiudadesConAer + "/" + ciudadesConAer.size());
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al cargar los viajes en la BD");
+			e.printStackTrace();
 			
 		}
 		
