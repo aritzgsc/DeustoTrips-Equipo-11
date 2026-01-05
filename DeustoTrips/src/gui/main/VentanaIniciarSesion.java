@@ -6,7 +6,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -39,6 +42,13 @@ public class VentanaIniciarSesion extends JDialog {
 		setLocationRelativeTo(VentanaPrincipal.getVentanaPrincipal());
 		setResizable(false);
 		setTitle("Iniciar Sesión");
+		
+		try {
+			setIconImage(ImageIO.read(new File("resources/images/logo.jpg")));
+		} catch (IOException e) {
+			System.err.println("Error al cargar el logo");
+			e.printStackTrace();
+		}
 		
 		// Panel Texto Error
 		

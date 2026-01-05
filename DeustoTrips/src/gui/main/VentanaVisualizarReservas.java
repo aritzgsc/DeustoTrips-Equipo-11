@@ -2,15 +2,20 @@ package gui.main;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import db.GestorDB;
-import gui.util.PanelAlojamiento;
+import domain.PanelReserva;
 
 // Ventana que nos permite visualizar todas las reservas de un usuario (el usuario con la sesión iniciada)
 
@@ -25,22 +30,32 @@ public class VentanaVisualizarReservas extends JFrame {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setMinimumSize(new Dimension(1100, 750));
 		setLocationRelativeTo(VentanaPrincipal.getVentanaPrincipal());
-		setTitle("Mis apartamentos");
-				
+		setTitle("Mis reservas");
+		
+		try {
+			setIconImage(ImageIO.read(new File("resources/images/logo.jpg")));
+		} catch (IOException e) {
+			System.err.println("Error al cargar el logo");
+			e.printStackTrace();
+		}
+		
 		// FIN Configuración de la ventana
 		////
-		// Panel que contendrá todos los apartamentos
+		// Panel que contendrá todas las reservas
 		
-		// TODO Modificar esto para que acepte viajes (cuando esté hecha esa parte)
+		JPanel panelReservas = new JPanel();
+		panelReservas.setLayout(new BoxLayout(panelReservas, BoxLayout.Y_AXIS));
 		
-		JPanel panelAlojamientos = new JPanel();
-		panelAlojamientos.setLayout(new BoxLayout(panelAlojamientos, BoxLayout.Y_AXIS));
+		List<PanelReserva> reservas = new ArrayList<PanelReserva>();
 		
-		List<PanelAlojamiento> reservasAlojamientos = GestorDB.getReservasAlojamientos();
+		reservas.addAll(GestorDB.getReservasAlojamientos());
+		reservas.addAll(GestorDB.getReservasViajes());
 		
-		for (PanelAlojamiento panel : reservasAlojamientos) {
+		Collections.sort(reservas);
+
+		for (PanelReserva panel : reservas) {
 			
-			panelAlojamientos.add(panel);
+			panelReservas.add(panel);
 			
 		}
 		
@@ -48,7 +63,7 @@ public class VentanaVisualizarReservas extends JFrame {
 		////
 		// ScrollPane donde se mostrará el panel que tiene todos los apartamentos inicialmente
 		
-		JScrollPane scrollPaneApartamentos = new JScrollPane(panelAlojamientos);
+		JScrollPane scrollPaneApartamentos = new JScrollPane(panelReservas);
 		
 		// FIN ScrollPane
 		////
@@ -58,7 +73,7 @@ public class VentanaVisualizarReservas extends JFrame {
 		
 		// Hacemos visible la ventana
 		
-		if (reservasAlojamientos.isEmpty()) {
+		if (reservas.isEmpty()) {
 			dispose();
 		} else {
 			setVisible(true);

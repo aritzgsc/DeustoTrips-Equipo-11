@@ -3,7 +3,10 @@ package gui.main;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
@@ -32,6 +35,13 @@ public class VentanaMostrarResenas extends JFrame {
 		setLocationRelativeTo(VentanaPrincipal.getVentanaPrincipal());
 		setResizable(false);
 		setTitle("Reseñas de " + alojamiento.getNombre());
+		
+		try {
+			setIconImage(ImageIO.read(new File("resources/images/logo.jpg")));
+		} catch (IOException e) {
+			System.err.println("Error al cargar el logo");
+			e.printStackTrace();
+		}
 		
 		// FIN Configuración de la ventana
 		////

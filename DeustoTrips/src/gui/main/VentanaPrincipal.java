@@ -26,16 +26,18 @@ public final class VentanaPrincipal extends JFrame {
 		// Configuración de la ventana
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setMinimumSize(new Dimension(1440, 500));								// Para que si se quita el maximizado se quede con ese tamaño
+		setMinimumSize(new Dimension(1440, 520));								// Por si se quita el maximizado se quede con ese tamaño
+		setSize(new Dimension(1440, 520));								
 		setLocationRelativeTo(null);
+		setExtendedState(MAXIMIZED_BOTH);
+		setTitle(Main.NOMBRE_APP);
+
 		try {
 			setIconImage(ImageIO.read(new File("resources/images/logo.jpg")));
 		} catch (IOException e) {
 			System.err.println("Error al cargar el logo");
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
-		setExtendedState(MAXIMIZED_BOTH);
-		setTitle(Main.NOMBRE_APP);
 		
 		// FIN Configuración de la ventana
 		////

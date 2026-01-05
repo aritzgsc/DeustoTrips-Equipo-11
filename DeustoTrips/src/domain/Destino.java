@@ -1,5 +1,7 @@
 package domain;
 
+import java.util.Objects;
+
 import javax.swing.ImageIcon;
 
 // Clase madre del resto de tipos de destinos
@@ -77,6 +79,23 @@ public abstract class Destino implements Comparable<Destino> {
 	
 	// Comprobado con datos de prueba en MiSelectorDestinos
 	
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Destino other = (Destino) obj;
+		return id == other.id;
+	}
+
 	@Override
 	public int compareTo(Destino other) {											// Objetivo: DefaultAns, País, Ciudades del país, Aeropuertos del país (todo en orden alfabético - países entre ellos también)
 		

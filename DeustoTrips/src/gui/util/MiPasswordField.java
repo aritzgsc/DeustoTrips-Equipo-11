@@ -42,7 +42,6 @@ public class MiPasswordField extends JSplitPane {
 
 		contrasenaPF.setBorder(Main.DEFAULT_LINE_BORDER);
 		contrasenaPF.setFont(Main.FUENTE);
-		contrasenaPF.addKeyListener(Main.ANTI_CARACTERES_RAROS);
 		contrasenaPF.addFocusListener(new FocusAdapter() {
 
 			@Override

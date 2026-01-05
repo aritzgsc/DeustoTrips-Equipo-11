@@ -101,7 +101,7 @@ public class MiTablaResumenApartamentosRenderer implements TableCellRenderer {
     	Color colorFondo;
     	Color colorTexto;
     
-    	colorFondo = (row % 2 == 0) ? Color.WHITE : new Color(250, 250, 250);
+    	colorFondo = isSelected? table.getSelectionBackground() : (row % 2 == 0) ? Color.WHITE : new Color(250, 250, 250);
     	colorTexto = table.getForeground();
     	
     	// Aplicamos los colores a todos los componentes base

@@ -43,10 +43,12 @@ import gui.main.PanelPestanasBusqueda;
 import gui.main.PanelVolverRegistrarseIniciarSesion;
 import gui.main.busqueda.MiSelectorDestino;
 import gui.util.PanelAlojamiento;
+import gui.util.PanelViaje;
 import main.Main;
 import main.util.Utilidades;
 
 // Clase que contiene todos los métodos que utilizan la BD
+// Algunas funciones han sido modificadas para optimizar el rendimiento de la aplicación (precargamos algunos datos que utilizamos mucho en el Main y luego los sacamos directamente de ahi en vez de accediendo de nuevo a la BD)
 
 public class GestorDB {
 
@@ -203,7 +205,7 @@ public class GestorDB {
 
 					aeropuerto = new Aeropuerto(idAeropuerto, ciudadAeropuerto, nomAeropuerto, latAeropuerto, lonAeropuerto);
 
-					// Rellenamos el mapa correspondiente
+					// Rellenamos la lista correspondiente
 
 					destinosList.add(aeropuerto);
 
@@ -246,6 +248,7 @@ public class GestorDB {
 			if (rs.next()) {
 
 				switch (rs.getInt("ID_TD")) {
+				case 0:
 				case ID_TD_PAIS:
 
 					// En caso de que sea un país lo creamos directamente con su respectiva bandera
@@ -255,10 +258,14 @@ public class GestorDB {
 					ImageIcon bandera = null;
 					try {
 
-						ByteArrayInputStream bais = new ByteArrayInputStream(imagenBytes);
+						if (imagenBytes != null) {
+						
+							ByteArrayInputStream bais = new ByteArrayInputStream(imagenBytes);
+	
+							bandera = new ImageIcon(ImageIO.read(bais));
 
-						bandera = new ImageIcon(ImageIO.read(bais));
-
+						}
+							
 					} catch (IOException e) {
 
 						System.err.println("Error al cargar la bandera del país");
@@ -1402,7 +1409,7 @@ public class GestorDB {
 					
 				}
 					
-			if ((alojamiento instanceof Apartamento && rs.getInt("N_RVAS") == 0) || (alojamiento instanceof Hotel && (rs.getInt("N_HABS_RVDAS") + ((Hotel) alojamiento).nHabitacionesOcupadas(nPersonas)) <= ((Hotel) alojamiento).getNumHabs())) {
+				if ((alojamiento instanceof Apartamento && rs.getInt("N_RVAS") == 0) || (alojamiento instanceof Hotel && (rs.getInt("N_HABS_RVDAS") + ((Hotel) alojamiento).nHabitacionesOcupadas(nPersonas)) <= ((Hotel) alojamiento).getNumHabs())) {
 						
 					int nNoches = (int) ChronoUnit.DAYS.between(fechaInicio, fechaFin);
 
@@ -1470,7 +1477,7 @@ public class GestorDB {
 
 		}
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING + "&foreign_keys=on");
 			 PreparedStatement pstmt = con.prepareStatement(sqlDelete)) {
 
 			pstmt.setString(1, PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo().trim());
@@ -1535,7 +1542,7 @@ public class GestorDB {
 				int idA = rsAP.getInt("ID_AP");
 				String nombreA = rsAP.getString("NOM_AP");
 				String dirA = rsAP.getString("DIR_AP");
-				Ciudad ciudadA = (Ciudad) getDestino(rsAP.getInt("ID_D"));
+				Ciudad ciudadA = (Ciudad) Main.destinoPorIndice.get(rsAP.getInt("ID_D"));
 				String descripcionA = rsAP.getString("DESC_AP");
 				List<Resena> resenasA = getResenasAlojamiento(Apartamento.class, idA);
 				List<BufferedImage> imagenesA = getImagenesAlojamiento(Apartamento.class, idA, Integer.MAX_VALUE);
@@ -1681,7 +1688,7 @@ public class GestorDB {
 						   VALUES (?, ?);
 						   """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING + "&foreign_keys=on");
 			 PreparedStatement pstmtUpdate = con.prepareStatement(sqlUpdate);
 			 PreparedStatement pstmtDelete = con.prepareStatement(sqlDelete);
 			 PreparedStatement pstmtInsert = con.prepareStatement(sqlInsert)) {
@@ -2447,6 +2454,106 @@ public class GestorDB {
 	}
 	
 	// FIN Funciónes para reservar viajes
+	////
+	// Función que devuelve todas las reservas de viajes del usuario registrado
+	
+	public static List<PanelViaje> getReservasViajes() {
+
+		List<PanelViaje> reservasViajes = new ArrayList<PanelViaje>();
+
+		Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
+
+		String sqlSelectIdRvaVin = """
+								   SELECT ID_RVA_VIN, N_VIAJES_IDA, N_VIAJES_VUELTA
+								   FROM VINCULO_RESERVAS_V
+								   WHERE EMAIL_CLI = ?
+								   """;
+		
+		String sqlSelectV = """
+						   	SELECT V.ID_V, HORA_V, PRECIO_P_V, NPLAZAS_V, ID_DS, ID_TV, ID_COMP, ID_D_ORIG, ID_D_DEST, F_RVA_V, N_PER
+						    FROM RESERVA_V RVA_V, VIAJE V
+						    WHERE RVA_V.ID_V = V.ID_V AND ID_RVA_VIN = ?
+						    ORDER BY RVA_V.F_RVA_V ASC, V.HORA_V ASC
+						    """;
+		
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmtSelectIdRvaVin = con.prepareStatement(sqlSelectIdRvaVin);
+			 PreparedStatement pstmtSelectV = con.prepareStatement(sqlSelectV)) {
+
+			pstmtSelectIdRvaVin.setString(1, cliente.getCorreo());
+
+			ResultSet rsIdRvaVin = pstmtSelectIdRvaVin.executeQuery();
+
+			while (rsIdRvaVin.next()) {
+
+				int idRvaVin = rsIdRvaVin.getInt("ID_RVA_VIN");
+				
+				List<Viaje> viajesIda = new ArrayList<Viaje>();
+				List<Viaje> viajesVuelta = new ArrayList<Viaje>();
+				
+				LocalDate fechaIda = null;
+				LocalDate fechaVuelta = null;
+				
+				int nPersonas = 0;
+				
+				pstmtSelectV.setInt(1, idRvaVin);
+				
+				ResultSet rsV = pstmtSelectV.executeQuery();
+				
+				for (int i = 0; i < rsIdRvaVin.getInt("N_VIAJES_IDA"); i++) {
+					
+					if (rsV.next()) {
+					
+						if (i == 0) {
+						
+							fechaIda = LocalDate.parse(rsV.getString("F_RVA_V"));
+							nPersonas = rsV.getInt("N_PER");
+						
+						}
+							
+						viajesIda.add(new Viaje(rsV.getInt("ID_V"), DiaSemana.getDiaSemana(rsV.getInt("ID_DS")), LocalTime.parse(rsV.getString("HORA_V")), rsV.getDouble("PRECIO_P_V"), rsV.getInt("NPLAZAS_V"), TipoViaje.getTipoViaje(rsV.getInt("ID_TV")), getCompania(rsV.getInt("ID_COMP")), getDestino(rsV.getInt("ID_D_ORIG")), getDestino(rsV.getInt("ID_D_DEST"))));
+						
+					}
+					
+				}
+				
+				for (int i = 0; i < rsIdRvaVin.getInt("N_VIAJES_VUELTA"); i++) {
+					
+					if (rsV.next()) {
+						
+						if (i == 0) fechaVuelta = LocalDate.parse(rsV.getString("F_RVA_V"));
+						
+						viajesVuelta.add(new Viaje(rsV.getInt("ID_V"), DiaSemana.getDiaSemana(rsV.getInt("ID_DS")), LocalTime.parse(rsV.getString("HORA_V")), rsV.getDouble("PRECIO_P_V"), rsV.getInt("NPLAZAS_V"), TipoViaje.getTipoViaje(rsV.getInt("ID_TV")), getCompania(rsV.getInt("ID_COMP")), getDestino(rsV.getInt("ID_D_ORIG")), getDestino(rsV.getInt("ID_D_DEST"))));
+						
+					}
+					
+				}
+				
+				if (viajesVuelta.isEmpty()) {
+					
+					reservasViajes.add(new PanelViaje(idRvaVin, viajesIda, fechaIda, nPersonas, PanelViaje.MODO_CANCELAR));
+					
+				} else {
+					
+					reservasViajes.add(new PanelViaje(idRvaVin, viajesIda, viajesVuelta, fechaIda, fechaVuelta, nPersonas, PanelViaje.MODO_CANCELAR));
+					
+				}
+				
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al cargar las reservas de alojamientos");
+			e.printStackTrace();
+
+		}
+
+		return reservasViajes;
+
+	}
+	
+	// FIN Función que devuelve todas las reservas de viajes del usuario registrado
 	////
 	// Función para cancelar un viaje completo
 	

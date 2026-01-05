@@ -41,6 +41,7 @@ import javax.swing.border.EmptyBorder;
 import db.GestorDB;
 import domain.Cliente;
 import domain.Compania;
+import domain.PanelReserva;
 import domain.Viaje;
 import domain.Viaje.TipoViaje;
 import gui.main.PanelPestanasBusqueda;
@@ -51,7 +52,7 @@ import gui.main.busqueda.BotonBuscar;
 import main.Main;
 import main.util.MailSender;
 
-public class PanelViaje extends JPanel {
+public class PanelViaje extends PanelReserva {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -59,6 +60,8 @@ public class PanelViaje extends JPanel {
 	public static int MODO_CANCELAR = 2;
 	
 	public PanelViaje(int idRvaVin, List<Viaje> viajesIda, LocalDate fechaSalidaIda, int nPersonas, int modo) {
+		
+		setFechaInicioReserva(fechaSalidaIda);
 		
 		// Creación y configuracion del panel principal
 
@@ -364,7 +367,7 @@ public class PanelViaje extends JPanel {
 		detallesB.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 		
 		detallesB.addActionListener(e -> {
-		new VentanaDetallesViaje(viajesIda, fechaSalidaIda, nPersonas, modo);
+			new VentanaDetallesViaje(viajesIda, fechaSalidaIda, nPersonas, modo);
 		});
 		
 		MiButton reservarB = new MiButton("Reservar");
@@ -504,6 +507,8 @@ public class PanelViaje extends JPanel {
 	}
 
 	public PanelViaje(int idRvaVin, List<Viaje> viajesIda, List<Viaje> viajesVuelta, LocalDate fechaSalidaIda, LocalDate fechaSalidaVuelta, int nPersonas, int modo) {
+		
+		setFechaInicioReserva(fechaSalidaIda);
 		
 	    // Creación y configuracion del panel principal
 
@@ -968,7 +973,7 @@ public class PanelViaje extends JPanel {
 		detallesIdaB.setPreferredSize(new Dimension(detallesIdaB.getPreferredSize().width, 60));
 		detallesIdaB.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 		detallesIdaB.addActionListener(e -> {
-		new VentanaDetallesViaje(viajesIda, fechaSalidaIda, nPersonas, modo);
+			new VentanaDetallesViaje(viajesIda, fechaSalidaIda, nPersonas, modo);
 		});
 		
 		MiButton detallesVueltaB = new MiButton("Detalles Vuelta");
@@ -976,7 +981,7 @@ public class PanelViaje extends JPanel {
 		detallesVueltaB.setPreferredSize(new Dimension(detallesVueltaB.getPreferredSize().width, 60));
 		detallesVueltaB.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 		detallesVueltaB.addActionListener(e -> {
-		new VentanaDetallesViaje(viajesVuelta, fechaSalidaVuelta, nPersonas, modo);
+			new VentanaDetallesViaje(viajesVuelta, fechaSalidaVuelta, nPersonas, modo);
 		});
 		
 		panelBotonesDetalles.add(detallesIdaB);

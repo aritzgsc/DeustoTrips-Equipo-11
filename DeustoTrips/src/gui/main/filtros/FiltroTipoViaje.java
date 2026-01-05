@@ -34,7 +34,7 @@ public class FiltroTipoViaje extends JPanel {
 		////
 		// Creación del botón que controlará si aparece o desaparece el filtro
 				
-		checkBoxTipo = new JCheckBox("\tTipo de viaje: ");
+		checkBoxTipo = new JCheckBox(" Tipo de viaje: ");
 		checkBoxTipo.setPreferredSize(new Dimension(200, 50));
 		checkBoxTipo.setBorder(Main.DEFAULT_LINE_BORDER);
 		checkBoxTipo.setFont(Main.FUENTE);
@@ -66,7 +66,7 @@ public class FiltroTipoViaje extends JPanel {
 		panelSelectorTipo.setLayout(new BoxLayout(panelSelectorTipo, BoxLayout.Y_AXIS));
 		panelSelectorTipo.setVisible(false);
 		
-		botonAvion = new JCheckBox("\tAvión");
+		botonAvion = new JCheckBox(" Avión");
 		botonAvion.setSelected(true);
 		botonAvion.setFocusable(false);
 		botonAvion.setFont(Main.FUENTE);
@@ -88,7 +88,7 @@ public class FiltroTipoViaje extends JPanel {
 			
 		});
 		
-		botonOtro = new JCheckBox("\tOtro");
+		botonOtro = new JCheckBox(" Otro");
 		botonOtro.setSelected(true);
 		botonOtro.setFocusable(false);
 		botonOtro.setFont(Main.FUENTE);

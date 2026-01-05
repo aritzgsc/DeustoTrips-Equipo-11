@@ -135,8 +135,10 @@ public class LoaderDB {
 		
 		// Luego cargamos todos los viajes
 		
-//		cargarViajesEnDB(false);												// Todas las ciudades
+//		cargarViajesEnDB(false);												// Todas las ciudades a todas las ciudades del país
 //		cargarViajesEnDB(true);													// Ciudades grandes
+//		cargarViajesCiudadesSinAerACiudadesConAerCercanasEnDB();				// Entre pueblos y ciudades grandes cercanas
+//		cargarViajesCiudadesGrandesConAerACiudadesGrandesConAerCercanasEnDB();  // Entre ciudades grandes relativamente cercanas
 		
 		// FIN Carga de VIAJES
 		

@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -12,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -40,7 +43,14 @@ public class VentanaVisualizarApartamentos extends JFrame {
 		setMinimumSize(new Dimension(1120, 800));
 		setLocationRelativeTo(VentanaPrincipal.getVentanaPrincipal());
 		setTitle("Mis apartamentos");
-				
+		
+		try {
+			setIconImage(ImageIO.read(new File("resources/images/logo.jpg")));
+		} catch (IOException e) {
+			System.err.println("Error al cargar el logo");
+			e.printStackTrace();
+		}
+		
 		// FIN Configuración de la ventana
 		////
 		// Panel que contendrá todos los apartamentos

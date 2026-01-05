@@ -150,9 +150,7 @@ public class MiSelectorFecha extends JDateChooser {
 					
 					estilizarDias(calendario);
 					
-					calendario.getMonthChooser().addPropertyChangeListener("month", (evt) -> estilizarDias(calendario));
-					
-					calendario.getYearChooser().addPropertyChangeListener("year", (evt) -> estilizarDias(calendario));
+					calendario.addPropertyChangeListener("calendar", (evt) -> estilizarDias(calendario));
 					
 				});
 				

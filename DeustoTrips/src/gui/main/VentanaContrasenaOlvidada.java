@@ -8,7 +8,10 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -42,6 +45,13 @@ public class VentanaContrasenaOlvidada extends JDialog {
 		setLocationRelativeTo(VentanaIniciarSesion.getVentanaIniciarSesion());
 		setResizable(false);
 		setTitle("He olvidado mi contraseña");
+		
+		try {
+			setIconImage(ImageIO.read(new File("resources/images/logo.jpg")));
+		} catch (IOException e) {
+			System.err.println("Error al cargar el logo");
+			e.printStackTrace();
+		}
 		
 		// FINC onfiguración de la ventana emergente
 		////
@@ -201,7 +211,7 @@ public class VentanaContrasenaOlvidada extends JDialog {
 		String asunto = "DeustoTrips - Código de Verificación";
 		
 		String cuerpoHTML = String.format("""
-							              <div style="text-align: center; font-family: 'Comic Sans MS', cursive; color: #333;">
+							              <div style="text-align: center; font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', sans-serif; color: #333;">
 							                 
 							                 <h1 style="color: #2c3e50;">🔐 Recuperación de Cuenta</h1>
 							                 

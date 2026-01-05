@@ -4,12 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import domain.Cliente;
 import gui.util.MiButton;
-import main.Main;
 
 // Panel de arriba de la ventana principal, contendrá los botones para volver a la pestaña inicial, iniciar sesión, registrarse ; estos dos ultimos no deberán mostrarse en caso de ya estar con la sesión iniciada
 
@@ -61,8 +62,10 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 		////
 		// Creación del botón volver
 		
-		MiButton volver = new MiButton(Main.NOMBRE_APP);
-		volver.setPreferredSize(new Dimension(350, 50));
+		MiButton volver = new MiButton();
+		volver.setIcon(new ImageIcon("resources/images/eslogan.jpg"));
+		volver.setPreferredSize(new Dimension(350, 70));
+		volver.setHorizontalAlignment(JButton.CENTER);
 		volver.addActionListener(e -> PanelPestanasBusqueda.resetAll());		// Cuando hagamos click en volver se resetearán todas las selecciones y datos escritos
 		
 		// FIN Creación del botón volver
@@ -127,7 +130,17 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 	}
 	
 	public static void setCliente(Cliente cliente) {
+		
 		PanelVolverRegistrarseIniciarSesion.cliente = cliente;
+		
+		panelDerecha.removeAll();
+		panelDerecha.setLayout(new GridLayout(1, 2, 5, 0));
+		panelDerecha.add(registrarApartamento);
+		panelDerecha.add(new BotonPopUpAccionesPerfil(cliente));
+		
+		panelDerecha.revalidate();
+		panelDerecha.repaint();
+		
 	}
 	
 	public static boolean isSesionIniciada() {

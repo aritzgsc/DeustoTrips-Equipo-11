@@ -35,6 +35,7 @@ import domain.Alojamiento;
 import domain.Apartamento;
 import domain.Cliente;
 import domain.Hotel;
+import domain.PanelReserva;
 import domain.Resena;
 import gui.main.PanelPestanasBusqueda;
 import gui.main.PanelResultadosBusqueda;
@@ -44,7 +45,7 @@ import gui.main.busqueda.BotonBuscar;
 import main.Main;
 import main.util.MailSender;
 
-public class PanelAlojamiento extends JPanel {
+public class PanelAlojamiento extends PanelReserva {
 
 	private static final long serialVersionUID = 1L;
 
@@ -61,6 +62,8 @@ public class PanelAlojamiento extends JPanel {
 	private JProgressBar ratingPB;
 
 	public PanelAlojamiento(Alojamiento alojamiento, int nPersonas, LocalDate fechaInicio, LocalDate fechaFin, double precioRva, int idRva /* Si no tiene -1 */, Resena resena, int modo) {
+
+		setFechaInicioReserva(fechaInicio);
 		
 		this.resena = resena;
 		this.alojamiento = alojamiento;
