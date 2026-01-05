@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -151,15 +150,14 @@ public class BotonBuscar extends MiButton {
 						
 						panelViajes.setInfo("Buscando Viajes de " + origen.toString() + " a " + destino.toString());
 						
-						List<List<Viaje>> viajesDisponiblesIda = new ArrayList<List<Viaje>>();
-//						List<List<Viaje>> viajesDisponiblesIda = GestorDB.generarViajes(origen, destino, fechaIda, nPersonas, precioMin, precioMax, tiposViaje);
+						List<List<Viaje>> viajesDisponiblesIda = GestorDB.generarViajes(origen, destino, fechaIda, nPersonas, precioMin, precioMax, tiposViaje);
 						viajesDisponiblesIda.sort(Main.comparadorViajesCompletos);
 						
-						List<List<Viaje>> viajesDisponiblesVuelta = new ArrayList<List<Viaje>>();
+						List<List<Viaje>> viajesDisponiblesVuelta = null;
 						
 						if (tipo.equals("Ida y Vuelta")) {
 							
-//							viajesDisponiblesVuelta = GestorDB.generarViajes(destino, origen, fechaVuelta, nPersonas, precioMin, precioMax, tiposViaje);
+							viajesDisponiblesVuelta = GestorDB.generarViajes(destino, origen, fechaVuelta, nPersonas, precioMin, precioMax, tiposViaje);
 							viajesDisponiblesVuelta.sort(Main.comparadorViajesCompletos);
 						
 						}

@@ -12,11 +12,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -33,12 +37,14 @@ import domain.Hotel;
 import domain.Pais;
 import domain.Resena;
 import domain.Viaje;
+import domain.Viaje.DiaSemana;
 import domain.Viaje.TipoViaje;
 import gui.main.PanelPestanasBusqueda;
 import gui.main.PanelVolverRegistrarseIniciarSesion;
 import gui.main.busqueda.MiSelectorDestino;
 import gui.util.PanelAlojamiento;
 import main.Main;
+import main.util.Utilidades;
 
 // Clase que contiene todos los métodos que utilizan la BD
 
@@ -1868,6 +1874,390 @@ public class GestorDB {
 	}
 	
 	// FIN Función para conseguir todas las compañías de viajes
+	////
+	// Función para conseguir una compañía específica a partir de su ID
+	
+	public static Compania getCompania(int idComp) {
+		
+		return Main.companiaPorIndice.get(idComp);
+		
+	}
+	
+	// Función para conseguir una compañía específica a partir de su ID	
+	////
+	// Funcion para conseguir todos los viajes desde un origen y que vayan a llegar a un destino final con una profundidad de búsqueda determinada
+	
+	public static List<Viaje> getViajes(Connection con, Destino origen, Destino destinoFinal, LocalDate fechaMin, LocalDate fechaMax, LocalTime horaMin, LocalTime horaMax, int nPersonas, List<TipoViaje> tiposViaje, int profundidadComprobExists) {
+		
+		List<Viaje> viajes = new ArrayList<Viaje>();
+		
+		// Preparación de parámetros dinámicos (IN (?,...))
+		
+		// Días intermedios
+		
+	    Set<Integer> diasIntermedios = new HashSet<Integer>();
+	    
+	    if (!fechaMin.isEqual(fechaMax)) {
+	        LocalDate actual = fechaMin.plusDays(1);
+	        while (actual.isBefore(fechaMax)) {
+	            diasIntermedios.add(actual.getDayOfWeek().getValue());
+	            actual = actual.plusDays(1);
+	        }
+	    }
+	    
+	    String idDsParamsMedio = "";
+	    
+	    if (!diasIntermedios.isEmpty()) {
+	    	
+	        for (int i = 0; i < diasIntermedios.size(); i++) {
+	        	
+	        	idDsParamsMedio += "?,";
+	            
+	        }
+	    		
+	        idDsParamsMedio = idDsParamsMedio.substring(0, idDsParamsMedio.length() - 1);
+	        
+	    }
+	    
+		// Tipos de viaje
+	    
+		String idTvParams = "";
+
+		if (!tiposViaje.isEmpty()) {
+			
+			for (int i = 0; i < tiposViaje.size(); i++) {
+				idTvParams += "?,";
+			}
+		
+			idTvParams = idTvParams.substring(0, idTvParams.length() - 1);
+		
+		}
+		
+		// Ids Origen (La ciudad de origen y sus aeropuertos)
+		
+		String idDOrigParams = "";
+		
+		List<Aeropuerto> aeropuertosOrig = new ArrayList<Aeropuerto>();
+		
+		if (origen instanceof Aeropuerto) {
+		
+			origen = ((Aeropuerto) origen).getCiudad();
+			
+		} 
+			
+		aeropuertosOrig = Main.aeropuertosPorIndiceCiudad.get(origen.getId());
+			
+		if (aeropuertosOrig == null) aeropuertosOrig = new ArrayList<Aeropuerto>();
+			
+		for (int i = 0; i < aeropuertosOrig.size() + 1; i++) {
+			idDOrigParams += "?,";
+		}
+			
+		idDOrigParams = idDOrigParams.substring(0, idDOrigParams.length() - 1);
+		
+		// Ids Destino (La ciudad de destino y sus aeropuertos)
+		
+		String idDDestParams = "";
+		
+		List<Aeropuerto> aeropuertosDest = new ArrayList<Aeropuerto>();
+		
+		if (destinoFinal instanceof Aeropuerto) {
+		
+			destinoFinal = ((Aeropuerto) destinoFinal).getCiudad();
+			
+		} 
+			
+		aeropuertosDest = Main.aeropuertosPorIndiceCiudad.get(destinoFinal.getId());
+			
+		if (aeropuertosDest == null) aeropuertosDest = new ArrayList<Aeropuerto>();
+			
+		for (int i = 0; i < aeropuertosDest.size() + 1; i++) {
+			idDDestParams += "?,";
+		}
+			
+		idDDestParams = idDDestParams.substring(0, idDDestParams.length() - 1);
+		
+		// Consulta que devuelve todos los viajes desde un origen y que tendrán solución hasta un destino con cierta profundidad máxima para garantizar una búsqueda óptima
+		// Hay que tener en cuenta que esta función es la que se utiliza en la recursividad para sacar los viajes desde un origen de los encontrados (o el inicial) hasta un destino final
+		
+		String sql = "SELECT V.ID_V, HORA_V, PRECIO_P_V, NPLAZAS_V, ID_DS, V.ID_TV, V.ID_COMP, ID_D_ORIG, ID_D_DEST, (NPLAZAS_V - COALESCE(SUM(N_PER), 0)) AS PLAZAS_DISP " +
+					 "FROM VIAJE V " +
+					 "LEFT JOIN RESERVA_V RVA_V ON V.ID_V = RVA_V.ID_V AND F_RVA_V BETWEEN ? AND ? " +		// Para que no nos saque viajes que están completos
+		   			 "INNER JOIN COMPANIA C ON V.ID_COMP = C.ID_COMP " +
+		   			 "INNER JOIN TIPO_VIAJE TV ON V.ID_TV = TV.ID_TV " +
+		   			 "WHERE (" + (fechaMin.equals(fechaMax)? "(ID_DS = ? AND HORA_V BETWEEN ? AND ?)" : "(ID_DS = ? AND HORA_V >= ?) OR (ID_DS = ? AND HORA_V <= ?) ") + (!diasIntermedios.isEmpty()? "OR (ID_DS IN (" + idDsParamsMedio + "))" : "") + ") AND " +
+		   			 "	    V.ID_TV IN (" + idTvParams + ") AND " +
+		   			 "	    ID_D_ORIG IN (" + idDOrigParams + ") AND " +
+		   			 "		(V.ID_D_DEST IN (" + idDDestParams + ")";		// Si la profundidad es 0 (0 escalas desde el origen hasta el destino) se quedaría aqui el where (que haya un viaje directo de origen actual a destino final)
+		
+		// Si la profundidad es > 0 aquí empieza a complicarse un poco la cosa
+		// Tenemos que añadirle al where una serie de clausulas EXISTS para garantizar que vaya a haber solución con esa profundidad de búsqueda
+		
+		if (profundidadComprobExists > 0) {
+		
+			sql += " OR EXISTS (";
+			
+			int parentesisAbiertos = 2;
+			double tiempoEscala = 1;		// Tema de tiempos recomendado y hecho con ayuda de GEMINI
+			
+			for (int i = 0; i < profundidadComprobExists; i++) {
+				
+				String aliasActual = "V" + i;
+			    String aliasTvActual = "TV" + i;
+			    String aliasCActual = "C" + i;
+			    
+			    String aliasAnterior, aliasTvAnt, aliasCAnt;
+			    
+			    if (i == 0) {
+			        aliasAnterior = "V";
+			        aliasTvAnt = "TV";
+			        aliasCAnt = "C";
+			    } else {
+			        aliasAnterior = "V" + (i - 1);
+			        aliasTvAnt = "TV" + (i - 1);
+			        aliasCAnt = "C" + (i - 1);
+			    }
+
+			    // Aquí buscamos que haya cualquier cosa en la siguiente consulta
+			    // La consulta busca como en la principal pero con algunos cambios
+			    // (Hay que tener en cuenta que esto se pondrá tantas veces como profundidad le pasemos a la funcion)
+			    
+			    sql += "SELECT 1 FROM VIAJE " + aliasActual + " " +
+			       	   "INNER JOIN TIPO_VIAJE " + aliasTvActual + " ON " + aliasActual + ".ID_TV = " + aliasTvActual + ".ID_TV " +
+			           "INNER JOIN COMPANIA " + aliasCActual + " ON " + aliasActual + ".ID_COMP = " + aliasCActual + ".ID_COMP " +
+			           "WHERE " + aliasActual + ".ID_D_ORIG = " + aliasAnterior + ".ID_D_DEST AND " +												// Que el origen sea el mismo que el destino anterior
+			           aliasActual + ".ID_DS IN (" + aliasAnterior + ".ID_DS, ((" + aliasAnterior + ".ID_DS % 7) + 1)) AND " +						// Que el día de la semana sea el mismo o el siguiente a la consulta anterior 
+			           "(" + aliasActual + ".ID_DS != " + aliasAnterior + ".ID_DS OR " +															// O que el día de la semana sea distinto que el anterior (hay tiempo suficiente de escala) O (mirar abajo)
+			           aliasActual + ".HORA_V >= time(" + aliasAnterior + ".HORA_V, '+' || (" +														// O que la hora del viaje actual sea mayor que la del viaje anterior + tiempo de escala (1 hora)
+			           
+			           // Tema de horas propuesto por GEMINI (Y como hacer la suma de horas en SQLite también lo hemos sacado de ahí)
+			           
+			           "(" + aliasAnterior + ".PRECIO_P_V / (" + aliasTvAnt + ".VEL_TV * " + aliasCAnt + ".FACTOR_PRECIO * " +  aliasTvAnt + ".P_KM_TV)) + " + tiempoEscala + ") || ' hours')) " +			// Se realiza un cálculo sencillo para obtener la duración aproximada en horas del viaje anterior (teniendo en cuenta que al cargar los datos el precio se calcula (con un factor de desviación de +-20%) como distancia * precioBaseKmTV * factorPrecioComp)
+			    
+					   "AND (" + aliasActual + ".ID_D_DEST IN (" + idDDestParams + ")";																// Y como antes que el destino sea o el destino final o sus aeropuertos
+				
+				if (i < profundidadComprobExists - 1) {
+			        
+					sql += " OR EXISTS (";				// Si no es el último otro exists como el de arriba
+			        parentesisAbiertos += 2;
+			        
+			    } else {
+			    	
+			        parentesisAbiertos += 1;			// Si es el ultimo se acabó
+			        
+			    }
+				
+				// En caso de que esta subconsulta completa no devolviera nada el viaje no se devolvería
+				
+			}
+			
+			for (int i = 0; i < parentesisAbiertos; i++) {
+				sql += ")";								// Cerramos los paréntesis
+			}
+		
+		} else {
+			
+			sql += ")";
+			
+		}
+		
+		sql += " GROUP BY V.ID_V " +
+			   "HAVING PLAZAS_DISP >= ? ";		// Para que no nos saque viajes que están completos
+		
+		try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			int siguienteParam = 1;
+			
+			// Fechas (para filtrar reservas)
+	        
+	        pstmt.setString(siguienteParam, fechaMin.toString());
+			siguienteParam++;
+			
+			pstmt.setString(siguienteParam, fechaMax.toString());
+			siguienteParam++;
+			
+			// Fechas
+			
+			if (fechaMin.equals(fechaMax)) {
+			
+				pstmt.setInt(siguienteParam, fechaMin.getDayOfWeek().getValue());
+				siguienteParam++;
+				pstmt.setString(siguienteParam, horaMin.toString());
+				siguienteParam++;
+				pstmt.setString(siguienteParam, horaMax.toString());
+				siguienteParam++;
+			
+			} else {
+				
+				pstmt.setInt(siguienteParam, fechaMin.getDayOfWeek().getValue());
+				siguienteParam++;
+				pstmt.setString(siguienteParam, horaMin.toString());
+				siguienteParam++;
+				pstmt.setInt(siguienteParam, fechaMax.getDayOfWeek().getValue());
+				siguienteParam++;
+				pstmt.setString(siguienteParam, horaMax.toString());
+				siguienteParam++;
+				
+				if (!diasIntermedios.isEmpty()) {
+					
+					for (Integer dia : diasIntermedios) {
+						
+						pstmt.setInt(siguienteParam, dia);
+						siguienteParam++;
+						
+					}
+					
+				}
+				
+			}
+			
+			// Tipos de viaje
+			
+			for (TipoViaje tipoViaje : tiposViaje) {
+				
+				pstmt.setInt(siguienteParam, tipoViaje.getId());
+				siguienteParam++;
+				
+			}
+			
+			// Origen
+			
+			pstmt.setInt(siguienteParam, origen.getId());
+			siguienteParam++;
+			
+	        for (Aeropuerto aeropuerto : aeropuertosOrig) {
+	        	pstmt.setInt(siguienteParam, aeropuerto.getId());
+	        	siguienteParam++;
+	        }
+	        
+	        // Exists
+	        
+	        for (int i = 0; i < profundidadComprobExists + 1; i++) {
+
+	        	// Destino (dinamico)
+		        
+		        pstmt.setInt(siguienteParam, destinoFinal.getId());
+				siguienteParam++;
+				
+		        for (Aeropuerto aeropuerto : aeropuertosDest) {
+		        	pstmt.setInt(siguienteParam, aeropuerto.getId());
+		        	siguienteParam++;
+		        }
+	        	
+			}
+	        
+			// Having
+			
+			pstmt.setInt(siguienteParam, nPersonas);
+			siguienteParam++;
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				
+				viajes.add(new Viaje(rs.getInt("ID_V"), DiaSemana.getDiaSemana(rs.getInt("ID_DS")), LocalTime.parse(rs.getString("HORA_V")), rs.getDouble("PRECIO_P_V"), rs.getInt("NPLAZAS_V"), TipoViaje.getTipoViaje(rs.getInt("ID_TV")), Main.companiaPorIndice.get(rs.getInt("ID_COMP")), Main.destinoPorIndice.get(rs.getInt("ID_D_ORIG")), Main.destinoPorIndice.get(rs.getInt("ID_D_DEST"))));
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al cargar los viajes de la BD");
+			e.printStackTrace();
+			
+		}
+		
+		return viajes;
+		
+	}
+	
+	// FIN Funcion para conseguir todos los viajes desde un origen y que vayan a llegar a un destino final con una profundidad de búsqueda determinada
+	////
+	// Función para generar los mejores viajes (con escalas o sin ellas) posibles con los parámetros especificados
+	
+	public static List<List<Viaje>> generarViajes(Destino origen, Destino destino, LocalDate fechaSalida, int nPersonas, double precioMin, double precioMax, List<TipoViaje> tiposViaje) {
+		
+		List<List<Viaje>> viajes = new ArrayList<List<Viaje>>();
+		
+		double distanciaTotal = Utilidades.calcularDistancia(origen, destino);
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING)) {
+			
+			// Generamos todos los viajes con un máximo de 2 escalas porque si no la función tarda mucho, aunque en teoría (con tiempo infinito) debería poder soportar todos los viajes posibles
+			// Aunque con 3 escalas es más que suficiente para llenar la lista de 20 mejores viajes que se muestra (mirar BotonBuscar y para mirar el comparador utilizado para ordenar esa lista mirar Main)
+			
+			viajes = generarViajesRec(con, new ArrayList<Viaje>(), origen, destino, fechaSalida, fechaSalida, LocalTime.of(0, 0), LocalTime.of(23, 59), nPersonas, precioMin, precioMax, tiposViaje, 3, distanciaTotal);
+		
+		} catch (SQLException e) {
+			
+			System.err.println("Error al conectarse con la BD");
+			e.printStackTrace();
+			
+		}
+		
+		return viajes;
+		
+	}
+	
+	// Función recursiva que devuelve los mejores viajes posibles de un origen a un destino, empezando con una lista base y con un máximo de viajes determinado
+	
+	public static List<List<Viaje>> generarViajesRec(Connection con, List<Viaje> viajeCompleto, Destino origen, Destino destinoFinal, LocalDate fechaMin, LocalDate fechaMax, LocalTime horaMinima, LocalTime horaMaxima, int nPersonas, double precioMin, double precioMax, List<TipoViaje> tiposViaje, int maxNumViajes, double distanciaMinima) {
+		
+		if (viajeCompleto.size() > maxNumViajes || Viaje.calcularPrecioTotal(viajeCompleto, nPersonas) > precioMax || Utilidades.calcularDistancia(origen, destinoFinal) > distanciaMinima * 1.35 + 35) return new ArrayList<List<Viaje>>();
+		
+		List<List<Viaje>> viajesCompletosPosibles = new ArrayList<List<Viaje>>();		
+
+		List<Viaje> viajesPosiblesOrigen = getViajes(con, origen, destinoFinal, fechaMin, fechaMax, horaMinima, horaMaxima, nPersonas, tiposViaje, maxNumViajes - viajeCompleto.size() - 1);
+		
+		if ((origen.equals(destinoFinal) || (destinoFinal instanceof Aeropuerto && origen instanceof Ciudad && tieneAeropuertos((Ciudad) origen) && Main.aeropuertosPorIndiceCiudad.get(origen.getId()).contains(destinoFinal)) || (origen instanceof Aeropuerto && destinoFinal instanceof Ciudad && tieneAeropuertos((Ciudad) destinoFinal) && Main.aeropuertosPorIndiceCiudad.get(destinoFinal.getId()).contains(origen))) && Viaje.calcularPrecioTotal(viajeCompleto, nPersonas) >= precioMin) {
+			
+			viajesCompletosPosibles.add(new ArrayList<>(viajeCompleto));
+			
+		} else {
+			
+			if (viajeCompleto.size() >= maxNumViajes) return new ArrayList<List<Viaje>>();
+			
+			for (Viaje viaje : viajesPosiblesOrigen) {
+				
+				boolean skip = false;
+				
+				for (Viaje viajeSeleccionado : viajeCompleto) {
+					
+					if (viaje.getDestino().equals(viajeSeleccionado.getOrigen())) {
+						skip = true;
+						break;
+					}
+					
+				}
+				
+				if (skip) continue;
+				
+				int minutosDuracion = viaje.getDuracion();
+				
+				LocalTime horaLlegada = viaje.getHora().plusMinutes(minutosDuracion);
+				
+				DiaSemana diaSemanaLlegada = viaje.getDiaSemana().plusDays((int) ((viaje.getHora().getHour() * 60 + viaje.getHora().getMinute() + minutosDuracion) / (24 * 60)));
+				
+				LocalDate fechaLlegadaMin = fechaMin;
+				
+				while (fechaLlegadaMin.getDayOfWeek().getValue() != diaSemanaLlegada.getId()) fechaLlegadaMin = fechaLlegadaMin.plusDays(1);
+				
+				LocalDate fechaLlegadaMax = LocalDateTime.of(fechaMax, LocalTime.of(0, 0)).isAfter(LocalDateTime.of(fechaLlegadaMin, horaLlegada).plusHours(8))? fechaMax : LocalDateTime.of(fechaLlegadaMin, horaLlegada).plusHours(8).toLocalDate();
+				
+				viajeCompleto.add(viaje);
+				
+				viajesCompletosPosibles.addAll(generarViajesRec(con, viajeCompleto, viaje.getDestino(), destinoFinal, fechaLlegadaMin, fechaLlegadaMax, horaLlegada, horaLlegada.plusHours(8), nPersonas, precioMin, precioMax, tiposViaje, maxNumViajes, Math.min(Utilidades.calcularDistancia(origen, destinoFinal), distanciaMinima)));
+				
+				viajeCompleto.remove(viaje);
+				
+			}
+			
+		}
+		
+		return viajesCompletosPosibles;
+		
+	}
+	
+	// FIN Funciones para generar los mejores viajes
 	////
 	// Funciónes para reservar viajes
 	
