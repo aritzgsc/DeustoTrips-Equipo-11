@@ -2591,5 +2591,48 @@ public class GestorDB {
 	}
 	
 	// FIN Función para cancelar un viaje completo
+	////
+	// Función que devuelve el número de mensajes nuevos para el usuario con la sesión iniciada y un apartamento (si el apartamento es null se devuelven todos los mensajes nuevos al correo)
 	
+	public static int getNMensajesNuevos(Apartamento apartamento) {
+		
+		int nMensajesNuevos = 0;
+		
+		String sql = """
+					 SELECT COUNT(*)
+					 FROM MENSAJE
+					 WHERE LEIDO = 'NO' AND EMAIL_RECEPTOR = ?
+					 """;
+		
+		if (apartamento != null) sql += " AND ID_AP = ?";
+		
+		if (PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo() == null) return nMensajesNuevos;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			pstmt.setString(1, PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo());
+			if (apartamento != null) pstmt.setInt(2, apartamento.getId());
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			if (rs.next()) {
+				
+				nMensajesNuevos = rs.getInt(1);
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al conseguir el número de mensajes no leidos");
+			e.printStackTrace();
+			
+		}
+		
+		return nMensajesNuevos;
+		
+	}
+	
+	// FIN Función que devuelve el número de mensajes nuevos para el usuario con la sesión iniciada y un apartamento (si el apartamento es null se devuelven todos los mensajes nuevos al correo)
+
 }
