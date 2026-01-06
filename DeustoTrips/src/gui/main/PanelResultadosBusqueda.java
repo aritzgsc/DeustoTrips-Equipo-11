@@ -27,6 +27,8 @@ public class PanelResultadosBusqueda extends JScrollPane {
 	
 	public PanelResultadosBusqueda() {
 		
+		getVerticalScrollBar().setUnitIncrement(16);	// Para que sea más agradable scrollear
+		
 		panelResultadosBusqueda = this;
 		
 		setMinimumSize(new Dimension(0, 400));

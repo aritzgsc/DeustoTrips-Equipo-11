@@ -2,6 +2,7 @@ package domain;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
 // Usuario con los datos que se guardan en la BD
 
@@ -20,6 +21,17 @@ public class Cliente {
 		this.nombre = nombre;
 		this.apellidos = apellidos;
 		this.contrasena = contrasena;
+		this.color = color;
+		this.imagen = imagen;
+		
+	}
+	
+	public Cliente(String correo, String nombre, String apellidos, Color color, BufferedImage imagen) {
+		
+		this.correo = correo;
+		this.nombre = nombre;
+		this.apellidos = apellidos;
+		this.contrasena = null;
 		this.color = color;
 		this.imagen = imagen;
 		
@@ -93,6 +105,23 @@ public class Cliente {
 
 	public void setImagen(BufferedImage imagen) {
 		this.imagen = imagen;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(correo);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Cliente other = (Cliente) obj;
+		return Objects.equals(correo, other.correo);
 	}
 	
 }

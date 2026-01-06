@@ -37,6 +37,10 @@ public class BotonBuscar extends MiButton {
 	private static ExecutorService executorBusqueda;
 	private static Thread hiloIniciarBusqueda;
 	
+	private static boolean buscando;
+	
+	private static int contador = 0;
+	
 	public BotonBuscar() {
 		
 		// Personalización del botón buscar
@@ -52,11 +56,14 @@ public class BotonBuscar extends MiButton {
 			
 			if (PanelPestanasBusqueda.setError().length() == 0) {
 				
+				setEnabled(false);
+				
 				Component panelSeleccionado = PanelPestanasBusqueda.getPanelPestanasBusqueda().getSelectedComponent();
 			
 				pararBusqueda();
-				
 				PanelResultadosBusqueda.borrarBusqueda();
+				
+				buscando = true;
 				
 				// Hilo principal
 				
@@ -80,6 +87,8 @@ public class BotonBuscar extends MiButton {
 						
 						// Creamos un pool de 4 hilos para cargar alojamientos más rápidamente (si no solo de 1 en 1 => lento)
 						
+						contador = 0;
+						
 						executorBusqueda = Executors.newFixedThreadPool(4);
 						
 						if (!idsAlojamientosEncontrados.get(Apartamento.class).isEmpty() || !idsAlojamientosEncontrados.get(Hotel.class).isEmpty()) {
@@ -90,7 +99,8 @@ public class BotonBuscar extends MiButton {
 								
 								for (Integer id : listaIds) {
 									
-									if (Thread.currentThread().isInterrupted()) {
+									if (!buscando || Thread.currentThread().isInterrupted()) {
+										SwingUtilities.invokeLater(() -> panelAlojamientos.setError(""));
 										pararBusqueda();
 										return;
 									}
@@ -101,7 +111,9 @@ public class BotonBuscar extends MiButton {
 										
 										Alojamiento alojamiento = GestorDB.getAlojamiento(clase, id, false);
 										
-										if (Thread.currentThread().isInterrupted()) {
+										if (!buscando || Thread.currentThread().isInterrupted()) {
+											SwingUtilities.invokeLater(() -> panelAlojamientos.setError(""));
+											pararBusqueda();
 											return;
 										}
 										
@@ -111,11 +123,30 @@ public class BotonBuscar extends MiButton {
 											
 											// Añadimos el panel (y lo recuperamos por medio de la función de PanelResultadosBusqueda para cargarle el resto de imágenes ya que en la función solo estamos cargando una)
 											
+											if (!buscando || Thread.currentThread().isInterrupted()) {
+												SwingUtilities.invokeLater(() -> panelAlojamientos.setError(""));
+												pararBusqueda();
+												return;
+											}
+											
 											PanelAlojamiento panelCreado = PanelResultadosBusqueda.anadirAlojamientoEncontrado(alojamiento, fechaEntrada, fechaSalida, nPersonas);
+											
+											if (!buscando || Thread.currentThread().isInterrupted()) {
+												SwingUtilities.invokeLater(() -> panelAlojamientos.setError(""));
+												pararBusqueda();
+												return;
+											}
 											
 											panelCreado.cargarImagenesRestantes();
 											
-											if (alojamiento.getId() == listaIds.getLast()) panelAlojamientos.setError("");
+											contador++;
+											
+											if (contador >= idsAlojamientosEncontrados.get(Apartamento.class).size() + idsAlojamientosEncontrados.get(Hotel.class).size()) {
+												
+												panelAlojamientos.setError("");
+												setEnabled(true);
+												
+											}
 											
 										});
 										
@@ -124,10 +155,11 @@ public class BotonBuscar extends MiButton {
 								}
 								
 							}
-						
+							
 						} else {
 							
 							panelAlojamientos.setError("No se han encontrado Alojamientos en " + destino.toString());
+							setEnabled(true);
 							
 						}
 						
@@ -153,6 +185,12 @@ public class BotonBuscar extends MiButton {
 						List<List<Viaje>> viajesDisponiblesIda = GestorDB.generarViajes(origen, destino, fechaIda, nPersonas, precioMin, precioMax, tiposViaje);
 						viajesDisponiblesIda.sort(Main.comparadorViajesCompletos);
 						
+						if (!buscando || Thread.currentThread().isInterrupted()) {
+							SwingUtilities.invokeLater(() -> panelViajes.setError(""));
+							pararBusqueda();
+							return;
+						}
+						
 						List<List<Viaje>> viajesDisponiblesVuelta = null;
 						
 						if (tipo.equals("Ida y Vuelta")) {
@@ -170,7 +208,8 @@ public class BotonBuscar extends MiButton {
 							
 							for (List<Viaje> ida : viajesDisponiblesIda) {
 								
-								if (Thread.currentThread().isInterrupted()) {
+								if (!buscando || Thread.currentThread().isInterrupted()) {
+									SwingUtilities.invokeLater(() -> panelViajes.setError(""));
 									pararBusqueda();
 									return;
 								}
@@ -188,14 +227,15 @@ public class BotonBuscar extends MiButton {
 										
 										for (List<Viaje> vuelta : viajesDisponiblesVuelta) {
 											
-											if (Thread.currentThread().isInterrupted()) {
+											if (!buscando || Thread.currentThread().isInterrupted()) {
+												SwingUtilities.invokeLater(() -> panelViajes.setError(""));
 												pararBusqueda();
 												return;
 											}
 											
 											PanelResultadosBusqueda.anadirViajeEncontrado(ida, vuelta, fechaIda, fechaVuelta, nPersonas);
 											contadorMostrar++;
-		
+											
 											if (contadorMostrar > 30 || contadorMostrar % 4 == 0) break;
 											
 										}
@@ -203,6 +243,7 @@ public class BotonBuscar extends MiButton {
 									} else {
 										
 										panelViajes.setError("No se han encontrado viajes de vuelta desde " + destino.toString() + " hasta " + origen.toString());
+										setEnabled(true);
 										break;
 										
 									}
@@ -212,15 +253,17 @@ public class BotonBuscar extends MiButton {
 							} 
 							
 							panelViajes.setError("");
+							setEnabled(true);
 							
 						} else {
 							
 							panelViajes.setError("No se han encontrado viajes de ida desde " + origen.toString() + " hasta " + destino.toString());
+							setEnabled(true);
 							
 						}
 						
 					}
-				
+					
 				});
 				
 				hiloIniciarBusqueda.start();
@@ -234,6 +277,8 @@ public class BotonBuscar extends MiButton {
 	
 	public static void pararBusqueda() {
 		
+		buscando = false;
+		
 		if (hiloIniciarBusqueda != null && hiloIniciarBusqueda.isAlive()) {
 			hiloIniciarBusqueda.interrupt();
 		}
@@ -241,6 +286,8 @@ public class BotonBuscar extends MiButton {
 		if (executorBusqueda != null && !executorBusqueda.isTerminated()) {
 			executorBusqueda.shutdownNow();
 		}
+		
+		SwingUtilities.invokeLater(() -> PanelResultadosBusqueda.borrarBusqueda());
 		
 	}
 	

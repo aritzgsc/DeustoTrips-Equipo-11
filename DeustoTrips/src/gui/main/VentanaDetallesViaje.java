@@ -169,7 +169,7 @@ public class VentanaDetallesViaje extends JFrame {
 			
 			// Logo compañía
 			
-			MiSelectorImagenes logo = new MiSelectorImagenes(Arrays.asList(viaje.getCompania().getLogo()), 50, 50, false, false, true);
+			MiSelectorImagenes logo = new MiSelectorImagenes(Arrays.asList(viaje.getCompania().getLogo()), null, 50, 50, false, false, true);
 			logo.getBotonSeleccionarImagen().setBackground(new Color(0, 0, 0, 0));
 			logo.getBotonSeleccionarImagen().setBorder(null);
 			logo.setBorder(null);

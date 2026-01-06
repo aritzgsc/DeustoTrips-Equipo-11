@@ -16,13 +16,14 @@ import javax.swing.border.EmptyBorder;
 
 import db.GestorDB;
 import domain.Apartamento;
+import domain.Cliente;
 import main.Main;
 
 public class PanelItemChat extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    public PanelItemChat(Apartamento apartamento) {
+    public PanelItemChat(Apartamento apartamento, Cliente cliente) {
         
         // Configuración del panel
     	
@@ -35,7 +36,7 @@ public class PanelItemChat extends JPanel {
         ////
         // Imagenes a la izquierda
         
-        MiSelectorImagenes selectorImg = new MiSelectorImagenes(apartamento.getImagenes(), 140, 140, false, true, false);        
+        MiSelectorImagenes selectorImg = new MiSelectorImagenes(apartamento.getImagenes(), null, 140, 140, false, true, false);        
         add(selectorImg, BorderLayout.WEST);
 
         // FIN Imagenes
@@ -65,7 +66,7 @@ public class PanelItemChat extends JPanel {
         ////
         // Número de mensajes nuevos
         
-        int mensajesSinLeer = GestorDB.getNMensajesNuevos(apartamento);
+        int mensajesSinLeer = GestorDB.getNMensajesNuevos(apartamento, cliente);
 
         if (mensajesSinLeer > 0) {
         	

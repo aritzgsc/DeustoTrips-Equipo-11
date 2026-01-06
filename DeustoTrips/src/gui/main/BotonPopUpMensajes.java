@@ -10,7 +10,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -32,7 +31,7 @@ public class BotonPopUpMensajes extends MiButton {
 
     private static final long serialVersionUID = 1L;
 
-    private int nuevosMensajesTotal = GestorDB.getNMensajesNuevos(null);
+    private int nuevosMensajesTotal = GestorDB.getNMensajesNuevos(null, null);
     public List<ReservaAp> reservas;
     
     public Thread hiloActualizar;
@@ -54,7 +53,7 @@ public class BotonPopUpMensajes extends MiButton {
                 	
                     Thread.sleep(2000);
                     
-                    int check = GestorDB.getNMensajesNuevos(null);
+                    int check = GestorDB.getNMensajesNuevos(null, null);
                     
                     if (check != nuevosMensajesTotal) {
                     	
@@ -63,11 +62,11 @@ public class BotonPopUpMensajes extends MiButton {
                     
                     }
                     
-                    List<ReservaAp> reservasCheck = new ArrayList<ReservaAp>(); // GestorDB.getApartamentosReservados();
+                    List<ReservaAp> reservasCheck = GestorDB.getApartamentosReservados();
                     
                     if (!reservasCheck.equals(reservas)) {
                     	
-//                    	this.reservas = GestorDB.getApartamentosReservados();
+                    	this.reservas = GestorDB.getApartamentosReservados();
                     	revalidate();
                     	repaint();
                     	
@@ -112,7 +111,7 @@ public class BotonPopUpMensajes extends MiButton {
             } else {
             	
                 for (ReservaAp reserva : this.reservas) {
-                    
+                	
                     JPanel chat = new JPanel();
                     chat.setLayout(new BorderLayout());
                     chat.setBackground(Color.WHITE);
@@ -120,7 +119,7 @@ public class BotonPopUpMensajes extends MiButton {
                     
                     // Añadimos el panel personalizado dentro del item
                     
-                    chat.add(new PanelItemChat(reserva.getApartamento()));
+                    chat.add(new PanelItemChat(reserva.getApartamento(), reserva.getCliente()));
                     
                     // Acción al clickar
                     
@@ -147,7 +146,7 @@ public class BotonPopUpMensajes extends MiButton {
                             
                             if (otro != null) {
                             	
-//                                new VentanaChat(yo, otro, apartamento);
+                                new VentanaChat(yo, otro, apartamento);
                                 popupMenu.setVisible(false);
                                 
                             }

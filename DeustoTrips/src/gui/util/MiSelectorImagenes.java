@@ -25,7 +25,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
 import domain.Cliente;
-import gui.main.PanelVolverRegistrarseIniciarSesion;
 import gui.main.VentanaPrincipal;
 import main.Main;
 import main.util.Utilidades;
@@ -43,7 +42,7 @@ public class MiSelectorImagenes extends JPanel {
 	
 	private Thread hiloCarruselImagenes;
 	
-	public MiSelectorImagenes(List<BufferedImage> imagenes, int width, int height, boolean enabled, boolean multiSelect, boolean logo) {
+	public MiSelectorImagenes(List<BufferedImage> imagenes, Cliente cliente /* Solo para logos de usuario */, int width, int height, boolean enabled, boolean multiSelect, boolean logo) {
 
 		this.imagenes = imagenes;
 		
@@ -80,15 +79,12 @@ public class MiSelectorImagenes extends JPanel {
 					
 				SwingUtilities.invokeLater(() -> {
 						
-					Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
-						
 					botonSeleccionarImagen.setText(Character.toString(cliente.getNombre().split(" ")[0].toUpperCase().charAt(0)) + Character.toString(cliente.getApellidos().split(" ")[0].toUpperCase().charAt(0)));
 					botonSeleccionarImagen.setBackground(cliente.getColor());
 					botonSeleccionarImagen.setForeground(Utilidades.getContrastColor(cliente.getColor()));
 					botonSeleccionarImagen.setFont(Main.FUENTE.deriveFont(Font.BOLD, 16f));
 						
 				});
-					
 				
 			} else {
 			
@@ -269,8 +265,6 @@ public class MiSelectorImagenes extends JPanel {
 							botonSeleccionarImagen.setIcon(null);
 							
 							if (logo) {
-								
-								Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
 								
 								botonSeleccionarImagen.setText(Character.toString(cliente.getNombre().split(" ")[0].toUpperCase().charAt(0)) + Character.toString(cliente.getApellidos().split(" ")[0].toUpperCase().charAt(0)));
 								botonSeleccionarImagen.setBackground(cliente.getColor());

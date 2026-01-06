@@ -264,7 +264,7 @@ public class MiSelectorDestino extends JLayeredPane {
 	
 	public void resetAll() {
 		comboBoxDestinos.setSelectedIndex(0);		// Cuando tengamos los datos finales en el primer valor estará algo como "Seleccione un destino"
-		filtro.setText("");
+		if (filtro.isVisible()) filtro.setText("");
 	}
 	
 	// Método para obtener el destino seleccionado

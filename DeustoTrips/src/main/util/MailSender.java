@@ -25,7 +25,7 @@ public class MailSender {
 		Thread hiloEnvioCorreo = new Thread(() -> {
 		
 			String remitente = "deustotrips@gmail.com";			// Credenciales de aplicacion	dirección de correo
-			String password = "yziforbrpjnwnyrp";				// Credenciales de aplicacion	contraseña de aplicacion
+			String password = "tikkiqodxdfuvyvg";				// Credenciales de aplicacion	contraseña de aplicacion
 			
 			String destinatario = correoDestinatario;			// Correo de destinatario
 			

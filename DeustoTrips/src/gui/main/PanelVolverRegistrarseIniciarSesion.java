@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import db.GestorDB;
 import domain.Cliente;
 import gui.util.MiButton;
 
@@ -27,6 +28,8 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 	
 	private static Cliente cliente = null;
 	private static boolean sesionIniciada = false;
+	
+	private static BotonPopUpMensajes botonPopupMensajes;
 	
 	public PanelVolverRegistrarseIniciarSesion() {
 		
@@ -91,9 +94,17 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 			cliente = nuevoCliente;
 			
 			panelDerecha.removeAll();
-			panelDerecha.setLayout(new GridLayout(1, 2, 5, 0));
-			panelDerecha.add(registrarApartamento);
-			panelDerecha.add(new BotonPopUpAccionesPerfil(nuevoCliente));
+			panelDerecha.setLayout(new BorderLayout(5, 0));
+			
+			JPanel panelPerfil = new JPanel(new GridLayout(1, 2, 5, 0));
+			
+			panelPerfil.add(registrarApartamento);
+			panelPerfil.add(new BotonPopUpAccionesPerfil(nuevoCliente));
+			
+			botonPopupMensajes = new BotonPopUpMensajes(GestorDB.getApartamentosReservados());
+			
+			panelDerecha.add(botonPopupMensajes, BorderLayout.WEST);
+			panelDerecha.add(panelPerfil, BorderLayout.CENTER);
 			
 			panelDerecha.revalidate();
 			panelDerecha.repaint();
@@ -110,9 +121,12 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 			
 			sesionIniciada = false;
 			
+			botonPopupMensajes.matarHilo();
+			
 			cliente = null;
 			
 			panelDerecha.removeAll();
+			panelDerecha.setLayout(new GridLayout(1, 2, 5, 0));
 			panelDerecha.add(registrarse);
 			panelDerecha.add(iniciarSesion);
 			
@@ -129,14 +143,22 @@ public class PanelVolverRegistrarseIniciarSesion extends JPanel {
 		return cliente;
 	}
 	
-	public static void setCliente(Cliente cliente) {
+	public static void setCliente(Cliente nuevoCliente) {
 		
-		PanelVolverRegistrarseIniciarSesion.cliente = cliente;
+		cliente = nuevoCliente;
 		
 		panelDerecha.removeAll();
-		panelDerecha.setLayout(new GridLayout(1, 2, 5, 0));
-		panelDerecha.add(registrarApartamento);
-		panelDerecha.add(new BotonPopUpAccionesPerfil(cliente));
+		panelDerecha.setLayout(new BorderLayout(5, 0));
+		
+		JPanel panelPerfil = new JPanel(new GridLayout(1, 2, 5, 0));
+		
+		panelPerfil.add(registrarApartamento);
+		panelPerfil.add(new BotonPopUpAccionesPerfil(nuevoCliente));
+		
+		botonPopupMensajes = new BotonPopUpMensajes(GestorDB.getApartamentosReservados());
+		
+		panelDerecha.add(botonPopupMensajes, BorderLayout.WEST);
+		panelDerecha.add(panelPerfil, BorderLayout.CENTER);
 		
 		panelDerecha.revalidate();
 		panelDerecha.repaint();

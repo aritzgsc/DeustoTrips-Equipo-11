@@ -37,7 +37,7 @@ public class BotonPopUpAccionesPerfil extends MiButton {
 		nombre.setFont(Main.FUENTE);
 		
 		add(nombre);
-		add(new MiSelectorImagenes(new ArrayList<BufferedImage>(Arrays.asList(cliente.getImagen())), 64, 64, false, false, true), BorderLayout.EAST);
+		add(new MiSelectorImagenes(new ArrayList<BufferedImage>(Arrays.asList(cliente.getImagen())), cliente, 64, 64, false, false, true), BorderLayout.EAST);
 		
 		addActionListener((e) -> {
 			
@@ -72,7 +72,7 @@ public class BotonPopUpAccionesPerfil extends MiButton {
 			// Mostramos el popupMenu
 			
 			accionesPerfil.setPopupSize(getWidth(), 160);
-			accionesPerfil.show(this, 0, 50);
+			accionesPerfil.show(this, 0, getHeight());
 			
 		});
 		

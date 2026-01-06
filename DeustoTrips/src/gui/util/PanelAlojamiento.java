@@ -13,6 +13,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -56,7 +57,8 @@ public class PanelAlojamiento extends PanelReserva {
 
 	private MiSelectorImagenes panelImagen;
 	private MiButton resenasB;
-
+	private JLabel nResenasL;
+	
 	private Alojamiento alojamiento;
 	private JLabel notaL;
 	private JProgressBar ratingPB;
@@ -82,7 +84,7 @@ public class PanelAlojamiento extends PanelReserva {
 		////
 		// Creacion del panel de la imágen
 
-		panelImagen = new MiSelectorImagenes(alojamiento.getImagenes(), 300, 300, false, true, false);
+		panelImagen = new MiSelectorImagenes(alojamiento.getImagenes(), null, 300, 300, false, true, false);
 		add(panelImagen, BorderLayout.WEST);
 
 		// Panel central (datos apartamento)
@@ -155,7 +157,7 @@ public class PanelAlojamiento extends PanelReserva {
 
 		// Label numero de reseñas a la derecha de la barra
 
-		JLabel nResenasL = new JLabel(" (" + alojamiento.getResenas().size() + ")");
+		nResenasL = new JLabel(" (" + alojamiento.getResenas().size() + ")");
 		nResenasL.setFont(Main.FUENTE.deriveFont(14f));
 		nResenasL.setForeground(Color.GRAY);
 
@@ -192,6 +194,13 @@ public class PanelAlojamiento extends PanelReserva {
 		panelDerecha.setPreferredSize(new Dimension(300, 0));
 		panelDerecha.setOpaque(false);
 
+		DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yy");
+	    
+	    JLabel fechasL = new JLabel(fechaInicio.format(fmt) + " - " + fechaFin.format(fmt));
+	    fechasL.setAlignmentX(Component.CENTER_ALIGNMENT);
+	    fechasL.setFont(Main.FUENTE.deriveFont(Font.BOLD, 16f));
+	    fechasL.setForeground(new Color(50, 50, 50));
+		
 		// Label Personas y nº de noches
 
 		String perYNoc = "";
@@ -248,7 +257,32 @@ public class PanelAlojamiento extends PanelReserva {
 
 					enviarMensajeReserva(alojamiento, fechaInicio, fechaFin, nPersonas);
 
-					if (alojamiento instanceof Apartamento) enviarMensajeReservaPropietario((Apartamento) alojamiento, fechaInicio, fechaFin, nPersonas);
+					if (alojamiento instanceof Apartamento) {
+						
+						enviarMensajeReservaPropietario((Apartamento) alojamiento, fechaInicio, fechaFin, nPersonas);
+						
+						Cliente clienteActual = PanelVolverRegistrarseIniciarSesion.getCliente();
+						
+						// Texto diseñado por GEMINI
+						
+						String texto = String.format(
+								"¡Hola %s! 👋\n\n" +
+								"Muchas gracias por elegir mi alojamiento '%s'.\n" +
+								"He recibido correctamente tu reserva del %s al %s para %d %s.\n\n" +
+								"Si tienes cualquier duda antes de la llegada o necesitas indicaciones, " +
+								"no dudes en escribirme por aquí. ¡%s espero con ganas!",
+								clienteActual.getNombre(),           	 // 1. Nombre del cliente
+								alojamiento.getNombre(),             	 // 2. Nombre del apartamento
+								fechaInicio.toString(),              	 // 3. Fecha Inicio
+								fechaFin.toString(),                	 // 4. Fecha Fin
+								nPersonas,                           	 // 5. Nº Personas
+								nPersonas == 1? "persona" : "personas",	 // Detalles gramaticales
+								nPersonas == 1? "Te" : "Os"
+							);
+						
+						GestorDB.enviarMensaje(texto, ((Apartamento) alojamiento).getPropietario(), clienteActual, ((Apartamento) alojamiento).getId());
+						
+					}
 					
 					BotonBuscar.pararBusqueda();
 					PanelResultadosBusqueda.borrarBusqueda();
@@ -299,7 +333,29 @@ public class PanelAlojamiento extends PanelReserva {
 
 				if (reservaCanceladaCorrectamente) {
 
-					if (alojamiento instanceof Apartamento) enviarMensajeCancelacionPropietario((Apartamento) alojamiento, fechaInicio, fechaFin, nPersonas);
+					if (alojamiento instanceof Apartamento) {
+						
+						enviarMensajeCancelacionPropietario((Apartamento) alojamiento, fechaInicio, fechaFin, nPersonas);
+						
+						Cliente clienteActual = PanelVolverRegistrarseIniciarSesion.getCliente();
+						
+						// Texto diseñado por GEMINI
+						
+						String textoCancelacion = String.format(
+							    "¡Hola %s! 👋\n\n" +
+							    "Te escribo para informarte de que, lamentablemente, tengo que cancelar mi reserva en '%s'.\n" +
+							    "Las fechas previstas eran del %s al %s.\n\n" +
+							    "Siento mucho las molestias que esto pueda ocasionarte y espero tener la oportunidad de hospedarme allí en otra ocasión.\n" +
+							    "¡Un saludo!",
+							    ((Apartamento) alojamiento).getPropietario().getNombre(),                // 1. Nombre del propietario
+							    alojamiento.getNombre(),               									 // 2. Nombre del alojamiento
+							    fechaInicio.toString(),                									 // 3. Fecha Inicio
+							    fechaFin.toString()                     								 // 4. Fecha Fin
+							);
+						
+						GestorDB.enviarMensaje(textoCancelacion, clienteActual, ((Apartamento) alojamiento).getPropietario(), alojamiento.getId());
+						
+					}
 					
 					Container parent = this.getParent();
 
@@ -407,21 +463,16 @@ public class PanelAlojamiento extends PanelReserva {
 
 				if (idRva != -1 && this.resena == null) {
 
-					Resena resenaFinal = new Resena(-1,
-							cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0],
-							panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
+					Resena resenaFinal = new Resena(-1, cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0], panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
 
 					int idR = GestorDB.guardarNuevaResena(alojamiento.getClass(), idRva, resenaFinal);
 
 					if (idR != -1) {
 
-						alojamiento.getResenas().add(resenaFinal);
+						this.resena = new Resena(idR, cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0], panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());					
+						alojamiento.getResenas().add(this.resena);
 
 					}
-
-					this.resena = new Resena(idR, cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0],
-							panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
-					;
 
 					Container parent = this.getParent();
 
@@ -430,8 +481,7 @@ public class PanelAlojamiento extends PanelReserva {
 						if (c instanceof PanelAlojamiento) {
 							PanelAlojamiento otroPanel = (PanelAlojamiento) c;
 
-							if (otroPanel.alojamiento.getId() == this.alojamiento.getId()
-									&& otroPanel.alojamiento.getClass().equals(this.alojamiento.getClass())) {
+							if (otroPanel.alojamiento.getId() == this.alojamiento.getId() && otroPanel.alojamiento.getClass().equals(this.alojamiento.getClass())) {
 
 								otroPanel.alojamiento = this.alojamiento;
 
@@ -443,15 +493,12 @@ public class PanelAlojamiento extends PanelReserva {
 
 					}
 
-					this.resena = resenaFinal;
 					resenasB.setEnabled(true);
 					actualizarResenas();
 
 				} else {
 
-					Resena resenaFinal = new Resena(this.resena.getId(),
-							cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0],
-							panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
+					Resena resenaFinal = new Resena(this.resena.getId(), cliente.getNombre() + " " + cliente.getApellidos().split(" ")[0], panelSelectorResena.getValor(), resenaTA.getText().trim(), LocalDate.now());
 
 					boolean resenaActualizada = GestorDB.actualizarResena(resenaFinal);
 
@@ -508,13 +555,16 @@ public class PanelAlojamiento extends PanelReserva {
 
 		// Añadimos los componentes de la derecha
 
-		panelDerecha.add(Box.createVerticalStrut(modo == MODO_RESERVAR || (modo == MODO_CANCELAR_O_DEJARRESENA && LocalDate.now().isBefore(fechaFin))? 25: 5));
-		panelDerecha.add(perYNocL);
-		panelDerecha.add(precioL);
-		panelDerecha.add(Box.createVerticalStrut(modo == MODO_RESERVAR || (modo == MODO_CANCELAR_O_DEJARRESENA && LocalDate.now().isBefore(fechaFin))? 30: 15));
-		panelDerecha.add(resenasB);
-		panelDerecha.add(Box.createVerticalStrut(modo == MODO_RESERVAR || (modo == MODO_CANCELAR_O_DEJARRESENA && LocalDate.now().isBefore(fechaFin))? 20: 15));
-
+		panelDerecha.add(Box.createVerticalStrut(modo == MODO_RESERVAR || (modo == MODO_CANCELAR_O_DEJARRESENA && LocalDate.now().isBefore(fechaFin))? 15 : 5));
+	    panelDerecha.add(fechasL);
+	    panelDerecha.add(Box.createVerticalStrut(5));
+	    panelDerecha.add(perYNocL);
+	    panelDerecha.add(Box.createVerticalStrut(5));
+	    panelDerecha.add(precioL);
+	    panelDerecha.add(Box.createVerticalStrut(modo == MODO_RESERVAR || (modo == MODO_CANCELAR_O_DEJARRESENA && LocalDate.now().isBefore(fechaFin))? 20 : 15));
+	    panelDerecha.add(resenasB);
+	    panelDerecha.add(Box.createVerticalStrut(15));
+	    
 		if (modo == MODO_RESERVAR) {
 
 			panelDerecha.add(reservarB);
@@ -544,7 +594,8 @@ public class PanelAlojamiento extends PanelReserva {
 
 		notaL.setText(String.format("%.1f ", notaMedia));
 		ratingPB.setValue((int) (notaMedia * 100));
-
+		nResenasL.setText(" (" + alojamiento.getResenas().size() + ")");
+		
 		revalidate();
 		repaint();
 

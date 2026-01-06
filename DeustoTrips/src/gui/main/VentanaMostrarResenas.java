@@ -48,6 +48,7 @@ public class VentanaMostrarResenas extends JFrame {
 		// Creación del panel principal
 		
 		JScrollPane panelResenas = new JScrollPane();
+		panelResenas.getVerticalScrollBar().setUnitIncrement(16);
 		panelResenas.setBorder(new CompoundBorder(new TitledBorder(Main.DEFAULT_LINE_BORDER, alojamiento.getNombre(), TitledBorder.LEFT, TitledBorder.TOP, Main.FUENTE.deriveFont(Font.BOLD, 16f), Color.BLACK), new EmptyBorder(10, 10, 10, 10)));
 		
 		// Creación del componente que irá dentro del panel principal

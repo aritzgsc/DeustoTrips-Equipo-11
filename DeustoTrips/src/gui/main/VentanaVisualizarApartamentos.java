@@ -113,6 +113,7 @@ public class VentanaVisualizarApartamentos extends JFrame {
 		// ScrollPane donde se mostrará el panel que tiene todos los apartamentos inicialmente
 		
 		JScrollPane scrollPaneApartamentos = new JScrollPane(panelApartamentos);
+		scrollPaneApartamentos.getVerticalScrollBar().setUnitIncrement(16);
 		
 		// FIN ScrollPane
 		////

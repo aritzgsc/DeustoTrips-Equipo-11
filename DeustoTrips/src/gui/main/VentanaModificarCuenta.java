@@ -71,7 +71,7 @@ public class VentanaModificarCuenta extends JFrame {
 		JPanel imagenP = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		imagenP.setBorder(new EmptyBorder(10, 0, 10, 0));
 		
-		MiSelectorImagenes selectorImagen = new MiSelectorImagenes(new ArrayList<BufferedImage>(Arrays.asList(cliente.getImagen())), 100, 100, true, false, true);
+		MiSelectorImagenes selectorImagen = new MiSelectorImagenes(new ArrayList<BufferedImage>(Arrays.asList(cliente.getImagen())), cliente, 100, 100, true, false, true);
 		imagenP.add(selectorImagen);
 		
 		// FIN Panel imagen del usuario

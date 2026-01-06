@@ -87,7 +87,7 @@ public class VentanaRegistrarApartamento extends JFrame {
 				
 		// Panel de la imágen
 			
-		selectorImagenes = new MiSelectorImagenes(new ArrayList<BufferedImage>(), 300, 300, true, true, false);
+		selectorImagenes = new MiSelectorImagenes(new ArrayList<BufferedImage>(), null, 300, 300, true, true, false);
 		
 		// FIN Panel de la imágen
 		////

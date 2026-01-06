@@ -63,13 +63,14 @@ public class VentanaVisualizarReservas extends JFrame {
 		////
 		// ScrollPane donde se mostrará el panel que tiene todos los apartamentos inicialmente
 		
-		JScrollPane scrollPaneApartamentos = new JScrollPane(panelReservas);
+		JScrollPane scrollPaneReservas = new JScrollPane(panelReservas);
+		scrollPaneReservas.getVerticalScrollBar().setUnitIncrement(16);
 		
 		// FIN ScrollPane
 		////
 		// Añadimos los componentes a la ventana
 		
-		add(scrollPaneApartamentos, BorderLayout.CENTER);
+		add(scrollPaneReservas, BorderLayout.CENTER);
 		
 		// Hacemos visible la ventana
 		

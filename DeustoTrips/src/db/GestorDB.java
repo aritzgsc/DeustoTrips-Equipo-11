@@ -34,8 +34,10 @@ import domain.Cliente;
 import domain.Compania;
 import domain.Destino;
 import domain.Hotel;
+import domain.Mensaje;
 import domain.Pais;
 import domain.Resena;
+import domain.ReservaAp;
 import domain.Viaje;
 import domain.Viaje.DiaSemana;
 import domain.Viaje.TipoViaje;
@@ -490,6 +492,66 @@ public class GestorDB {
 
 	// FIN Función para comprobar si un correo está registrado en la BD
 	////
+	// Función para obtener un cliente con su información básica a partir de su correo
+	
+	public static Cliente getCliente(Connection con, String correo) {
+		
+		String sql = """
+					 SELECT NOM_CLI, AP_CLI, COLOR_CLI, IMAGEN_CLI
+					 FROM CLIENTE
+					 WHERE EMAIL_CLI = ?;
+					 """;
+		
+		try (PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			pstmt.setString(1, correo);
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			if (rs.next()) {
+				
+				String nombre = rs.getString("NOM_CLI");
+				String apellidos = rs.getString("AP_CLI");
+				Color color = new Color(rs.getInt("COLOR_CLI"));
+				
+				byte[] imagenBytes = rs.getBytes("IMAGEN_CLI");
+
+				BufferedImage imagen = null;
+				
+				if (imagenBytes != null) {
+					
+					try {
+
+						ByteArrayInputStream bais = new ByteArrayInputStream(imagenBytes);
+
+						imagen = ImageIO.read(bais);
+
+					} catch (IOException e) {
+
+						System.err.println("Error al cargar la imagen del usuario");
+						e.printStackTrace();
+
+					}
+				
+				}
+				
+				return new Cliente(correo, nombre, apellidos, color, imagen);
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al obtener el cliente");
+			e.printStackTrace();
+			
+		}
+		
+		return null;
+		
+	}
+	
+	// FIN Función para obtener un cliente con su información básica a partir de su correo	
+	////
 	// Función para registrar a un nuevo cliente (se comprueba antes de la llamada que no esté el correo en la BD)
 	
 	public static boolean registrarUsuario(Cliente cliente) {
@@ -735,13 +797,16 @@ public class GestorDB {
 											                FROM RESERVA_AP RVA_AP
 											     			WHERE F_INI_RVA <= ? AND
 											     			 	  F_FIN_RVA > ? AND
-											     			 	  RVA_AP.ID_AP = AP.ID_AP) AND
+											     			 	  RVA_AP.ID_AP = AP.ID_AP AND
+											     			 	  CANCELADA = 'NO') AND
 											    CAP_MAX_AP >= ? AND
 											    (PRECIO_NP_AP * ? * ?) BETWEEN ? AND ? AND
 											    ? <= COALESCE((SELECT AVG(ESTRELLAS_R)
 											     	   		   FROM RESENA R, RESERVA_AP RVA_AP
 											     	   		   WHERE R.ID_R = RVA_AP.ID_R AND
-											     	   		 		 RVA_AP.ID_AP = AP.ID_AP), 0);
+											     	   		 		 RVA_AP.ID_AP = AP.ID_AP AND
+											     	   		 		 CANCELADA = 'NO'), 0)
+										  ORDER BY PRECIO_NP_AP ASC;
 										  """;
 
 		// Hoteles que => 1. Estén en el destino seleccionado (si lo seleccionado una ciudad el ID_D igual, si es un país el ID_D del padre (país) igual)
@@ -769,7 +834,8 @@ public class GestorDB {
 									 	  			  WHERE F_INI_RVA <= ? AND
 									 	  			 	    F_FIN_RVA > ? AND
 									 	  			 	    EMAIL_CLI = ? AND
-									 	  			 	    RVA_H.ID_H = H.ID_H);
+									 	  			 	    RVA_H.ID_H = H.ID_H)
+									 ORDER BY PRECIO_NHAB_H
 									 """;
 
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
@@ -1062,7 +1128,8 @@ public class GestorDB {
 						WHERE ID_R IN (SELECT ID_R
 									   FROM RESERVA_AP RVA_AP
 									   WHERE ID_AP = ? AND
-									         CLI.EMAIL_CLI = RVA_AP.EMAIL_CLI);
+									         CLI.EMAIL_CLI = RVA_AP.EMAIL_CLI AND
+									         CANCELADA = 'NO');
 						""";
 
 		} else if (clase.equals(Hotel.class)) {
@@ -1240,7 +1307,7 @@ public class GestorDB {
 		String sqlSelectRvaAP = """
 								SELECT ID_RVA_AP, F_INI_RVA, F_FIN_RVA, N_PER, P_RVA_AP, ID_AP, ID_R
 								FROM RESERVA_AP
-								WHERE EMAIL_CLI = ?;
+								WHERE EMAIL_CLI = ? AND CANCELADA = 'NO';
 								""";
 
 		String sqlSelectRvaH = """
@@ -1345,7 +1412,7 @@ public class GestorDB {
 						FROM RESERVA_AP
 						WHERE F_INI_RVA <= ? AND
 							  F_FIN_RVA > ? AND
-							  ID_AP = ?;
+							  ID_AP = ? AND CANCELADA = 'NO';
 						""";
 
 			sqlInsert = """
@@ -1455,8 +1522,11 @@ public class GestorDB {
 
 		if (alojamiento instanceof Apartamento) {
 
+			// Las reservas de apartamentos no las borramos, les cambiamos el estado (esto lo hacemos para poder seguir leyendo mensajes de reservas canceladas)
+			
 			sqlDelete = """
-						DELETE FROM RESERVA_AP
+						UPDATE RESERVA_AP
+						SET CANCELADA = 'SI'
 						WHERE EMAIL_CLI = ? AND
 							  ID_AP = ? AND
 							  F_INI_RVA = ? AND
@@ -1516,15 +1586,15 @@ public class GestorDB {
 		Map<Apartamento, Double> dineroGenPorApartamento = new HashMap<Apartamento, Double>();
 
 		String sqlSelectApartamentos = """
-									   SELECT AP.*, NOM_CLI, AP_CLI
-									   FROM APARTAMENTO AP, CLIENTE CLI
-									   WHERE AP.EMAIL_CLI = ? AND AP.EMAIL_CLI = CLI.EMAIL_CLI;
+									   SELECT *
+									   FROM APARTAMENTO
+									   WHERE EMAIL_CLI = ?;
 									   """;
 
 		String sqlSelectReservas = """
 								   SELECT P_RVA_AP
 								   FROM RESERVA_AP
-								   WHERE ID_AP = ?;
+								   WHERE ID_AP = ? AND CANCELADA = 'NO';
 								   """;
 
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
@@ -1549,9 +1619,8 @@ public class GestorDB {
 
 				double precioNPA = rsAP.getDouble("PRECIO_NP_AP");
 				int capMaxA = rsAP.getInt("CAP_MAX_AP");
-				Cliente propietarioA = new Cliente(rsAP.getString("EMAIL_CLI"), rsAP.getString("NOM_CLI"), rsAP.getString("AP_CLI"));
 
-				Apartamento apartamento = new Apartamento(idA, nombreA, dirA, ciudadA, descripcionA, resenasA, imagenesA, precioNPA, capMaxA, propietarioA);
+				Apartamento apartamento = new Apartamento(idA, nombreA, dirA, ciudadA, descripcionA, resenasA, imagenesA, precioNPA, capMaxA, cliente);
 
 				// FIN Creacion del apartamento
 
@@ -1785,6 +1854,62 @@ public class GestorDB {
 	
 	// FIN Función para borrar un apartamento
 	////
+	// Función para conseguir los apartamentos reservados por o para el usuario con la sesion iniciada
+	
+	public static List<ReservaAp> getApartamentosReservados() {
+		
+		Cliente cliente = PanelVolverRegistrarseIniciarSesion.getCliente();
+
+		List<ReservaAp> apartamentosReservados = new ArrayList<ReservaAp>();
+
+		String sqlSelectApartamentos = """
+									   SELECT DISTINCT AP.ID_AP, AP.NOM_AP, AP.DIR_AP, AP.DESC_AP, AP.PRECIO_NP_AP, AP.CAP_MAX_AP, AP.EMAIL_CLI AS EMAIL_PROP, AP.ID_D, RVA_AP.EMAIL_CLI
+									   FROM RESERVA_AP RVA_AP, APARTAMENTO AP
+									   WHERE (AP.EMAIL_CLI = ? OR RVA_AP.EMAIL_CLI = ?) AND AP.ID_AP = RVA_AP.ID_AP
+									   ORDER BY RVA_AP.ID_RVA_AP DESC;
+									   """;
+
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmtSelectAp = con.prepareStatement(sqlSelectApartamentos)) {
+
+			pstmtSelectAp.setString(1, cliente.getCorreo().trim());
+			pstmtSelectAp.setString(2, cliente.getCorreo().trim());
+
+			ResultSet rsAP = pstmtSelectAp.executeQuery();
+
+			while (rsAP.next()) {
+
+				int idA = rsAP.getInt("ID_AP");
+				String nombreA = rsAP.getString("NOM_AP");
+				String dirA = rsAP.getString("DIR_AP");
+				Ciudad ciudadA = (Ciudad) Main.destinoPorIndice.get(rsAP.getInt("ID_D"));
+				String descripcionA = rsAP.getString("DESC_AP");
+				List<Resena> resenasA = getResenasAlojamiento(Apartamento.class, idA);
+				List<BufferedImage> imagenesA = getImagenesAlojamiento(Apartamento.class, idA, Integer.MAX_VALUE);
+
+				double precioNPA = rsAP.getDouble("PRECIO_NP_AP");
+				int capMaxA = rsAP.getInt("CAP_MAX_AP");
+				
+				Cliente propietario = getCliente(con, rsAP.getString("EMAIL_PROP"));
+				Cliente clienteRva = getCliente(con, rsAP.getString("EMAIL_CLI"));
+
+				apartamentosReservados.add(new ReservaAp(new Apartamento(idA, nombreA, dirA, ciudadA, descripcionA, resenasA, imagenesA, precioNPA, capMaxA, propietario), clienteRva));
+
+			}
+
+		} catch (SQLException e) {
+
+			System.err.println("Error al cargar los apartamentos");
+			e.printStackTrace();
+
+		}
+
+		return apartamentosReservados;
+
+	}
+	
+	// FIN Función para conseguir los apartamentos reservados por un cliente
+	////
 	// Función para conseguir las fechas de las reservas de un apartamento 
 	
 	public static Map<LocalDate, LocalDate> getFechasReservasApartamento(Apartamento apartamento) {
@@ -1794,7 +1919,7 @@ public class GestorDB {
 		String sql = """
 					 SELECT F_INI_RVA, F_FIN_RVA
 					 FROM RESERVA_AP
-					 WHERE ID_AP = ?;
+					 WHERE ID_AP = ? AND CANCELADA = 'NO';
 					 """;
 
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
@@ -2592,9 +2717,98 @@ public class GestorDB {
 	
 	// FIN Función para cancelar un viaje completo
 	////
+	// Función para enviar mensajes de un emisor a un receptor
+
+	public static void enviarMensaje(String texto, Cliente yo, Cliente otro, int idApartamento) {
+        
+		String sql = """
+        			 INSERT INTO MENSAJE (FYH_MSG, MENSAJE, EMAIL_EMISOR, EMAIL_RECEPTOR, ID_AP) 
+        			 VALUES (?, ?, ?, ?, ?);
+        			 """;
+        
+        try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+             
+            pstmt.setString(1, LocalDateTime.now().toString());
+            pstmt.setString(2, texto);
+            pstmt.setString(3, yo.getCorreo());
+            pstmt.setString(4, otro.getCorreo());
+            pstmt.setInt(5, idApartamento);
+            
+            pstmt.executeUpdate();
+            
+        } catch (SQLException e) {
+        	
+        	System.err.println("Error al enviar el mensaje");
+            e.printStackTrace();
+        
+        }
+    }
+	
+	// FIN Función para enviar mensajes de un emisor a un receptor
+	////
+	// Función para cargar todos los mensajes de un usuario y un apartamento (si lo reserva varias veces será el mismo chat)
+	
+	public static List<Mensaje> cargarChat(Cliente yo, Cliente otro, int idApartamento) {
+        
+		List<Mensaje> chat = new ArrayList<>();
+		
+        // Buscamos mensajes en ambas direcciones asociados a ese apartamento
+		
+        String sql = """
+                     SELECT * 
+                     FROM MENSAJE M 
+                     WHERE ID_AP = ? 
+                     AND (
+                         (EMAIL_EMISOR = ? AND EMAIL_RECEPTOR = ?) 
+                         OR 
+                         (EMAIL_EMISOR = ? AND EMAIL_RECEPTOR = ?)
+                     )
+                     ORDER BY FYH_MSG ASC;
+                     """;
+        
+        String sqlUpdate = """
+        				   UPDATE MENSAJE
+        				   SET LEIDO = 'SI'
+        				   WHERE ID_AP = ? AND EMAIL_EMISOR = ? AND EMAIL_RECEPTOR = ?;
+        				   """;
+        
+        try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+             PreparedStatement pstmt = con.prepareStatement(sql);
+        	 PreparedStatement pstmtUpdate = con.prepareStatement(sqlUpdate)) {
+            
+            pstmt.setInt(1, idApartamento);
+            pstmt.setString(2, yo.getCorreo());
+            pstmt.setString(3, otro.getCorreo());
+            pstmt.setString(4, otro.getCorreo());
+            pstmt.setString(5, yo.getCorreo());
+            
+            ResultSet rs = pstmt.executeQuery();
+            
+            while(rs.next()) {
+                chat.add(new Mensaje( rs.getInt("ID_MSG"), LocalDateTime.parse(rs.getString("FYH_MSG")), rs.getString("MENSAJE"), getCliente(con, rs.getString("EMAIL_EMISOR")), getCliente(con, rs.getString("EMAIL_RECEPTOR")), rs.getInt("ID_AP"), rs.getString("LEIDO").equals("SI")));
+            }
+            
+            pstmtUpdate.setInt(1, idApartamento);
+            pstmtUpdate.setString(2, otro.getCorreo());
+            pstmtUpdate.setString(3, yo.getCorreo());
+            
+            pstmtUpdate.executeUpdate();
+            
+        } catch (SQLException e) {
+        	
+        	System.err.println("Error al cargar el chat");
+            e.printStackTrace();
+        
+        }
+        return chat;
+    }
+	
+	// FIN Función para cargar todos los mensajes de un usuario y un apartamento (si lo reserva varias veces será el mismo chat)
+	////
 	// Función que devuelve el número de mensajes nuevos para el usuario con la sesión iniciada y un apartamento (si el apartamento es null se devuelven todos los mensajes nuevos al correo)
 	
-	public static int getNMensajesNuevos(Apartamento apartamento) {
+	public static int getNMensajesNuevos(Apartamento apartamento, Cliente cliente) {
 		
 		int nMensajesNuevos = 0;
 		
@@ -2606,13 +2820,27 @@ public class GestorDB {
 		
 		if (apartamento != null) sql += " AND ID_AP = ?";
 		
+		if (cliente != null) sql += " AND EMAIL_EMISOR = ?";
+		
 		if (PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo() == null) return nMensajesNuevos;
 		
 		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 			
-			pstmt.setString(1, PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo());
-			if (apartamento != null) pstmt.setInt(2, apartamento.getId());
+			int siguienteParam = 1;
+			
+			pstmt.setString(siguienteParam, PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo());
+			siguienteParam++;
+			
+			if (apartamento != null) {
+				pstmt.setInt(siguienteParam, apartamento.getId());
+				siguienteParam++;
+			}
+			
+			if (cliente != null) {
+				pstmt.setString(3, cliente.getCorreo());
+				siguienteParam++;
+			}
 			
 			ResultSet rs = pstmt.executeQuery();
 			
@@ -2634,5 +2862,50 @@ public class GestorDB {
 	}
 	
 	// FIN Función que devuelve el número de mensajes nuevos para el usuario con la sesión iniciada y un apartamento (si el apartamento es null se devuelven todos los mensajes nuevos al correo)
-
+	////
+	// Función que devuelve el número de mensajes total de una conversación
+	
+	public static int getNMensajes(Apartamento apartamento, Cliente cliente) {
+		
+		int nMensajes = 0;
+		
+		String sql = """
+	                 SELECT COUNT(*) 
+	                 FROM MENSAJE M 
+	                 WHERE ID_AP = ? 
+	                 AND (
+	                     (EMAIL_EMISOR = ? AND EMAIL_RECEPTOR = ?) 
+	                     OR 
+	                     (EMAIL_EMISOR = ? AND EMAIL_RECEPTOR = ?)
+	                 )
+	                 """;
+		
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+			 PreparedStatement pstmt = con.prepareStatement(sql)) {
+			
+			pstmt.setInt(1, apartamento.getId());
+			pstmt.setString(2, apartamento.getPropietario().getCorreo());
+			pstmt.setString(3, cliente.getCorreo());
+			pstmt.setString(4, cliente.getCorreo());
+			pstmt.setString(5, apartamento.getPropietario().getCorreo());
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			if (rs.next()) {
+				
+				nMensajes = rs.getInt(1);
+				
+			}
+			
+		} catch (SQLException e) {
+			
+			System.err.println("Error al conseguir el número de mensajes no leidos");
+			e.printStackTrace();
+			
+		}
+		
+		return nMensajes;
+		
+	}
+	
 }

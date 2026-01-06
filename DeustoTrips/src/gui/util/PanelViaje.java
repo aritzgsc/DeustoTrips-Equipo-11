@@ -21,10 +21,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -112,7 +111,7 @@ public class PanelViaje extends PanelReserva {
 		
 		for (int i = 0 ; i < companiasViaje.size() ; i++) {
 			
-		    MiSelectorImagenes logo = new MiSelectorImagenes(Arrays.asList(companiasViaje.get(i).getLogo()), tamanoFinal, tamanoFinal, false, false, true);
+		    MiSelectorImagenes logo = new MiSelectorImagenes(Arrays.asList(companiasViaje.get(i).getLogo()), null, tamanoFinal, tamanoFinal, false, false, true);
 		    logo.setToolTipText(companiasViaje.get(i).getNombre());
 		    logo.getBotonSeleccionarImagen().setBackground(new Color(0, 0, 0, 0));
 		    logo.getBotonSeleccionarImagen().setBorder(null);
@@ -241,8 +240,9 @@ public class PanelViaje extends PanelReserva {
 		
 		panelIconos.setBorder(new EmptyBorder(12, 0, 0, 0));
 		
-		Set<TipoViaje> tiposUnicos = new HashSet<>();
-		for (Viaje viaje : viajesIda) tiposUnicos.add(viaje.getTipoViaje());
+		List<TipoViaje> tiposUnicos = new ArrayList<TipoViaje>();
+	    
+	    for (Viaje viaje : viajesIda) if (!tiposUnicos.contains(viaje.getTipoViaje())) tiposUnicos.add(viaje.getTipoViaje());
 		
 		for (TipoViaje tipo : tiposUnicos) {
 			
@@ -259,7 +259,7 @@ public class PanelViaje extends PanelReserva {
 			
 			}
 			
-			MiSelectorImagenes iconoP = new MiSelectorImagenes(Arrays.asList(icono), 30, 30, false, false, true);
+			MiSelectorImagenes iconoP = new MiSelectorImagenes(Arrays.asList(icono), null, 30, 30, false, false, true);
 			iconoP.getBotonSeleccionarImagen().setBackground(new Color(0, 0, 0, 0));
 			iconoP.getBotonSeleccionarImagen().setBorder(null);
 			iconoP.setBorder(null);
@@ -549,7 +549,7 @@ public class PanelViaje extends PanelReserva {
 	    
 	    for (int i = 0 ; i < companiasIda.size() ; i++) {
 	    	
-	        MiSelectorImagenes logo = new MiSelectorImagenes(Arrays.asList(companiasIda.get(i).getLogo()), tamanoFinalIda, tamanoFinalIda, false, false, true);
+	        MiSelectorImagenes logo = new MiSelectorImagenes(Arrays.asList(companiasIda.get(i).getLogo()), null, tamanoFinalIda, tamanoFinalIda, false, false, true);
 	        logo.setToolTipText(companiasIda.get(i).getNombre());
 	        logo.getBotonSeleccionarImagen().setBackground(new Color(0, 0, 0, 0));
 	        logo.getBotonSeleccionarImagen().setBorder(null);
@@ -602,7 +602,7 @@ public class PanelViaje extends PanelReserva {
 	    
 	    for (int i = 0 ; i < companiasVuelta.size() ; i++) {
 	    	
-	        MiSelectorImagenes logo = new MiSelectorImagenes(Arrays.asList(companiasVuelta.get(i).getLogo()), tamanoFinalVuelta, tamanoFinalVuelta, false, false, true);
+	        MiSelectorImagenes logo = new MiSelectorImagenes(Arrays.asList(companiasVuelta.get(i).getLogo()), null, tamanoFinalVuelta, tamanoFinalVuelta, false, false, true);
 	        logo.setToolTipText(companiasVuelta.get(i).getNombre());
 	        logo.getBotonSeleccionarImagen().setBackground(new Color(0, 0, 0, 0));
 	        logo.getBotonSeleccionarImagen().setBorder(null);
@@ -712,13 +712,15 @@ public class PanelViaje extends PanelReserva {
 	    };
 	    panelIconosIda.setBorder(new EmptyBorder(12, 0, 0, 0));
 	    
-	    Set<TipoViaje> tiposUnicosIda = new HashSet<>();
-	    for (Viaje viaje : viajesIda) tiposUnicosIda.add(viaje.getTipoViaje());
+	    List<TipoViaje> tiposUnicosIda = new ArrayList<TipoViaje>();
+	    
+	    for (Viaje viaje : viajesVuelta) if (!tiposUnicosIda.contains(viaje.getTipoViaje())) tiposUnicosIda.add(viaje.getTipoViaje());
+	    
 	    for (TipoViaje tipo : tiposUnicosIda) {
 	        BufferedImage icono = null;
 	        try { icono = ImageIO.read(new File("resources/images/" + tipo.toString().toLowerCase() + ".png")); } 
 	        catch (IOException e) { e.printStackTrace(); }
-	        MiSelectorImagenes iconoP = new MiSelectorImagenes(Arrays.asList(icono), 30, 30, false, false, true);
+	        MiSelectorImagenes iconoP = new MiSelectorImagenes(Arrays.asList(icono), null, 30, 30, false, false, true);
 	        iconoP.getBotonSeleccionarImagen().setBackground(new Color(0, 0, 0, 0));
 	        iconoP.getBotonSeleccionarImagen().setBorder(null);
 	        iconoP.setBorder(null);
@@ -851,16 +853,16 @@ public class PanelViaje extends PanelReserva {
 	    };
 	    panelIconosVuelta.setBorder(new EmptyBorder(12, 0, 0, 0));
 	    
-	    Set<TipoViaje> tiposUnicosVuelta = new HashSet<>();
+	    List<TipoViaje> tiposUnicosVuelta = new ArrayList<TipoViaje>();
 	    
-	    for (Viaje viaje : viajesVuelta) tiposUnicosVuelta.add(viaje.getTipoViaje());
+	    for (Viaje viaje : viajesVuelta) if (!tiposUnicosVuelta.contains(viaje.getTipoViaje())) tiposUnicosVuelta.add(viaje.getTipoViaje());
 	    
 	    for (TipoViaje tipo : tiposUnicosVuelta) {
 	    	
 	        BufferedImage icono = null;
 	        try { icono = ImageIO.read(new File("resources/images/" + tipo.toString().toLowerCase() + ".png")); } 
 	        catch (IOException e) { e.printStackTrace(); }
-	        MiSelectorImagenes iconoP = new MiSelectorImagenes(Arrays.asList(icono), 30, 30, false, false, true);
+	        MiSelectorImagenes iconoP = new MiSelectorImagenes(Arrays.asList(icono), null, 30, 30, false, false, true);
 	        iconoP.getBotonSeleccionarImagen().setBackground(new Color(0, 0, 0, 0));
 	        iconoP.getBotonSeleccionarImagen().setBorder(null);
 	        iconoP.setBorder(null);
