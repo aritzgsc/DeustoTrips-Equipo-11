@@ -32,10 +32,7 @@ Para probar la aplicación, no necesitas compilar el código fuente si solo dese
 ### 📥 Descarga Directa
 Puedes descargar la última versión ejecutable desde el siguiente enlace:
 
-[👉 **DESCARGAR VERSIÓN DISTRIBUIBLE**](https://drive.google.com/file/d/1XAcGvfn-SjO00nYYj5vNn-Udtbgm74KV/view?usp=sharing)
-
-### Requisitos
-* Sistema Operativo: Windows 10/11
+[👉 **DESCARGAR VERSIÓN DISTRIBUIBLE**](https://drive.google.com/file/d/1olVuRNSQZIydysX0jzh72R_PgnW76LU_/view?usp=sharing)
 
 ---
 
