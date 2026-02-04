@@ -54,9 +54,16 @@ import main.util.Utilidades;
 
 public class GestorDB {
 
-	private static final String SQLITE_FILE = "resources/db/DBDeustoTrips.db";									// Nombre del archivo (Descargar archivo completo en https://drive.google.com/file/d/1kU5LFCCHnHNaajWIucd9xlAuA4OPNjuV/view?usp=sharing)
-	private static final String CONNECTION_STRING = "jdbc:sqlite:" + SQLITE_FILE + "?journal_mode=WAL";			// Ponemos lo último para que la BD no se bloquee cuando se está leyendo algo (sin esto no podríamos buscar y registrarnos a la vez por ejemplo)
-
+	// Configuración de conexión para MariaDB
+    private static final String HOST = "192.168.123.250";
+    private static final String PORT = "3306";
+    private static final String DB_NAME = "deustotrips";
+    private static final String USER = "cliente";
+    private static final String PASS = "DeustoTripsDB2026_Public";
+    
+    // Cadena de conexión de MariaDB
+    private static final String CONNECTION_STRING = "jdbc:mariadb://" + HOST + ":" + PORT + "/" + DB_NAME;
+    
 	private static final int ID_TD_PAIS = 1;
 	private static final int ID_TD_CIUDAD = 2;
 	private static final int ID_TD_AEROPUERTO = 3;
@@ -101,7 +108,7 @@ public class GestorDB {
 									  TD.NOM_TD = 'Aeropuerto';
 									  """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmtPaises = con.prepareStatement(sqlSelectPaises);
 			 PreparedStatement pstmtCiudades = con.prepareStatement(sqlSelectCiudades);
 			 PreparedStatement pstmtAeropuertos = con.prepareStatement(sqlSelectAeropuertos)) {
@@ -240,7 +247,7 @@ public class GestorDB {
 					 WHERE D.ISO_CODE = ID.ISO_CODE AND ID_D = ?;
 					 """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
 			pstmt.setInt(1, idDestino);
@@ -330,7 +337,7 @@ public class GestorDB {
 						 WHERE (ID_TD = 0 OR ID_TD = 1) AND D.ISO_CODE = ID.ISO_CODE AND D.ISO_CODE = ?;
 						 """;
 		
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sqlPais)) {
 			
 			pstmt.setString(1, isoCode);
@@ -388,7 +395,7 @@ public class GestorDB {
 					 WHERE ID_TD = 2 AND ISO_CODE = ?;
 					 """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmtCiudades = con.prepareStatement(sql)) {
 
 			// Recuperamos el país al que pertenecerán todas las ciudades posteriormente
@@ -464,7 +471,7 @@ public class GestorDB {
 					 WHERE EMAIL_CLI = ?;
 					 """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
 			pstmt.setString(1, correoElectronico.trim());
@@ -549,7 +556,7 @@ public class GestorDB {
 		return null;
 		
 	}
-	
+
 	// FIN Función para obtener un cliente con su información básica a partir de su correo	
 	////
 	// Función para registrar a un nuevo cliente (se comprueba antes de la llamada que no esté el correo en la BD)
@@ -564,7 +571,7 @@ public class GestorDB {
 					 VALUES (?, ?, ?, ?, ?);
 					 """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
 			pstmt.setString(1, cliente.getCorreo().trim());
@@ -608,7 +615,7 @@ public class GestorDB {
 					 WHERE EMAIL_CLI = ?
 					 """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
 			byte[] imagenBytes = null;
@@ -673,7 +680,7 @@ public class GestorDB {
 					 WHERE EMAIL_CLI = ?;
 					 """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
 			pstmt.setString(1, PasswordSecurity.hashPassword(nuevaContrasena.trim()));
@@ -714,7 +721,7 @@ public class GestorDB {
 					 WHERE EMAIL_CLI = ?
 					 """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
 			pstmt.setString(1, correoElectronico.trim());
@@ -838,7 +845,7 @@ public class GestorDB {
 									 ORDER BY PRECIO_NHAB_H
 									 """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmtApartamentos = con.prepareStatement(sqlSelectIdsApartamentos);
 			 PreparedStatement pstmtHoteles = con.prepareStatement(sqlSelectIdsHoteles);) {
 
@@ -932,7 +939,7 @@ public class GestorDB {
 
 		}
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sqlSelect)) {
 
 			pstmt.setInt(1, idAlojamiento);
@@ -999,7 +1006,7 @@ public class GestorDB {
 
 		}
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sqlSelect)) {
 
 			pstmt.setInt(1, idAlojamiento);
@@ -1068,7 +1075,7 @@ public class GestorDB {
 
 		}
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sqlSelect)) {
 			
 			pstmt.setInt(1, idAlojamiento);
@@ -1145,7 +1152,7 @@ public class GestorDB {
 
 		}
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sqlSelect)) {
 
 			pstmt.setInt(1, idAlojamiento);
@@ -1204,7 +1211,7 @@ public class GestorDB {
 
 		}
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmtInsert = con.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS);
 			 PreparedStatement pstmtUpdate = con.prepareStatement(sqlUpdate)) {
 
@@ -1268,7 +1275,7 @@ public class GestorDB {
 						   WHERE ID_R = ?;
 						   """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sqlUpdate)) {
 
 			pstmt.setDouble(1, resena.getEstrellas());
@@ -1322,7 +1329,7 @@ public class GestorDB {
 								 WHERE ID_R = ?;
 								 """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmtSelectRvaAP = con.prepareStatement(sqlSelectRvaAP);
 			 PreparedStatement pstmtSelectRvaH = con.prepareStatement(sqlSelectRvaH);
 			 PreparedStatement pstmtSelectResena = con.prepareStatement(sqlSelectResena)) {
@@ -1439,7 +1446,7 @@ public class GestorDB {
 
 		}
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmtSelect = con.prepareStatement(sqlSelect);
 			 PreparedStatement pstmtInsert = con.prepareStatement(sqlInsert);
 			 PreparedStatement pstmtComp = con.prepareStatement(sqlComprobacionHoteles)) {
@@ -1501,7 +1508,7 @@ public class GestorDB {
 
 		} catch (SQLException e) {
 
-			System.err.println("Error al reservar el hotel");
+			System.err.println("Error al reservar el alojamiento");
 			e.printStackTrace();
 
 		}
@@ -1547,7 +1554,7 @@ public class GestorDB {
 
 		}
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING + "&foreign_keys=on");
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sqlDelete)) {
 
 			pstmt.setString(1, PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo().trim());
@@ -1597,7 +1604,7 @@ public class GestorDB {
 								   WHERE ID_AP = ? AND CANCELADA = 'NO';
 								   """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmtSelectAp = con.prepareStatement(sqlSelectApartamentos);
 			 PreparedStatement pstmtSelectRvas = con.prepareStatement(sqlSelectReservas)) {
 
@@ -1673,7 +1680,7 @@ public class GestorDB {
 							  VALUES (?, ?);
 							  """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmtInsertAp = con.prepareStatement(sqlInsertAp, Statement.RETURN_GENERATED_KEYS);
 			 PreparedStatement pstmtInsertImg = con.prepareStatement(sqlInsertImg)) {
 
@@ -1757,7 +1764,7 @@ public class GestorDB {
 						   VALUES (?, ?);
 						   """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING + "&foreign_keys=on");
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmtUpdate = con.prepareStatement(sqlUpdate);
 			 PreparedStatement pstmtDelete = con.prepareStatement(sqlDelete);
 			 PreparedStatement pstmtInsert = con.prepareStatement(sqlInsert)) {
@@ -1828,7 +1835,7 @@ public class GestorDB {
 					 WHERE ID_AP = ?
 					 """;
 		
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING + "&foreign_keys=on");
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 			
 			pstmt.setInt(1, idAp);
@@ -1869,7 +1876,7 @@ public class GestorDB {
 									   ORDER BY RVA_AP.ID_RVA_AP DESC;
 									   """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmtSelectAp = con.prepareStatement(sqlSelectApartamentos)) {
 
 			pstmtSelectAp.setString(1, cliente.getCorreo().trim());
@@ -1922,7 +1929,7 @@ public class GestorDB {
 					 WHERE ID_AP = ? AND CANCELADA = 'NO';
 					 """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 
 			pstmt.setInt(1, apartamento.getId());
@@ -1962,7 +1969,7 @@ public class GestorDB {
 					 FROM COMPANIA;
 					 """;
 		
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 			
 			ResultSet rs = pstmt.executeQuery();
@@ -2155,18 +2162,14 @@ public class GestorDB {
 			    // (Hay que tener en cuenta que esto se pondrá tantas veces como profundidad le pasemos a la funcion)
 			    
 			    sql += "SELECT 1 FROM VIAJE " + aliasActual + " " +
-			       	   "INNER JOIN TIPO_VIAJE " + aliasTvActual + " ON " + aliasActual + ".ID_TV = " + aliasTvActual + ".ID_TV " +
-			           "INNER JOIN COMPANIA " + aliasCActual + " ON " + aliasActual + ".ID_COMP = " + aliasCActual + ".ID_COMP " +
-			           "WHERE " + aliasActual + ".ID_D_ORIG = " + aliasAnterior + ".ID_D_DEST AND " +												// Que el origen sea el mismo que el destino anterior
-			           aliasActual + ".ID_DS IN (" + aliasAnterior + ".ID_DS, ((" + aliasAnterior + ".ID_DS % 7) + 1)) AND " +						// Que el día de la semana sea el mismo o el siguiente a la consulta anterior 
-			           "(" + aliasActual + ".ID_DS != " + aliasAnterior + ".ID_DS OR " +															// O que el día de la semana sea distinto que el anterior (hay tiempo suficiente de escala) O (mirar abajo)
-			           aliasActual + ".HORA_V >= time(" + aliasAnterior + ".HORA_V, '+' || (" +														// O que la hora del viaje actual sea mayor que la del viaje anterior + tiempo de escala (1 hora)
-			           
-			           // Tema de horas propuesto por GEMINI (Y como hacer la suma de horas en SQLite también lo hemos sacado de ahí)
-			           
-			           "(" + aliasAnterior + ".PRECIO_P_V / (" + aliasTvAnt + ".VEL_TV * " + aliasCAnt + ".FACTOR_PRECIO * " +  aliasTvAnt + ".P_KM_TV)) + " + tiempoEscala + ") || ' hours')) " +			// Se realiza un cálculo sencillo para obtener la duración aproximada en horas del viaje anterior (teniendo en cuenta que al cargar los datos el precio se calcula (con un factor de desviación de +-20%) como distancia * precioBaseKmTV * factorPrecioComp)
-			    
-					   "AND (" + aliasActual + ".ID_D_DEST IN (" + idDDestParams + ")";																// Y como antes que el destino sea o el destino final o sus aeropuertos
+		               "INNER JOIN TIPO_VIAJE " + aliasTvActual + " ON " + aliasActual + ".ID_TV = " + aliasTvActual + ".ID_TV " +
+		               "INNER JOIN COMPANIA " + aliasCActual + " ON " + aliasActual + ".ID_COMP = " + aliasCActual + ".ID_COMP " +
+		               "WHERE " + aliasActual + ".ID_D_ORIG = " + aliasAnterior + ".ID_D_DEST AND " +
+		               aliasActual + ".ID_DS IN (" + aliasAnterior + ".ID_DS, ((" + aliasAnterior + ".ID_DS % 7) + 1)) AND " +
+		               "(" + aliasActual + ".ID_DS != " + aliasAnterior + ".ID_DS OR " +
+		               aliasActual + ".HORA_V >= ADDTIME(" + aliasAnterior + ".HORA_V, SEC_TO_TIME(((" + 
+		               aliasAnterior + ".PRECIO_P_V / (" + aliasTvAnt + ".VEL_TV * " + aliasCAnt + ".FACTOR_PRECIO * " + aliasTvAnt + ".P_KM_TV)) + " + tiempoEscala + ") * 3600))) " +
+		               "AND (" + aliasActual + ".ID_D_DEST IN (" + idDDestParams + ")";
 				
 				if (i < profundidadComprobExists - 1) {
 			        
@@ -2312,7 +2315,7 @@ public class GestorDB {
 		
 		double distanciaTotal = Utilidades.calcularDistancia(origen, destino);
 		
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING)) {
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS)) {
 			
 			// Generamos todos los viajes con un máximo de 2 escalas porque si no la función tarda mucho, aunque en teoría (con tiempo infinito) debería poder soportar todos los viajes posibles
 			// Aunque con 3 escalas es más que suficiente para llenar la lista de 20 mejores viajes que se muestra (mirar BotonBuscar y para mirar el comparador utilizado para ordenar esa lista mirar Main)
@@ -2338,13 +2341,13 @@ public class GestorDB {
 		
 		List<List<Viaje>> viajesCompletosPosibles = new ArrayList<List<Viaje>>();		
 
-		List<Viaje> viajesPosiblesOrigen = getViajes(con, origen, destinoFinal, fechaMin, fechaMax, horaMinima, horaMaxima, nPersonas, tiposViaje, maxNumViajes - viajeCompleto.size() - 1);
-		
 		if ((origen.equals(destinoFinal) || (destinoFinal instanceof Aeropuerto && origen instanceof Ciudad && tieneAeropuertos((Ciudad) origen) && Main.aeropuertosPorIndiceCiudad.get(origen.getId()).contains(destinoFinal)) || (origen instanceof Aeropuerto && destinoFinal instanceof Ciudad && tieneAeropuertos((Ciudad) destinoFinal) && Main.aeropuertosPorIndiceCiudad.get(destinoFinal.getId()).contains(origen))) && Viaje.calcularPrecioTotal(viajeCompleto, nPersonas) >= precioMin) {
 			
 			viajesCompletosPosibles.add(new ArrayList<>(viajeCompleto));
 			
 		} else {
+			
+			List<Viaje> viajesPosiblesOrigen = getViajes(con, origen, destinoFinal, fechaMin, fechaMax, horaMinima, horaMaxima, nPersonas, tiposViaje, maxNumViajes - viajeCompleto.size() - 1);
 			
 			if (viajeCompleto.size() >= maxNumViajes) return new ArrayList<List<Viaje>>();
 			
@@ -2402,7 +2405,7 @@ public class GestorDB {
 					 VALUES (?, ?, ?, ?)
 					 """;
 		
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			
 			con.setAutoCommit(false);
@@ -2462,7 +2465,7 @@ public class GestorDB {
 					 VALUES (?, ?, ?, ?, ?)
 					 """;
 		
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			
 			con.setAutoCommit(false);
@@ -2602,7 +2605,7 @@ public class GestorDB {
 						    """;
 		
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmtSelectIdRvaVin = con.prepareStatement(sqlSelectIdRvaVin);
 			 PreparedStatement pstmtSelectV = con.prepareStatement(sqlSelectV)) {
 
@@ -2691,7 +2694,7 @@ public class GestorDB {
 					 WHERE ID_RVA_VIN = ?
 					 """;
 
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING + "&foreign_keys=on");
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 			
 			pstmt.setInt(1, idRvaVin);
@@ -2726,7 +2729,7 @@ public class GestorDB {
         			 VALUES (?, ?, ?, ?, ?);
         			 """;
         
-        try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+        try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
              PreparedStatement pstmt = con.prepareStatement(sql)) {
              
             pstmt.setString(1, LocalDateTime.now().toString());
@@ -2773,7 +2776,7 @@ public class GestorDB {
         				   WHERE ID_AP = ? AND EMAIL_EMISOR = ? AND EMAIL_RECEPTOR = ?;
         				   """;
         
-        try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+        try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
              PreparedStatement pstmt = con.prepareStatement(sql);
         	 PreparedStatement pstmtUpdate = con.prepareStatement(sqlUpdate)) {
             
@@ -2824,7 +2827,7 @@ public class GestorDB {
 		
 		if (PanelVolverRegistrarseIniciarSesion.getCliente().getCorreo() == null) return nMensajesNuevos;
 		
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 			
 			int siguienteParam = 1;
@@ -2880,7 +2883,7 @@ public class GestorDB {
 	                 )
 	                 """;
 		
-		try (Connection con = DriverManager.getConnection(CONNECTION_STRING);
+		try (Connection con = DriverManager.getConnection(CONNECTION_STRING, USER, PASS);
 			 PreparedStatement pstmt = con.prepareStatement(sql)) {
 			
 			pstmt.setInt(1, apartamento.getId());
