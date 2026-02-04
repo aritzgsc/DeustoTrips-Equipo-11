@@ -1,15 +1,17 @@
 # ✈️ DeustoTrips
 
-> Gestión de reservas de alojamientos y viajes.
+> Gestión profesional de reservas de alojamientos y viajes.
 
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Swing](https://img.shields.io/badge/GUI-Swing-orange?style=for-the-badge)
-![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
+![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
 ![Status](https://img.shields.io/badge/Estado-Finalizado-success?style=for-the-badge)
 
 ## 📖 Descripción
 
-**DeustoTrips** es una aplicación de escritorio diseñada para facilitar la gestión y reserva de alojamientos y viajes. Desarrollada en **Java** utilizando **Swing** para una interfaz gráfica intuitiva, el sistema se apoya en una base de datos **SQLite** local para garantizar la persistencia de datos de manera ligera y eficiente.
+**DeustoTrips** es una aplicación de escritorio diseñada para facilitar la gestión y reserva de alojamientos y viajes. Desarrollada en **Java** utilizando **Swing** para una interfaz gráfica intuitiva, el sistema ha evolucionado hacia una **arquitectura Cliente-Servidor**.
+
+La aplicación se conecta a un servidor remoto **MariaDB** optimizado, permitiendo la gestión centralizada de datos, concurrencia de usuarios y manejo eficiente de recursos multimedia (imágenes) en tiempo real.
 
 Este proyecto fue desarrollado como parte de la asignatura de Programación III por el **Equipo 11**.
 
@@ -17,22 +19,27 @@ Este proyecto fue desarrollado como parte de la asignatura de Programación III 
 
 ## ✨ Características Principales
 
-* **Búsqueda de Alojamientos:** Filtrado por ubicación, precio, valoración y disponibilidad.
-* **Búsqueda de Viajes:** Filtrado por origen y destino, precio, tipo de viaje y disponibilidad.
-* **Interfaz Gráfica:** UI sencilla pero elegante construida con Java Swing.
-* **Base de Datos Local:** Implementación completa con SQLite (sin necesidad de servidor externo actualmente).
-* **Carga de Datos:** Sistema automatizado de llenado de BD mediante `src/db/LoaderDB.java`.
+* **Arquitectura Cliente-Servidor:** Conexión remota optimizada con MariaDB, sustituyendo la antigua persistencia local.
+* **Búsqueda Avanzada:** Filtrado inteligente de Viajes y Alojamientos por múltiples criterios (precio, ubicación, disponibilidad, etc.).
+* **Optimización de Rendimiento:** Índices SQL y gestión de memoria ajustados para una navegación fluida incluso con grandes volúmenes de datos.
+* **Interfaz Gráfica:** UI completa en Java Swing con carga dinámica de recursos visuales.
+* **Gestión de Usuarios:** Sistema preparado para la concurrencia de múltiples clientes.
 
 ---
 
 ## 🚀 Instalación y Ejecución
 
-Para probar la aplicación, no necesitas compilar el código fuente si solo deseas ejecutarla.
+Para utilizar la aplicación, no necesitas configurar el entorno de desarrollo.
 
-### 📥 Descarga Directa
-Puedes descargar la última versión ejecutable desde el siguiente enlace:
+### 📥 Descarga y Ejecución
+1.  Ve a la sección de **Releases** (a la derecha) o usa el enlace de abajo.
+2.  Descarga el archivo `.zip` de la última versión.
+3.  **Importante:** Descomprime el archivo completamente (necesitas la carpeta `resources` junto al ejecutable).
+4.  Sigue los pasos del `README.txt` que encontrarás ahí dentro.
 
-[👉 **DESCARGAR VERSIÓN DISTRIBUIBLE**](https://drive.google.com/file/d/1RiuAwYJoPgtMM-VYT-UUTuUYsxgp-Sds/view?usp=sharing)
+*(Nota: No ejecutar el .jar directamente, usar el script `.bat` para asegurar la carga correcta de recursos y memoria).*
+
+[👉 **DESCARGAR ÚLTIMA VERSIÓN (GITHUB RELEASES)**](https://github.com/aritzgsc/DeustoTrips-Equipo-11/releases/latest)
 
 ---
 
@@ -49,13 +56,14 @@ El desarrollo de DeustoTrips ha seguido una metodología estructurada en varias 
 
 ---
 
-## 🔮 Futuras Mejoras
+## 🔮 Estado del Proyecto y Mejoras
 
-Aunque la versión actual es funcional en local, se han identificado las siguientes áreas de mejora para futuras versiones:
+El proyecto ha alcanzado su versión 1.0 estable.
 
-* [ ] **Migración a Servidor:** Montar la Base de Datos en un servidor remoto (MySQL o PostgreSQL) para permitir la concurrencia real entre usuarios desde diferentes equipos.
-* [ ] **Sistema de Login:** Mejorar la seguridad y roles de usuario.
-* [ ] **Sistema de Pago:** Simulación de pagos dentro de la app.
+* [x] **Migración a Servidor:** Implementación exitosa de base de datos remota MariaDB.
+* [x] **Optimización de Consultas:** Reducción de carga de CPU mediante índices y pool de conexiones.
+* [ ] **Sistema de Pagos Real:** Integración con pasarela de pagos (actualmente simulado).
+* [ ] **Versión Web/Móvil:** Futura expansión a otras plataformas.
 
 ---
 
